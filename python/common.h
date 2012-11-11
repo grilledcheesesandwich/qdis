@@ -299,7 +299,7 @@ static DisStatus disassemble(Disassembler *dis, uint8_t *inst, size_t size, uint
     fillSymbols(ctx, result->syms);
     int argc = fillOpcodes(ctx, result->ops, result->args);
     assert(argc == result->num_args);
-    tcg_dump_ops(ctx);
+    //tcg_dump_ops(ctx);
 
     return DIS_OK;
 }

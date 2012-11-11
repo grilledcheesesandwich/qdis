@@ -1,0 +1,10 @@
+qdis
+Instruction decoding library based on qemu
+Python wrapper
+
+Building:
+
+$ python build.py
+$ make
+
+Creates a libdis.so

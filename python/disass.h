@@ -211,7 +211,7 @@ typedef enum
 {
     DIS_ARG_GLOBAL = 0x1, // global offset
     DIS_ARG_TEMP = 0x2,  // temp symbol id
-    DIS_ARG_ENVPTR = 0x4,  // "env" pointer
+    //DIS_ARG_ENVPTR = 0x4,  // "env" pointer
     DIS_ARG_COND = 0x8,   // condition code (DisConditionCode)
     DIS_ARG_DUMMY = 0x10,  // dummy argument (for alignment)
     DIS_ARG_CALLFLAGS = 0x40, // DisCallFlags
