@@ -79,6 +79,7 @@ while offset < len(inst):
         op = data.ops[idx]
         if op.opcode in [disass.DIS_OP_END,disass.DIS_OP_NOP,disass.DIS_OP_NOP1,
                 disass.DIS_OP_NOP2,disass.DIS_OP_NOP3,disass.DIS_OP_NOPN]:
+            argptr += op.args
             continue # skip "end" instruction, it is not interesting
         op_str = lookup_name(disass.DIS_INFO_OP, op.opcode)
         args = []
