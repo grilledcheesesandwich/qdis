@@ -9,7 +9,7 @@ PKGCONFIG='pkg-config'
 CC='gcc'
 LD='ld'
 OBJCOPY='objcopy'
-CFLAGS=['-Wall','-Wextra','-Wformat','-Wformat-security','-g','-O']
+CFLAGS=['-Wall','-Wextra','-Wformat','-Wformat-security','-g','-O','-fPIC']
 LDFLAGS=['-g','-O']
 
 QEMUROOT='..'

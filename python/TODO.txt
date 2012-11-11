@@ -11,7 +11,7 @@ we have to work around it
 
   Need to store globals as "offset into env" everywhere
 
-    movi_i32 pc,$0x1004
+    movi_i32 pc,$0x1004  ->
     st_i64 tmp4,env,$0x80
 
 - Generate normal make file

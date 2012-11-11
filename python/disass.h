@@ -149,7 +149,7 @@ typedef enum
 
 typedef struct Disassembler_ Disassembler;
 
-enum {
+typedef enum {
     DIS_OPTIMIZE_NONE = 0x0,
     DIS_OPTIMIZE_LIVENESS = 0x1,
     DIS_OPTIMIZE_GENERAL = 0x2,
@@ -214,8 +214,8 @@ typedef enum
     DIS_ARG_ENVPTR = 0x4,  // "env" pointer
     DIS_ARG_COND = 0x8,   // condition code (DisConditionCode)
     DIS_ARG_DUMMY = 0x10,  // dummy argument (for alignment)
-    DIS_ARG_CALLFLAGS = 0x40,
-    DIS_ARG_CALLTARGET = 0x80,
+    DIS_ARG_CALLFLAGS = 0x40, // DisCallFlags
+    DIS_ARG_CALLTARGET = 0x80, // Target of call instruction
     DIS_ARG_INPUT = 0x100,  // Input argument
     DIS_ARG_OUTPUT = 0x200, // Output argument
     DIS_ARG_CONSTANT = 0x400 // Constant (immediate) argument
@@ -398,14 +398,17 @@ typedef enum {
     DIS_INFO_STATE_SIZE = 774,  // environment size
 } DisInfoType;
 
-/* call flags */
-/* Helper does not read globals (either directly or through an exception). It
-   implies TCG_CALL_NO_WRITE_GLOBALS. */
-#define DIS_CALL_NO_READ_GLOBALS    0x0010
-/* Helper does not write globals */
-#define DIS_CALL_NO_WRITE_GLOBALS   0x0020
-/* Helper can be safely suppressed if the return value is not used. */
-#define DIS_CALL_NO_SIDE_EFFECTS    0x0040
+/* Call flags */
+typedef enum
+{
+    /* Helper does not read globals (either directly or through an exception). It
+       implies TCG_CALL_NO_WRITE_GLOBALS. */
+    DIS_CALL_NO_READ_GLOBALS  = 0x0010,
+    /* Helper does not write globals */
+    DIS_CALL_NO_WRITE_GLOBALS = 0x0020,
+    /* Helper can be safely suppressed if the return value is not used. */
+    DIS_CALL_NO_SIDE_EFFECTS  = 0x0040
+} DisCallFlags;
 
 /* features is a list of features, terminated with DIS_FEATURE_END.
  * If NULL, enable as many features as possible (without conflicts).

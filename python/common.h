@@ -411,5 +411,7 @@ Disassembler *glue(TARGET,_create)(DisCPUFeature *feat)
     rv->lookupName = lookupName;
     rv->lookupValue = lookupValue;
     // TODO: Build list of globals / offsets into env
+    // "state map" would make it possible to request the name and size of globals by offset, iso by ordinal
+    // also add in eip for x86
     return rv;
 }
