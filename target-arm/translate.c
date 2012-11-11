@@ -6205,7 +6205,9 @@ static int disas_coproc_insn(CPUARMState * env, DisasContext *s, uint32_t insn)
 {
     int cpnum, is64, crn, crm, opc1, opc2, isread, rt, rt2;
     const ARMCPRegInfo *ri;
+#ifndef TCG_PYTHON
     ARMCPU *cpu = arm_env_get_cpu(env);
+#endif
 
     cpnum = (insn >> 8) & 0xf;
     if (arm_feature(env, ARM_FEATURE_XSCALE)
@@ -6228,7 +6230,7 @@ static int disas_coproc_insn(CPUARMState * env, DisasContext *s, uint32_t insn)
     default:
         break;
     }
-
+#ifndef TCG_PYTHON
     /* Otherwise treat as a generic register access */
     is64 = (insn & (1 << 25)) == 0;
     if (!is64 && ((insn & (1 << 4)) == 0)) {
@@ -6250,7 +6252,6 @@ static int disas_coproc_insn(CPUARMState * env, DisasContext *s, uint32_t insn)
     }
     isread = (insn >> 20) & 1;
     rt = (insn >> 12) & 0xf;
-
     ri = get_arm_cp_reginfo(cpu,
                             ENCODE_CP_REG(cpnum, is64, crn, crm, opc1, opc2));
     if (ri) {
@@ -6373,7 +6374,7 @@ static int disas_coproc_insn(CPUARMState * env, DisasContext *s, uint32_t insn)
         }
         return 0;
     }
-
+#endif
     return 1;
 }
 
@@ -9886,7 +9887,7 @@ static inline void gen_intermediate_code_internal(CPUARMState *env,
              !singlestep &&
              dc->pc < next_page_start &&
              num_insns < max_insns);
-
+#ifndef TCG_PYTHON
     if (tb->cflags & CF_LAST_IO) {
         if (dc->condjmp) {
             /* FIXME:  This can theoretically happen with self-modifying
@@ -9895,7 +9896,7 @@ static inline void gen_intermediate_code_internal(CPUARMState *env,
         }
         gen_io_end();
     }
-
+#endif
     /* At this stage dc->condjmp will only be set when the skipped
        instruction was a conditional branch or trap, and the PC has
        already been written.  */
@@ -9993,7 +9994,7 @@ void gen_intermediate_code_pc(CPUARMState *env, TranslationBlock *tb)
 {
     gen_intermediate_code_internal(env, tb, 1);
 }
-
+#ifndef TCG_PYTHON
 static const char *cpu_mode_names[16] = {
   "usr", "fiq", "irq", "svc", "???", "???", "???", "abt",
   "???", "???", "???", "und", "???", "???", "???", "sys"
@@ -10040,7 +10041,7 @@ void cpu_dump_state(CPUARMState *env, FILE *f, fprintf_function cpu_fprintf,
         cpu_fprintf(f, "FPSCR: %08x\n", (int)env->vfp.xregs[ARM_VFP_FPSCR]);
     }
 }
-
+#endif
 void restore_state_to_opc(CPUARMState *env, TranslationBlock *tb, int pc_pos)
 {
     env->regs[15] = gen_opc_pc[pc_pos];

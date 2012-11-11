@@ -71,7 +71,7 @@ static void patch_reloc(uint8_t *code_ptr, int type,
 static void tcg_register_jit_int(void *buf, size_t size,
                                  void *debug_frame, size_t debug_frame_size)
     __attribute__((unused));
-
+#ifndef TCG_PYTHON
 /* Forward declarations for functions declared and used in tcg-target.c. */
 static int target_parse_constraint(TCGArgConstraint *ct, const char **pct_str);
 static void tcg_out_ld(TCGContext *s, TCGType type, TCGReg ret, TCGReg arg1,
@@ -85,6 +85,7 @@ static void tcg_out_st(TCGContext *s, TCGType type, TCGReg arg, TCGReg arg1,
                        tcg_target_long arg2);
 static int tcg_target_const_match(tcg_target_long val,
                                   const TCGArgConstraint *arg_ct);
+#endif
 
 TCGOpDef tcg_op_defs[] = {
 #define DEF(s, oargs, iargs, cargs, flags) { #s, oargs, iargs, cargs, iargs + oargs + cargs, flags },
@@ -95,6 +96,8 @@ const size_t tcg_op_defs_max = ARRAY_SIZE(tcg_op_defs);
 
 static TCGRegSet tcg_target_available_regs[2];
 static TCGRegSet tcg_target_call_clobber_regs;
+
+#ifndef TCG_PYTHON
 
 static inline void tcg_out8(TCGContext *s, uint8_t v)
 {
@@ -155,6 +158,7 @@ static void tcg_out_label(TCGContext *s, int label_index, void *ptr)
     l->has_value = 1;
     l->u.value = value;
 }
+#endif
 
 int gen_new_label(void)
 {
@@ -235,7 +239,7 @@ void tcg_context_init(TCGContext *s)
 
     memset(s, 0, sizeof(*s));
     s->nb_globals = 0;
-    
+#ifndef TCG_PYTHON
     /* Count total number of arguments and allocate the corresponding
        space */
     total_args = 0;
@@ -256,10 +260,12 @@ void tcg_context_init(TCGContext *s)
         sorted_args += n;
         args_ct += n;
     }
-    
+#endif
+
     tcg_target_init(s);
 }
 
+#ifndef TCG_PYTHON
 void tcg_prologue_init(TCGContext *s)
 {
     /* init global prologue and epilogue */
@@ -269,6 +275,7 @@ void tcg_prologue_init(TCGContext *s)
     flush_icache_range((tcg_target_ulong)s->code_buf,
                        (tcg_target_ulong)s->code_ptr);
 }
+#endif
 
 void tcg_set_frame(TCGContext *s, int reg,
                    tcg_target_long start, tcg_target_long size)
@@ -835,7 +842,11 @@ static int helper_cmp(const void *p1, const void *p2)
 }
 
 /* find helper definition (Note: A hash table would be better) */
+#ifndef TCG_PYTHON
 static TCGHelperInfo *tcg_find_helper(TCGContext *s, tcg_target_ulong val)
+#else
+TCGHelperInfo *tcg_find_helper(TCGContext *s, tcg_target_ulong val)
+#endif
 {
     int m, m_min, m_max;
     TCGHelperInfo *th;
@@ -865,7 +876,11 @@ static TCGHelperInfo *tcg_find_helper(TCGContext *s, tcg_target_ulong val)
     return NULL;
 }
 
+#ifndef TCG_PYTHON
 static const char * const cond_name[] =
+#else
+const char * const cond_name[] =
+#endif
 {
     [TCG_COND_NEVER] = "never",
     [TCG_COND_ALWAYS] = "always",
@@ -1069,7 +1084,7 @@ static void sort_constraints(TCGOpDef *def, int start, int n)
         }
     }
 }
-
+#ifndef TCG_PYTHON
 void tcg_add_target_add_op_defs(const TCGTargetOpDef *tdefs)
 {
     TCGOpcode op;
@@ -1172,6 +1187,7 @@ void tcg_add_target_add_op_defs(const TCGTargetOpDef *tdefs)
     }
 #endif
 }
+#endif
 
 #ifdef USE_LIVENESS_ANALYSIS
 
@@ -1215,7 +1231,11 @@ static inline void tcg_la_bb_end(TCGContext *s, uint8_t *dead_temps,
 /* Liveness analysis : update the opc_dead_args array to tell if a
    given input arguments is dead. Instructions updating dead
    temporaries are removed. */
+#ifdef TCG_PYTHON
+void tcg_liveness_analysis(TCGContext *s) /* externally invoked */
+#else
 static void tcg_liveness_analysis(TCGContext *s)
+#endif
 {
     int i, op_index, nb_args, nb_iargs, nb_oargs, arg, nb_ops;
     TCGOpcode op;
@@ -1453,6 +1473,8 @@ static void tcg_liveness_analysis(TCGContext *s)
     memset(s->op_sync_args, 0, nb_ops * sizeof(uint8_t));
 }
 #endif
+
+#ifndef TCG_PYTHON
 
 #ifndef NDEBUG
 static void dump_regs(TCGContext *s)
@@ -2359,6 +2381,8 @@ int tcg_gen_code_search_pc(TCGContext *s, uint8_t *gen_code_buf, long offset)
 {
     return tcg_gen_code_common(s, gen_code_buf, offset);
 }
+
+#endif
 
 #ifdef CONFIG_PROFILER
 void tcg_dump_info(FILE *f, fprintf_function cpu_fprintf)

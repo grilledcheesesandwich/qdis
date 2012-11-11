@@ -17,8 +17,11 @@
 
 #ifndef DEF_HELPER_H
 #define DEF_HELPER_H 1
-
+#ifdef TCG_PYTHON
+#define HELPER(name) #name
+#else
 #define HELPER(name) glue(helper_, name)
+#endif
 
 #define GET_TCGV_i32 GET_TCGV_I32
 #define GET_TCGV_i64 GET_TCGV_I64
@@ -134,6 +137,7 @@
 
 #ifndef GEN_HELPER
 /* Function prototypes.  */
+#ifndef TCG_PYTHON
 
 #define DEF_HELPER_FLAGS_0(name, flags, ret) \
 dh_ctype(ret) HELPER(name) (void);
@@ -154,7 +158,16 @@ dh_ctype(ret) HELPER(name) (dh_ctype(t1), dh_ctype(t2), dh_ctype(t3), \
 #define DEF_HELPER_FLAGS_5(name, flags, ret, t1, t2, t3, t4, t5) \
 dh_ctype(ret) HELPER(name) (dh_ctype(t1), dh_ctype(t2), dh_ctype(t3), \
                             dh_ctype(t4), dh_ctype(t5));
+#else
 
+#define DEF_HELPER_FLAGS_0(name, flags, ret)
+#define DEF_HELPER_FLAGS_1(name, flags, ret, t1)
+#define DEF_HELPER_FLAGS_2(name, flags, ret, t1, t2)
+#define DEF_HELPER_FLAGS_3(name, flags, ret, t1, t2, t3)
+#define DEF_HELPER_FLAGS_4(name, flags, ret, t1, t2, t3, t4)
+#define DEF_HELPER_FLAGS_5(name, flags, ret, t1, t2, t3, t4, t5)
+
+#endif /* TCG_PYTHON */
 #undef GEN_HELPER
 #define GEN_HELPER -1
 

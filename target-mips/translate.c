@@ -15763,8 +15763,11 @@ void cpu_dump_state (CPUMIPSState *env, FILE *f, fprintf_function cpu_fprintf,
     cpu_mips_check_sign_extensions(env, f, cpu_fprintf, flags);
 #endif
 }
-
+#ifndef TCG_PYTHON
 static void mips_tcg_init(void)
+#else
+void mips_tcg_init(void)
+#endif
 {
     int i;
     static int inited;
@@ -15822,8 +15825,8 @@ static void mips_tcg_init(void)
     inited = 1;
 }
 
+#ifndef TCG_PYTHON
 #include "translate_init.c"
-
 MIPSCPU *cpu_mips_init(const char *cpu_model)
 {
     MIPSCPU *cpu;
@@ -15973,6 +15976,7 @@ void cpu_state_reset(CPUMIPSState *env)
     compute_hflags(env);
     env->exception_index = EXCP_NONE;
 }
+#endif
 
 void restore_state_to_opc(CPUMIPSState *env, TranslationBlock *tb, int pc_pos)
 {

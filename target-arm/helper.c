@@ -329,8 +329,10 @@ static int pmintenclr_write(CPUARMState *env, const ARMCPRegInfo *ri,
 static int ccsidr_read(CPUARMState *env, const ARMCPRegInfo *ri,
                        uint64_t *value)
 {
+#ifndef TCG_PYTHON
     ARMCPU *cpu = arm_env_get_cpu(env);
     *value = cpu->ccsidr[env->cp15.c0_cssel];
+#endif
     return 0;
 }
 

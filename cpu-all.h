@@ -241,8 +241,14 @@ extern unsigned long reserved_va;
 #define stfl_raw(p, v) stfl_p(saddr((p)), v)
 #define stfq_raw(p, v) stfq_p(saddr((p)), v)
 
-
-#if defined(CONFIG_USER_ONLY)
+#if defined(TCG_PYTHON)
+uint8_t cpu_ldub_code(CPUArchState *arch, target_ulong addr);
+int8_t cpu_ldsb_code(CPUArchState *arch, target_ulong addr);
+uint16_t cpu_lduw_code(CPUArchState *arch, target_ulong addr);
+int16_t cpu_ldsw_code(CPUArchState *arch, target_ulong addr);
+uint32_t cpu_ldl_code(CPUArchState *arch, target_ulong addr);
+uint64_t cpu_ldq_code(CPUArchState *arch, target_ulong addr);
+#elif defined(CONFIG_USER_ONLY)
 
 /* if user mode, no other memory access functions */
 #define ldub(p) ldub_raw(p)

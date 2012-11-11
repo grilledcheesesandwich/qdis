@@ -1,0 +1,116 @@
+Note: qemu is an emulator, not a semantic disassembler
+this means that the microcode instructions are aimed at fast and efficient emulation,
+and not so much understanding the underlying code.
+(on the other hand, "understanding" for a CPU means being able to emulate in the first place)
+one concrete example is the handling of conditions / flags
+we have to work around it
+
+- Holy shit: on x86, PC is not a global
+  EIP is stored as simply mem[env+0x80]
+     st_i64 tmp4,env,$0x80
+
+  Need to store globals as "offset into env" everywhere
+
+    movi_i32 pc,$0x1004
+    st_i64 tmp4,env,$0x80
+
+- Generate normal make file
+
+- Use ELF hwcap flags for CPU features, this is possible for at least
+    ARM : ARM_HWCAP_*
+    SPARC : HWCAP_SPARC_*
+    unicore: UC32_hwcap
+    HWCAP_I386_
+  (see elfload.c)
+  where can I find all these?
+
+- Thread safety: add global lock?
+
+- Try to combine changes for TCG_PYTHON into one include file as much as possible
+
+- Keep the interface platform independent
+- Allow getting some info about the target cpu from the interface:
+  register names
+  PC register
+  SP register
+  calling convention? (probably not available within qemu)
+
+- Use the official way of instantiating CPUs?
+  Might bring a lot of unneeded code, but on the other hand automates feature setting for a model
+  And would also add support for non-standard coprocessors
+  Currently have to copy a lot of code from cpu.c
+
+- generic interface:
+  list of token, value pairs -> CPU feature flags
+  list of token, value pairs -> TB flags / options
+
+- helpers, in LLVM?   s2e has these somewhere
+  built in s2e/tools/lib/X86Translator/X86BitcodeLibrary
+
+  lazy evaluation of flags in x86
+    // this cc_op stuff is pretty crazy for x86
+    // in that evaluation of flags is "lazy"
+    // this makes sense for emulation, but makes our life harder
+    // due to single stepping we will always generate CC_OP_DYNAMIC, which
+    // causes a helper function call to be generated (compute_eflags_c)
+    // when the condition is used.
+    //
+    // so eventually it makes sense to support generating a whole block at a time
+    // to allow for static inference of these flags
+    //
+    // on the other hand these calls may make decompilation easier
+    //
+    // we'd really like to have the helpers source in some intermediate language too!
+
+- dump globals
+
+  seems that temps[] holds the globals as well as the locals/temps
+  temps[i] where i < nb_globals is a global
+  TCGTemp structure
+    has a name and many other properties
+- dump ops (tcg_op_defs)
+
+- target dependent defines:
+  TARGET_LONG_BITS      Client word size. This is different for arm, i386, ...
+  TCG_TARGET_REG_BITS   Target word size (must be identical to pointer size of host machine).
+
+  Does this mean we have to build tcg twice? one for 32 bits, once for 64 bits. Or just keep it with
+  the target-specific objects, this may be easier; but how to prevent symbol collisions?
+
+- merge target-specific sources into one object with controlled interface
+  - internal global state
+  - make one global TCG context and CPU state and keep it at that
+  - thread safety: need a lock
+  - access to the produced data (context, generated tcg code) is not dependent on the target word size
+  - each target has its own TCG context and Arch state
+
+- tcg: there is no way to free the context again, even though memory is allocated for it
+   labels and temps are limited, though (TCG_MAX_TEMPS / TCG_MAX_LABELS)
+   TCGArgContraints
+ these are not platform specific, but per TCG op (and only used for code generation / register allocation, which we don't do)
+   Removed this allocation for TCG_PYTHON
+ helpers is also dynamically allocated
+ best to make one context and keep it at that
+
+- iargs input args   register / global / local
+  oargs output args  register / global / local
+  what are cargs?  constant args (implicit)
+
+- force TCG_TARGET_REG_BITS to 64; for analysis it makes no sense to make anything depend on the host arch register size
+======================================================================================
+Done:
+- softfloat.c: why do we need this? just for defines?
+
+- ops numbers are the same for 32/64 bit (luckily)
+  define ops in external interface (and for python)
+
+- Support multiple platforms in one module
+  Allow disassembling x86 as well as ARM as well as MIPS/sparc/ppc etc
+  By linking the various translate.c's and CPU definitions
+
+  Disassembler(platform)    (and endian? and sub-platform options such as arm/thumb mode, platform specific info; may be have a constructor per platform? )
+  disassembler(buffer, pc)
+
+  Just give a PC and buffer with the native instruction and it returns a list of TCG instructions for
+  that instruction (without the nops).
+  (or maybe also add option to process a whole block at once?)

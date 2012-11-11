@@ -9408,6 +9408,7 @@ GEN_SPEOP_LDST(evstwwo, 0x1E, 2),
 };
 
 #include "helper_regs.h"
+#ifndef TCG_PYTHON
 #include "translate_init.c"
 
 /*****************************************************************************/
@@ -9609,6 +9610,7 @@ void cpu_dump_statistics (CPUPPCState *env, FILE*f, fprintf_function cpu_fprintf
 #endif
 }
 
+#endif
 /*****************************************************************************/
 static inline void gen_intermediate_code_internal(CPUPPCState *env,
                                                   TranslationBlock *tb,
