@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-/* instruction decoder -- external interface */
+/* qemu instruction decoder -- external interface */
 // Return status values
 typedef enum
 {
@@ -86,19 +86,19 @@ typedef enum
 /* XXX need a more standarized way that doesn't rely on qemu internals as much? */
 /* arm */
 #define DIS_INST_ARM_THUMB_SHIFT      0
-#define DIS_INST_ARM_THUMB_MASK       (1 << DIS_INST_ARM__THUMB_SHIFT)
+#define DIS_INST_ARM_THUMB_MASK       (1 << DIS_INST_ARM_THUMB_SHIFT)
 #define DIS_INST_ARM_VECLEN_SHIFT     1
-#define DIS_INST_ARM_VECLEN_MASK      (0x7 << DIS_INST_ARM__VECLEN_SHIFT)
+#define DIS_INST_ARM_VECLEN_MASK      (0x7 << DIS_INST_ARM_VECLEN_SHIFT)
 #define DIS_INST_ARM_VECSTRIDE_SHIFT  4
-#define DIS_INST_ARM_VECSTRIDE_MASK   (0x3 << DIS_INST_ARM__VECSTRIDE_SHIFT)
+#define DIS_INST_ARM_VECSTRIDE_MASK   (0x3 << DIS_INST_ARM_VECSTRIDE_SHIFT)
 #define DIS_INST_ARM_PRIV_SHIFT       6
-#define DIS_INST_ARM_PRIV_MASK        (1 << DIS_INST_ARM__PRIV_SHIFT)
+#define DIS_INST_ARM_PRIV_MASK        (1 << DIS_INST_ARM_PRIV_SHIFT)
 #define DIS_INST_ARM_VFPEN_SHIFT      7
-#define DIS_INST_ARM_VFPEN_MASK       (1 << DIS_INST_ARM__VFPEN_SHIFT)
+#define DIS_INST_ARM_VFPEN_MASK       (1 << DIS_INST_ARM_VFPEN_SHIFT)
 #define DIS_INST_ARM_CONDEXEC_SHIFT   8
-#define DIS_INST_ARM_CONDEXEC_MASK    (0xff << DIS_INST_ARM__CONDEXEC_SHIFT)
+#define DIS_INST_ARM_CONDEXEC_MASK    (0xff << DIS_INST_ARM_CONDEXEC_SHIFT)
 #define DIS_INST_ARM_BSWAP_CODE_SHIFT 16
-#define DIS_INST_ARM_BSWAP_CODE_MASK  (1 << DIS_INST_ARM__BSWAP_CODE_SHIFT)
+#define DIS_INST_ARM_BSWAP_CODE_MASK  (1 << DIS_INST_ARM_BSWAP_CODE_SHIFT)
 
 /* x86 */
 #define DIS_INST_X86_CPL_SHIFT         0
