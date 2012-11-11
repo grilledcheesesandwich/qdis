@@ -1,23 +1,42 @@
 # Try code translator from python
-from ctypes import c_ubyte, create_string_buffer, cast, POINTER
+from ctypes import c_ubyte, create_string_buffer, cast, POINTER, byref
 import disass
+
+STYLE_ADDR = '\033[1;33m'
+STYLE_RESET = '\033[0m'
 
 dis = disass.dis_Create(disass.DIS_TGT_ARM, None)
 
-inst = create_string_buffer('\x3c\xc0\x81\xe5')
-pc = 0x1000
-flags = 0
-optimize = disass.DIS_OPTIMIZE_FULL
 
+# Buffer to store microcode instructions
 OutbufferType = c_ubyte * disass.DIS_BUFFER_SIZE
-
-outbuffer = OutbufferType()
 
 def lookup_name(infotype, x):
     return disass.dis_LookupName(dis, infotype, x)
 
-result = disass.dis_Disassemble(dis, inst, len(inst), pc, flags, optimize, outbuffer, len(outbuffer))
+outbuffer = OutbufferType()
+
+f = open('test.so', 'rb')
+base = 0x142e8
+f.seek(0x142e8)
+instructions = f.read(4096)
+
+inst = create_string_buffer(instructions, len(instructions))
+offset = 0
+pc = base
+
+while offset < len(inst):
+    print ((STYLE_ADDR+'%08x'+STYLE_RESET+':') % (pc+offset))
+    flags = 0
+    optimize = disass.DIS_OPTIMIZE_FULL
+    if offset >= len(inst):
+        raise IndexError('Out of bounds access')
+    result = disass.dis_Disassemble(dis, byref(inst,offset), len(inst)-offset, pc + offset, flags, optimize, outbuffer, len(outbuffer))
+    offset += 4
+
 if result != disass.DIS_OK:
+    if result == disass.DIS_ERR_OUT_OF_BOUNDS_ACCESS:
+        raise IndexError('Out of bounds access')
     raise Exception('Disassembly error %i' % result)
 
 data = cast(outbuffer, POINTER(disass.DisResult)).contents

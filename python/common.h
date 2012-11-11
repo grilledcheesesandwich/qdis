@@ -278,7 +278,6 @@ static DisStatus disassemble(Disassembler *dis, uint8_t *inst, size_t size, uint
     /* allocation */
     struct OutBuf out = {.ptr = outbuf, .end = outbuf + outsize};
     DisResult *result = outbufAlloc(&out, sizeof(DisResult));
-    printf("result %p outbuf=%p\n", result, outbuf);
     if(result == NULL)
         return DIS_ERR_BUFFER_TOO_SMALL;
     /*   opcodes */

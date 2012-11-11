@@ -70,7 +70,6 @@ static CPUArchState *init_target(DisCPUFeature *features)
     set_feature(env, ARM_FEATURE_NEON);
     set_feature(env, ARM_FEATURE_THUMB2EE);
     set_features(env);
-    printf("Features: %016x\n", env->features);
     return env;
 }
 
