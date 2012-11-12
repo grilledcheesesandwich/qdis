@@ -14,6 +14,8 @@ we have to work around it
     movi_i32 pc,$0x1004  ->
     st_i64 tmp4,env,$0x80
 
+  How to parse (target specific) CPUArchState structure into list of offsets/field names?
+
 - Generate normal make file
 
 - Use ELF hwcap flags for CPU features, this is possible for at least
