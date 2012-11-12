@@ -382,6 +382,7 @@ typedef enum {
     /* Strings: General */
     DIS_INFO_OP = 1,      // opcode name
     DIS_INFO_COND = 2,    // condition code name
+    DIS_INFO_CALLFLAG = 3,// call flag name (DisCallFlags)
     /* Values: General */
     DIS_INFO_NUM_OPS = 256,
     /* Strings: CPU arch specific */

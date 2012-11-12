@@ -6,5 +6,6 @@ Building:
 
 $ python build.py
 $ make
+$ bash gen_python_binding.sh
 
 Creates a libdis.so

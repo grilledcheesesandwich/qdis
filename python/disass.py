@@ -834,8 +834,6 @@ DIS_ARG_GLOBAL = 1 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
 
 DIS_ARG_TEMP = 2 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
 
-DIS_ARG_ENVPTR = 4 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
-
 DIS_ARG_COND = 8 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
 
 DIS_ARG_DUMMY = 16 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
@@ -1146,59 +1144,61 @@ struct_anon_32._fields_ = [
 
 DisResult = struct_anon_32 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 379
 
-enum_anon_33 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+enum_anon_33 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_OP = 1 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_OP = 1 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_COND = 2 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_COND = 2 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_NUM_OPS = 256 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_CALLFLAG = 3 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_HELPER = 513 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_NUM_OPS = 256 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_HELPER_BY_ADDR = 514 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_HELPER = 513 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_GLOBAL = 515 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_HELPER_BY_ADDR = 514 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_PC_OFFSET = 768 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_GLOBAL = 515 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_SP_OFFSET = 769 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_PC_OFFSET = 768 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_NUM_HELPERS = 770 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_SP_OFFSET = 769 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_NUM_GLOBALS = 771 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_NUM_HELPERS = 770 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_GLOBAL_SIZE = 772 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_NUM_GLOBALS = 771 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_GLOBAL_OFFSET = 773 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_GLOBAL_SIZE = 772 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_INFO_STATE_SIZE = 774 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_GLOBAL_OFFSET = 773 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DisInfoType = enum_anon_33 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 399
+DIS_INFO_STATE_SIZE = 774 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-enum_anon_34 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 411
+DisInfoType = enum_anon_33 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
 
-DIS_CALL_NO_READ_GLOBALS = 16 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 411
+enum_anon_34 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 412
 
-DIS_CALL_NO_WRITE_GLOBALS = 32 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 411
+DIS_CALL_NO_READ_GLOBALS = 16 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 412
 
-DIS_CALL_NO_SIDE_EFFECTS = 64 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 411
+DIS_CALL_NO_WRITE_GLOBALS = 32 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 412
 
-DisCallFlags = enum_anon_34 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 411
+DIS_CALL_NO_SIDE_EFFECTS = 64 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 412
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 418
+DisCallFlags = enum_anon_34 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 412
+
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 419
 if hasattr(_libs['qdis'], 'dis_Create'):
     dis_Create = _libs['qdis'].dis_Create
     dis_Create.argtypes = [DisTarget, POINTER(DisCPUFeature)]
     dis_Create.restype = POINTER(Disassembler)
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 423
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 424
 if hasattr(_libs['qdis'], 'dis_Disassemble'):
     dis_Disassemble = _libs['qdis'].dis_Disassemble
     dis_Disassemble.argtypes = [POINTER(Disassembler), POINTER(c_uint8), c_size_t, c_uint64, c_uint64, c_uint32, POINTER(None), c_size_t]
     dis_Disassemble.restype = DisStatus
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 429
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 430
 if hasattr(_libs['qdis'], 'dis_LookupName'):
     dis_LookupName = _libs['qdis'].dis_LookupName
     dis_LookupName.argtypes = [POINTER(Disassembler), DisInfoType, c_size_t]
@@ -1208,19 +1208,19 @@ if hasattr(_libs['qdis'], 'dis_LookupName'):
         dis_LookupName.restype = String
         dis_LookupName.errcheck = ReturnString
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 433
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 434
 if hasattr(_libs['qdis'], 'dis_LookupValue'):
     dis_LookupValue = _libs['qdis'].dis_LookupValue
     dis_LookupValue.argtypes = [POINTER(Disassembler), DisInfoType, c_size_t]
     dis_LookupValue.restype = c_size_t
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 437
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 438
 if hasattr(_libs['qdis'], 'dis_Dump'):
     dis_Dump = _libs['qdis'].dis_Dump
     dis_Dump.argtypes = [POINTER(Disassembler)]
     dis_Dump.restype = None
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 441
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 442
 if hasattr(_libs['qdis'], 'dis_Destroy'):
     dis_Destroy = _libs['qdis'].dis_Destroy
     dis_Destroy.argtypes = [POINTER(Disassembler)]

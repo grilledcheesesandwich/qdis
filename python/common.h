@@ -357,6 +357,17 @@ static const char *lookupName(Disassembler *dis, DisInfoType type, size_t id)
             return cond_name[id];
         else
             return NULL;
+    case DIS_INFO_CALLFLAG:
+        switch(type)
+        {
+        case DIS_CALL_NO_READ_GLOBALS:
+            return "NO_READ_GLOBALS";
+        case DIS_CALL_NO_WRITE_GLOBALS:
+            return "NO_WRITE_GLOBALS";
+        case DIS_CALL_NO_SIDE_EFFECTS:
+            return "NO_SIDE_EFFECTS";
+        }
+        return NULL;
     case DIS_INFO_HELPER_BY_ADDR: {
         TCGHelperInfo *info = tcg_find_helper(ctx, id);
         if(info != NULL)
