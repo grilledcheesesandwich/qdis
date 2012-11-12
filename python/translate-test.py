@@ -17,18 +17,43 @@ def lookup_name(infotype, x):
     Wrap dis_LookupName in a Python-friendly interface.
     '''
     rv = disass.dis_LookupName(dis, infotype, x)
-    if rv is None:
+    if rv.data is None:
         return None
     else:
-        return str(rv)
+        return str(rv.data)
 
-def format_arg(arg, res):
+CALLFLAGS = {
+disass.DIS_CALL_NO_READ_GLOBALS: 'NO_READ_GLOBALS',
+disass.DIS_CALL_NO_WRITE_GLOBALS: 'NO_WRITE_GLOBALS',
+disass.DIS_CALL_NO_SIDE_EFFECTS: 'NO_SIDE_EFFECTS'
+}
+def flags_to_str(strings, flags):
+    x = 1
+    rv = []
+    while flags:
+        if flags & x:
+            rv.append(strings.get(x, '0x%x' % x))
+            flags &= ~x
+        x <<= 1
+    if not rv:
+        return '0'
+    else:
+        return '|'.join(rv)
+
+def format_arg(arg, res, is_movi_inst):
     '''
     Format instruction argument as string, similar to tcg_dump syntax.
     '''
-    # TODO: formatting input/output arguments different, call flags, etc
     if arg.flags & disass.DIS_ARG_CONSTANT:
-        # TODO: DIS_ARG_COND, DIS_ARG_CALL_FLAGS
+        name = None
+        if arg.flags & disass.DIS_ARG_COND:
+            name = lookup_name(disass.DIS_INFO_COND, arg.value)
+        elif arg.flags & disass.DIS_ARG_CALLFLAGS:
+            name = flags_to_str(CALLFLAGS, arg.value)
+        elif is_movi_inst:
+            name = lookup_name(disass.DIS_INFO_HELPER_BY_ADDR, arg.value)
+        if name is not None:
+            return name
         mask = ~0
         if arg.size == disass.DIS_SIZE_32:
             mask = 0xffffffff
@@ -51,8 +76,9 @@ def format_arg(arg, res):
 outbuffer = OutbufferType()
 
 f = open('test.so', 'rb')
-base = 0x142e8
-f.seek(0x142e8)
+base = 0x12f80
+#base = 0x142e8
+f.seek(base)
 instructions = f.read(4096)
 
 inst = create_string_buffer(instructions, len(instructions))
@@ -61,7 +87,7 @@ pc = base
 
 while offset < len(inst):
     print ((STYLE_ADDR+'%08x'+STYLE_COLON+':'+STYLE_RESET) % (pc+offset))
-    flags = 0
+    flags = disass.DIS_INST_ARM_VFPEN_MASK
     optimize = disass.DIS_OPTIMIZE_FULL
     if offset >= len(inst):
         raise IndexError('Out of bounds access')
@@ -77,15 +103,15 @@ while offset < len(inst):
     argptr = 0
     for idx in xrange(data.num_ops):
         op = data.ops[idx]
-        if op.opcode in [disass.DIS_OP_END,disass.DIS_OP_NOP,disass.DIS_OP_NOP1,
-                disass.DIS_OP_NOP2,disass.DIS_OP_NOP3,disass.DIS_OP_NOPN]:
-            argptr += op.args
-            continue # skip "end" instruction, it is not interesting
+        if op.opcode == disass.DIS_OP_END:
+            continue
         op_str = lookup_name(disass.DIS_INFO_OP, op.opcode)
         args = []
+        is_movi_inst = op.opcode in [disass.DIS_OP_MOVI_I32, disass.DIS_OP_MOVI_I64]
         for y in xrange(op.args):
             arg = data.args[argptr+y]
             #print '  %08x 0x%x %i' % (arg.flags,arg.value,arg.size)
-            args.append(format_arg(arg, data))
+            args.append(format_arg(arg, data, is_movi_inst))
         print('  %s %s' % (op_str, (','.join(args))))
         argptr += op.args
+

@@ -123,7 +123,7 @@ static void fillConst(TCGContext *s, DisArg *argo, uint32_t flags, size_t value,
     argo->value = value;
     argo->size = size;
 }
-static int fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso)
+static void fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso, size_t *ops_ptr_out, size_t *args_ptr_out)
 {
     const uint16_t *opc_ptr;
     const TCGArg *args;
@@ -137,37 +137,44 @@ static int fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso)
 
     opc_ptr = gen_opc_buf;
     args = gen_opparam_buf;
-    while (opc_ptr < gen_opc_ptr) {
+    while (opc_ptr < gen_opc_ptr)
+    {
+        bool nop = false;
         c = *opc_ptr++;
         def = &tcg_op_defs[c];
 
-        opso[ops_ptr].opcode = c;
         args_ptr_start = args_ptr;
         /* determine number of args etc */
-        if (c == INDEX_op_call) {
-            /* variable number of arguments */
-            TCGArg arg = *args++; /* this argument is dropped */
-            nb_oargs = arg >> 16;
-            nb_iargs = arg & 0xffff;
+        if (c == INDEX_op_nop || c == INDEX_op_nop2 || c == INDEX_op_nop3 || c == INDEX_op_nopn) {
+            nb_oargs = def->nb_oargs;
+            nb_iargs = def->nb_iargs;
             nb_cargs = def->nb_cargs;
+            if (c == INDEX_op_nopn) {
+                /* varible number of arguments */
+                nb_cargs = args[0];
+            }
+            nop = true;
+        } else if (c == INDEX_op_call) {
+            /* variable number of arguments */
+            nb_oargs = args[0] >> 16;
+            nb_iargs = args[0] & 0xffff;
+            nb_cargs = def->nb_cargs + 1;
             /* one carg at the end (flags) */
             /* function name */
-            fillArg(s, &argso[args_ptr + 0], DIS_ARG_INPUT | DIS_ARG_CALLTARGET, args[nb_oargs + nb_iargs - 1]);
+            fillArg(s, &argso[args_ptr + 0], DIS_ARG_INPUT | DIS_ARG_CALLTARGET, args[1 + nb_oargs + nb_iargs - 1]);
             /* flags */
             fillConst(s, &argso[args_ptr + 1], DIS_ARG_CONSTANT | DIS_ARG_CALLFLAGS,
-                args[nb_oargs + nb_iargs], DIS_SIZE_64);
+                args[1 + nb_oargs + nb_iargs], DIS_SIZE_64);
             args_ptr += 2;
             for(i = 0; i < nb_oargs; i++) {
-                fillArg(s, &argso[args_ptr], DIS_ARG_OUTPUT, args[i]);
+                fillArg(s, &argso[args_ptr], DIS_ARG_OUTPUT, args[1 + i]);
                 args_ptr += 1;
             }
             for(i = 0; i < (nb_iargs - 1); i++) {
-                fillArg(s, &argso[args_ptr], DIS_ARG_INPUT, args[nb_oargs + i]);
+                fillArg(s, &argso[args_ptr], DIS_ARG_INPUT, args[1 + nb_oargs + i]);
                 args_ptr += 1;
             }
-            /* Skip last carg, which is "number of arguments".  * Insert a dummy to make the number of arguments match. */
-            fillConst(s, &argso[args_ptr], DIS_ARG_CONSTANT | DIS_ARG_DUMMY, 0, DIS_SIZE_64);
-            args_ptr += 1;
+            /* Skip last carg, which is "number of arguments". */
         } else if (c == INDEX_op_movi_i32 || c == INDEX_op_movi_i64) {
             nb_oargs = def->nb_oargs;
             nb_iargs = def->nb_iargs;
@@ -231,11 +238,15 @@ static int fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso)
             }
         }
         args += nb_iargs + nb_oargs + nb_cargs;
-
-        opso[ops_ptr].args = args_ptr - args_ptr_start;
-        ops_ptr += 1;
+        if(!nop)
+        {
+            opso[ops_ptr].opcode = c;
+            opso[ops_ptr].args = args_ptr - args_ptr_start;
+            ops_ptr += 1;
+        }
     }
-    return args_ptr;
+    *ops_ptr_out = ops_ptr;
+    *args_ptr_out = args_ptr;
 }
 
 /* vtable method implementations */
@@ -297,8 +308,7 @@ static DisStatus disassemble(Disassembler *dis, uint8_t *inst, size_t size, uint
         return DIS_ERR_BUFFER_TOO_SMALL;
 
     fillSymbols(ctx, result->syms);
-    int argc = fillOpcodes(ctx, result->ops, result->args);
-    assert(argc == result->num_args);
+    fillOpcodes(ctx, result->ops, result->args, &result->num_ops, &result->num_args);
     //tcg_dump_ops(ctx);
 
     return DIS_OK;
@@ -340,20 +350,31 @@ static const char *lookupName(Disassembler *dis, DisInfoType type, size_t id)
     case DIS_INFO_OP:
         if(id < tcg_op_defs_max)
             return tcg_op_defs[id].name;
+        else
+            return NULL;
     case DIS_INFO_COND:
         if(id <= DIS_COND_GTU)
             return cond_name[id];
+        else
+            return NULL;
     case DIS_INFO_HELPER_BY_ADDR: {
         TCGHelperInfo *info = tcg_find_helper(ctx, id);
         if(info != NULL)
             return info->name;
+        else
+            return NULL;
         }
     case DIS_INFO_HELPER:
         if(id < ctx->nb_helpers)
             return ctx->helpers[id].name;
+        else
+            return NULL;
+        break;
     case DIS_INFO_GLOBAL:
         if(id < ctx->nb_globals)
             return ctx->temps[id].name;
+        else
+            return NULL;
     }
     return NULL;
 }
@@ -377,6 +398,8 @@ static size_t lookupValue(Disassembler *dis, DisInfoType type, size_t id)
     case DIS_INFO_GLOBAL_SIZE:
         if(id < ctx->nb_globals)
             return baseTypeToDis(ctx->temps[id].base_type);
+        else
+            return 0;
     case DIS_INFO_GLOBAL_OFFSET:
         if(id < ctx->nb_globals && !ctx->temps[id].fixed_reg && ctx->temps[id].mem_allocated)
             return ctx->temps[id].mem_offset;

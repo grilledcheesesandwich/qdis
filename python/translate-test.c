@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     // Now let's disassemble an instruction!
     //unsigned char inst[] = {0x10,0x40,0x2d,0xe9}; // Push {r4,lr}
     //unsigned char inst[] = {0x0a,0x00,0x00,0x0a}; // Push {r4,lr}
-    unsigned char inst[] = {0x3c,0xc0,0x81,0xe5}; // Push {r4,lr}
+    unsigned char inst[] = {0x02, 0x0a, 0x21, 0xf4}; // Push {r4,lr}
     //
     uint64_t inst_flags = 0; // THUMB etc
     if(dis_Disassemble(dis_arm, inst, sizeof(inst), 0x1000, inst_flags, DIS_OPTIMIZE_FULL, outbuffer, DIS_BUFFER_SIZE) != DIS_OK)
