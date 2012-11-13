@@ -828,29 +828,29 @@ struct_anon_28._fields_ = [
 
 DisOp = struct_anon_28 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 207
 
-enum_anon_29 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
+enum_anon_29 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 221
 
-DIS_ARG_GLOBAL = 1 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
+DIS_ARG_GLOBAL = 1 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 221
 
-DIS_ARG_TEMP = 2 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
+DIS_ARG_TEMP = 2 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 221
 
-DIS_ARG_COND = 8 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
+DIS_ARG_COND = 8 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 221
 
-DIS_ARG_DUMMY = 16 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
+DIS_ARG_CALLFLAGS = 64 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 221
 
-DIS_ARG_CALLFLAGS = 64 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
+DIS_ARG_CALLTARGET = 128 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 221
 
-DIS_ARG_CALLTARGET = 128 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
+DIS_ARG_INPUT = 256 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 221
 
-DIS_ARG_INPUT = 256 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
+DIS_ARG_OUTPUT = 512 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 221
 
-DIS_ARG_OUTPUT = 512 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
+DIS_ARG_CONSTANT = 1024 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 221
 
-DIS_ARG_CONSTANT = 1024 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
+DisArgFlags = enum_anon_29 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 221
 
-DisArgFlags = enum_anon_29 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 222
+DisVal = c_uint64 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 223
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 230
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 231
 class struct_anon_30(Structure):
     pass
 
@@ -860,266 +860,266 @@ struct_anon_30.__slots__ = [
     'flags',
 ]
 struct_anon_30._fields_ = [
-    ('value', c_size_t),
+    ('value', DisVal),
     ('size', DisBitsize),
     ('flags', c_uint16),
 ]
 
-DisArg = struct_anon_30 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 230
+DisArg = struct_anon_30 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 231
 
-enum_anon_31 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+enum_anon_31 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_END = 0 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_END = 0 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NOP = 1 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NOP = 1 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NOP1 = 2 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NOP1 = 2 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NOP2 = 3 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NOP2 = 3 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NOP3 = 4 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NOP3 = 4 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NOPN = 5 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NOPN = 5 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DISCARD = 6 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DISCARD = 6 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SET_LABEL = 7 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SET_LABEL = 7 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_CALL = 8 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_CALL = 8 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_BR = 9 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_BR = 9 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_MOV_I32 = 10 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_MOV_I32 = 10 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_MOVI_I32 = 11 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_MOVI_I32 = 11 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SETCOND_I32 = 12 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SETCOND_I32 = 12 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_MOVCOND_I32 = 13 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_MOVCOND_I32 = 13 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD8U_I32 = 14 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD8U_I32 = 14 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD8S_I32 = 15 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD8S_I32 = 15 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD16U_I32 = 16 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD16U_I32 = 16 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD16S_I32 = 17 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD16S_I32 = 17 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD_I32 = 18 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD_I32 = 18 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ST8_I32 = 19 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ST8_I32 = 19 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ST16_I32 = 20 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ST16_I32 = 20 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ST_I32 = 21 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ST_I32 = 21 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ADD_I32 = 22 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ADD_I32 = 22 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SUB_I32 = 23 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SUB_I32 = 23 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_MUL_I32 = 24 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_MUL_I32 = 24 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DIV_I32 = 25 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DIV_I32 = 25 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DIVU_I32 = 26 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DIVU_I32 = 26 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_REM_I32 = 27 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_REM_I32 = 27 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_REMU_I32 = 28 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_REMU_I32 = 28 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DIV2_I32 = 29 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DIV2_I32 = 29 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DIVU2_I32 = 30 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DIVU2_I32 = 30 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_AND_I32 = 31 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_AND_I32 = 31 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_OR_I32 = 32 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_OR_I32 = 32 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_XOR_I32 = 33 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_XOR_I32 = 33 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SHL_I32 = 34 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SHL_I32 = 34 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SHR_I32 = 35 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SHR_I32 = 35 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SAR_I32 = 36 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SAR_I32 = 36 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ROTL_I32 = 37 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ROTL_I32 = 37 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ROTR_I32 = 38 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ROTR_I32 = 38 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DEPOSIT_I32 = 39 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DEPOSIT_I32 = 39 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_BRCOND_I32 = 40 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_BRCOND_I32 = 40 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ADD2_I32 = 41 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ADD2_I32 = 41 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SUB2_I32 = 42 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SUB2_I32 = 42 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_BRCOND2_I32 = 43 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_BRCOND2_I32 = 43 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_MULU2_I32 = 44 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_MULU2_I32 = 44 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SETCOND2_I32 = 45 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SETCOND2_I32 = 45 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EXT8S_I32 = 46 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EXT8S_I32 = 46 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EXT16S_I32 = 47 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EXT16S_I32 = 47 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EXT8U_I32 = 48 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EXT8U_I32 = 48 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EXT16U_I32 = 49 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EXT16U_I32 = 49 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_BSWAP16_I32 = 50 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_BSWAP16_I32 = 50 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_BSWAP32_I32 = 51 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_BSWAP32_I32 = 51 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NOT_I32 = 52 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NOT_I32 = 52 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NEG_I32 = 53 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NEG_I32 = 53 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ANDC_I32 = 54 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ANDC_I32 = 54 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ORC_I32 = 55 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ORC_I32 = 55 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EQV_I32 = 56 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EQV_I32 = 56 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NAND_I32 = 57 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NAND_I32 = 57 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NOR_I32 = 58 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NOR_I32 = 58 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_MOV_I64 = 59 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_MOV_I64 = 59 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_MOVI_I64 = 60 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_MOVI_I64 = 60 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SETCOND_I64 = 61 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SETCOND_I64 = 61 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_MOVCOND_I64 = 62 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_MOVCOND_I64 = 62 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD8U_I64 = 63 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD8U_I64 = 63 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD8S_I64 = 64 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD8S_I64 = 64 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD16U_I64 = 65 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD16U_I64 = 65 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD16S_I64 = 66 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD16S_I64 = 66 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD32U_I64 = 67 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD32U_I64 = 67 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD32S_I64 = 68 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD32S_I64 = 68 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_LD_I64 = 69 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_LD_I64 = 69 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ST8_I64 = 70 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ST8_I64 = 70 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ST16_I64 = 71 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ST16_I64 = 71 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ST32_I64 = 72 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ST32_I64 = 72 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ST_I64 = 73 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ST_I64 = 73 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ADD_I64 = 74 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ADD_I64 = 74 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SUB_I64 = 75 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SUB_I64 = 75 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_MUL_I64 = 76 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_MUL_I64 = 76 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DIV_I64 = 77 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DIV_I64 = 77 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DIVU_I64 = 78 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DIVU_I64 = 78 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_REM_I64 = 79 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_REM_I64 = 79 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_REMU_I64 = 80 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_REMU_I64 = 80 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DIV2_I64 = 81 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DIV2_I64 = 81 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DIVU2_I64 = 82 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DIVU2_I64 = 82 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_AND_I64 = 83 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_AND_I64 = 83 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_OR_I64 = 84 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_OR_I64 = 84 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_XOR_I64 = 85 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_XOR_I64 = 85 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SHL_I64 = 86 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SHL_I64 = 86 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SHR_I64 = 87 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SHR_I64 = 87 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_SAR_I64 = 88 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_SAR_I64 = 88 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ROTL_I64 = 89 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ROTL_I64 = 89 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ROTR_I64 = 90 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ROTR_I64 = 90 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DEPOSIT_I64 = 91 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DEPOSIT_I64 = 91 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_BRCOND_I64 = 92 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_BRCOND_I64 = 92 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EXT8S_I64 = 93 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EXT8S_I64 = 93 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EXT16S_I64 = 94 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EXT16S_I64 = 94 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EXT32S_I64 = 95 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EXT32S_I64 = 95 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EXT8U_I64 = 96 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EXT8U_I64 = 96 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EXT16U_I64 = 97 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EXT16U_I64 = 97 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EXT32U_I64 = 98 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EXT32U_I64 = 98 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_BSWAP16_I64 = 99 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_BSWAP16_I64 = 99 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_BSWAP32_I64 = 100 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_BSWAP32_I64 = 100 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_BSWAP64_I64 = 101 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_BSWAP64_I64 = 101 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NOT_I64 = 102 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NOT_I64 = 102 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NEG_I64 = 103 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NEG_I64 = 103 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ANDC_I64 = 104 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ANDC_I64 = 104 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_ORC_I64 = 105 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_ORC_I64 = 105 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EQV_I64 = 106 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EQV_I64 = 106 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NAND_I64 = 107 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NAND_I64 = 107 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_NOR_I64 = 108 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_NOR_I64 = 108 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_DEBUG_INSN_START = 109 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_DEBUG_INSN_START = 109 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_EXIT_TB = 110 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_EXIT_TB = 110 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_GOTO_TB = 111 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_GOTO_TB = 111 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_LD8U = 112 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_LD8U = 112 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_LD8S = 113 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_LD8S = 113 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_LD16U = 114 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_LD16U = 114 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_LD16S = 115 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_LD16S = 115 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_LD32 = 116 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_LD32 = 116 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_LD32U = 117 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_LD32U = 117 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_LD32S = 118 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_LD32S = 118 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_LD64 = 119 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_LD64 = 119 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_ST8 = 120 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_ST8 = 120 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_ST16 = 121 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_ST16 = 121 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_ST32 = 122 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_ST32 = 122 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DIS_OP_QEMU_ST64 = 123 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DIS_OP_QEMU_ST64 = 123 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-DisOpcode = enum_anon_31 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 359
+DisOpcode = enum_anon_31 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 360
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 379
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 380
 class struct_anon_32(Structure):
     pass
 
@@ -1142,63 +1142,63 @@ struct_anon_32._fields_ = [
     ('_padding', c_size_t * 10),
 ]
 
-DisResult = struct_anon_32 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 379
+DisResult = struct_anon_32 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 380
 
-enum_anon_33 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+enum_anon_33 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_OP = 1 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_OP = 1 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_COND = 2 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_COND = 2 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_CALLFLAG = 3 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_CALLFLAG = 3 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_NUM_OPS = 256 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_NUM_OPS = 256 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_HELPER = 513 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_HELPER = 513 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_HELPER_BY_ADDR = 514 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_HELPER_BY_ADDR = 514 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_GLOBAL = 515 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_GLOBAL = 515 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_PC_OFFSET = 768 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_PC_OFFSET = 768 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_SP_OFFSET = 769 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_SP_OFFSET = 769 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_NUM_HELPERS = 770 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_NUM_HELPERS = 770 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_NUM_GLOBALS = 771 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_NUM_GLOBALS = 771 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_GLOBAL_SIZE = 772 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_GLOBAL_SIZE = 772 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_GLOBAL_OFFSET = 773 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_GLOBAL_OFFSET = 773 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DIS_INFO_STATE_SIZE = 774 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DIS_INFO_STATE_SIZE = 774 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-DisInfoType = enum_anon_33 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 400
+DisInfoType = enum_anon_33 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 401
 
-enum_anon_34 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 412
+enum_anon_34 = c_int # /store/orion/upstream/bitblaze/qemu/python/disass.h: 413
 
-DIS_CALL_NO_READ_GLOBALS = 16 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 412
+DIS_CALL_NO_READ_GLOBALS = 16 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 413
 
-DIS_CALL_NO_WRITE_GLOBALS = 32 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 412
+DIS_CALL_NO_WRITE_GLOBALS = 32 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 413
 
-DIS_CALL_NO_SIDE_EFFECTS = 64 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 412
+DIS_CALL_NO_SIDE_EFFECTS = 64 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 413
 
-DisCallFlags = enum_anon_34 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 412
+DisCallFlags = enum_anon_34 # /store/orion/upstream/bitblaze/qemu/python/disass.h: 413
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 419
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 420
 if hasattr(_libs['qdis'], 'dis_Create'):
     dis_Create = _libs['qdis'].dis_Create
     dis_Create.argtypes = [DisTarget, POINTER(DisCPUFeature)]
     dis_Create.restype = POINTER(Disassembler)
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 424
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 425
 if hasattr(_libs['qdis'], 'dis_Disassemble'):
     dis_Disassemble = _libs['qdis'].dis_Disassemble
     dis_Disassemble.argtypes = [POINTER(Disassembler), POINTER(c_uint8), c_size_t, c_uint64, c_uint64, c_uint32, POINTER(None), c_size_t]
     dis_Disassemble.restype = DisStatus
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 430
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 431
 if hasattr(_libs['qdis'], 'dis_LookupName'):
     dis_LookupName = _libs['qdis'].dis_LookupName
     dis_LookupName.argtypes = [POINTER(Disassembler), DisInfoType, c_size_t]
@@ -1208,19 +1208,19 @@ if hasattr(_libs['qdis'], 'dis_LookupName'):
         dis_LookupName.restype = String
         dis_LookupName.errcheck = ReturnString
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 434
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 435
 if hasattr(_libs['qdis'], 'dis_LookupValue'):
     dis_LookupValue = _libs['qdis'].dis_LookupValue
     dis_LookupValue.argtypes = [POINTER(Disassembler), DisInfoType, c_size_t]
     dis_LookupValue.restype = c_size_t
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 438
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 439
 if hasattr(_libs['qdis'], 'dis_Dump'):
     dis_Dump = _libs['qdis'].dis_Dump
     dis_Dump.argtypes = [POINTER(Disassembler)]
     dis_Dump.restype = None
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 442
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 443
 if hasattr(_libs['qdis'], 'dis_Destroy'):
     dis_Destroy = _libs['qdis'].dis_Destroy
     dis_Destroy.argtypes = [POINTER(Disassembler)]
@@ -1574,13 +1574,13 @@ try:
 except:
     pass
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 364
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 365
 try:
     DIS_BUFFER_SIZE = 16384
 except:
     pass
 
-# /store/orion/upstream/bitblaze/qemu/python/disass.h: 367
+# /store/orion/upstream/bitblaze/qemu/python/disass.h: 368
 try:
     DIS_INVALID = (-1)
 except:
