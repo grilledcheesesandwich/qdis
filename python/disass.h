@@ -213,7 +213,6 @@ typedef enum
     DIS_ARG_TEMP = 0x2,  // temp symbol id
     //DIS_ARG_ENVPTR = 0x4,  // "env" pointer
     DIS_ARG_COND = 0x8,   // condition code (DisConditionCode)
-    DIS_ARG_DUMMY = 0x10,  // dummy argument (for alignment)
     DIS_ARG_CALLFLAGS = 0x40, // DisCallFlags
     DIS_ARG_CALLTARGET = 0x80, // Target of call instruction
     DIS_ARG_INPUT = 0x100,  // Input argument
@@ -221,10 +220,12 @@ typedef enum
     DIS_ARG_CONSTANT = 0x400 // Constant (immediate) argument
 } DisArgFlags;
 
+typedef uint64_t DisVal; // 64 bit on every platform
+
 /* Argument description */
 typedef struct
 {
-    size_t value;
+    DisVal value;
     DisBitsize size; // only set for DIS_ARG_CONSTANT
     uint16_t flags; // DisArgFlags
 } DisArg;

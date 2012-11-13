@@ -166,13 +166,12 @@ static void fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso, size_t *ops_p
             fillConst(s, &argso[args_ptr + 1], DIS_ARG_CONSTANT | DIS_ARG_CALLFLAGS,
                 args[1 + nb_oargs + nb_iargs], DIS_SIZE_64);
             args_ptr += 2;
-            for(i = 0; i < nb_oargs; i++) {
-                fillArg(s, &argso[args_ptr], DIS_ARG_OUTPUT, args[1 + i]);
-                args_ptr += 1;
-            }
-            for(i = 0; i < (nb_iargs - 1); i++) {
-                fillArg(s, &argso[args_ptr], DIS_ARG_INPUT, args[1 + nb_oargs + i]);
-                args_ptr += 1;
+            for(i = 0; i < (nb_oargs + nb_iargs - 1); i++) {
+                if(args[1 + i] != TCG_CALL_DUMMY_ARG) // Not interested in dummy args
+                {
+                    fillArg(s, &argso[args_ptr], i<nb_oargs ? DIS_ARG_OUTPUT : DIS_ARG_INPUT, args[1 + i]);
+                    args_ptr += 1;
+                }
             }
             /* Skip last carg, which is "number of arguments". */
         } else if (c == INDEX_op_movi_i32 || c == INDEX_op_movi_i64) {
