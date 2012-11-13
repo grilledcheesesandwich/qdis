@@ -1,5 +1,9 @@
 #!/usr/bin/python
-# Generate target-specific entries in Makefile.modules, and dispatch_create.h
+'''
+Generate target-specific entries in Makefile.modules, and dispatch_create.h.
+
+Run this script after changing which modules (targets) are built.
+'''
 from os import path
 import sys
 import subprocess

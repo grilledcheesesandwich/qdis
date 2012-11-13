@@ -29,7 +29,7 @@ all: translate-test libqdis.so
 include Makefile.modules
 
 clean:
-	rm -f $(OBJECTS_LIB) $(OBJECTS_TEST)
+	rm -f $(OBJECTS_LIB) $(OBJECTS_TEST) *.o
 
 translate-test: $(OBJECTS_LIB) $(OBJECTS_TEST) $(MODULES)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
