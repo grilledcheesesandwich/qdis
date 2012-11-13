@@ -1,28 +1,8 @@
 #!/usr/bin/python
+# Generate target-specific entries in Makefile.modules, and dispatch_create.h
 from os import path
+import sys
 import subprocess
-
-def pkg_config(type_, lib):
-    return subprocess.check_output([PKGCONFIG, '--'+type_, lib]).strip().split(' ')
-
-PKGCONFIG='pkg-config'
-CC='gcc'
-LD='ld'
-OBJCOPY='objcopy'
-CFLAGS=['-Wall','-Wextra','-Wformat','-Wformat-security','-g','-O','-fPIC']
-LDFLAGS=['-g','-O']
-
-QEMUROOT='..'
-QEMUFLAGS=['-I.', '-I'+QEMUROOT,
-	'-I'+path.join(QEMUROOT,'tcg'),
-	'-I'+path.join(QEMUROOT,'fpu'),
-	'-I'+path.join(QEMUROOT,'include'),
-	'-I'+path.join(QEMUROOT,'linux-user'),
-	'-D__STDC_FORMAT_MACROS', '-D_GNU_SOURCE', '-D_FILE_OFFSET_BITS=64', '-D_LARGEFILE_SOURCE',
-	'-DTCG_PYTHON',
-	'-Wredundant-decls', '-w', '-Wundef', '-Wendif-labels', '-Wwrite-strings', '-fno-strict-aliasing',
-	'-Wno-sign-compare', '-Wno-missing-field-initializers', '-fexceptions'] + pkg_config('cflags', 'glib-2.0')
-QEMULDFLAGS=pkg_config('libs', 'glib-2.0')
 
 TARGETS=[
 ('DIS_TGT_ARM', 'arm', 'target-arm', []),
@@ -33,29 +13,23 @@ TARGETS=[
 #('DIS_TGT_PPC_32', 'ppc_32', 'target-ppc', []),
 #('DIS_TGT_PPC_64', 'ppc_64', 'target-ppc', ['-DTARGET_PPC64']),
 ]
-def log(x):
-    print(x)
-
-def check_call(args):
-    print(' '.join(args))
-    return subprocess.check_call(args)
 #
 # Partial linking
 # ld -r /tmp/a.o  /tmp/b.o /tmp/c.o -o /tmp/d.o
 #   we want to restrict the symbols exported by the output object, so that no collisions happen
 #
 # Must be put into separate directory per target
+def join(x):
+    return ' '.join(x)
 
-def build_tgt(objname, basename, cflags):
+def build_tgt(outfile, objname, basename, cflags):
+    outfile.write('# target: '+basename+'\n')
     TARGET='arm'
-    TARGETDIR = path.join(QEMUROOT, basename)
-    TARGETCFLAGS = ['-I'+TARGETDIR,'-DNEED_CPU_H','-DTARGET='+objname]
-    TARGETCFLAGS += CFLAGS + QEMUFLAGS + cflags
-    # Mask these symbols, so that they don't overlap between the modules
-    # I'd rather use --strip-symbols, but objcopy disallows this due to
-    # relocations.
-    # --prefix-symbols also can't be used because it escaped the
-    # *UND* symbols as well.
+    TARGETDIR = '$(QEMUROOT)/' + basename
+    TARGETCFLAGS = ['$(CFLAGS)','-I'+TARGETDIR,'-DNEED_CPU_H','-w','-DTARGET='+objname]
+    TARGETCFLAGS += cflags
+    targetcflags = 'TARGETCFLAGS_'+objname
+    outfile.write(targetcflags+'='+join(TARGETCFLAGS)+'\n')
     RENAME_SYMS = [ # objdump -t XXX-module.o | grep COM
     "gen_opparam_buf",
     "dis_size",
@@ -70,10 +44,21 @@ def build_tgt(objname, basename, cflags):
     "dis_memory",
     "dis_fault"
     ]
+    args = []
+    for sym in RENAME_SYMS:
+        args.append('--redefine-sym')
+        args.append(sym+'='+objname+'_'+sym)
+    rename_symbols = 'RENAME_SYMBOLS_'+objname
+    outfile.write(rename_symbols+'='+join(args)+'\n')
+    # Mask these symbols, so that they don't overlap between the modules
+    # I'd rather use --strip-symbols, but objcopy disallows this due to
+    # relocations.
+    # --prefix-symbols also can't be used because it escaped the
+    # *UND* symbols as well.
     TARGETSOURCES = [
         path.join(TARGETDIR, 'translate.c'),
-        path.join(QEMUROOT, 'tcg', 'tcg.c'),
-        path.join(QEMUROOT, 'tcg', 'optimize.c'),
+        path.join('$(QEMUROOT)', 'tcg', 'tcg.c'),
+        path.join('$(QEMUROOT)', 'tcg', 'optimize.c'),
         'qemu-hooks.c',
         basename + '.c'
     ]
@@ -81,18 +66,19 @@ def build_tgt(objname, basename, cflags):
     for srcname in TARGETSOURCES:
         out = path.splitext(path.basename(srcname))[0] + '-' + objname + '.o'
         TARGETINTERMEDIATES.append(out)
-        check_call([CC] + TARGETCFLAGS + [srcname, '-c', '-o', out])
+        outfile.write(out+':\n')
+        outfile.write('\t'+join(['$(CC)','$('+targetcflags+')', srcname, '-c', '-o', out])+'\n')
     TARGETOUT_UNSTRIPPED = objname + '-unstripped.o'
     TARGETOUT = objname + '-module.o'
     # Partial link
-    check_call([LD, '-r'] + TARGETINTERMEDIATES + ['-o', TARGETOUT_UNSTRIPPED])
+    outfile.write(TARGETOUT_UNSTRIPPED+': '+join(TARGETINTERMEDIATES)+'\n')
+    outfile.write('\t'+join(['$(LD)', '-r'] + TARGETINTERMEDIATES + ['-o', TARGETOUT_UNSTRIPPED])+'\n')
     # Make all symbols local except for entry point
     #check_call([OBJCOPY, '--prefix-symbols='+objname+'_', TARGETOUT_UNSTRIPPED, TARGETOUT])
-    args = []
-    for sym in RENAME_SYMS:
-        args.append('--redefine-sym')
-        args.append(sym+'='+objname+'_'+sym)
-    check_call([OBJCOPY, '-G', objname+'_create']+args+[TARGETOUT_UNSTRIPPED, TARGETOUT])
+    outfile.write(TARGETOUT+': '+join([TARGETOUT_UNSTRIPPED])+'\n')
+    outfile.write('\t'+join(['$(OBJCOPY)', '-G', objname+'_create', '$('+rename_symbols+')', TARGETOUT_UNSTRIPPED, TARGETOUT])+'\n')
+    outfile.write('\n')
+    return [TARGETOUT]
 
 def build_dispatcher(targets):
     with open('dispatch_create.h', 'w') as f:
@@ -116,6 +102,14 @@ def build_dispatcher(targets):
 #endif
 ''')
 
+# build dispatcher.h
 build_dispatcher(TARGETS)
+
+# build Makefile.modules
+outfile = open('Makefile.modules','w')
+outfile.write('### Generated by build.sh ###\n')
+modules = []
 for (enumname, objname, basename, cflags) in TARGETS:
-    build_tgt(objname, basename, cflags)
+    modules.extend(build_tgt(outfile, objname, basename, cflags))
+outfile.write('MODULES='+join(modules)+'\n')
+outfile.close()
