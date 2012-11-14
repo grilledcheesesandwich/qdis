@@ -16,7 +16,18 @@ TARGETS=[
 #('QDIS_TGT_MIPS_64', 'mips_64', 'target-mips', ['-DTARGET_MIPS64']),
 #('QDIS_TGT_PPC_32', 'ppc_32', 'target-ppc', []),
 #('QDIS_TGT_PPC_64', 'ppc_64', 'target-ppc', ['-DTARGET_PPC64']),
-
+#('QDIS_TGT_ALPHA
+#('QDIS_TGT_CRIS
+#('QDIS_TGT_LM32
+#('QDIS_TGT_M68K
+#('QDIS_TGT_MICROBLAZE
+#('QDIS_TGT_OPENRISC
+#('QDIS_TGT_S390X
+#('QDIS_TGT_SH4
+#('QDIS_TGT_SPARC_32
+#('QDIS_TGT_SPARC_64
+#('QDIS_TGT_UNICORE32
+#('QDIS_TGT_XTENSA
 ]
 #
 # Partial linking
