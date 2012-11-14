@@ -1,7 +1,7 @@
 #include "common.h"
 
 /* CPU specific initialization */
-static CPUArchState *init_target(DisCPUFeature *features)
+static CPUArchState *init_target(QDisCPUFeature *features)
 {
     mips_tcg_init();
     CPUMIPSState *env = (CPUMIPSState*)malloc(sizeof(CPUMIPSState));

@@ -1,8 +1,7 @@
-//#define TARGET i386
 #include "common.h"
 
 /* CPU specific initialization */
-static CPUArchState *init_target(DisCPUFeature *features)
+static CPUArchState *init_target(QDisCPUFeature *features)
 {
     optimize_flags_init();
     CPUX86State *env = (CPUX86State*)malloc(sizeof(CPUX86State));

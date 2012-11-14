@@ -64,14 +64,6 @@ we have to work around it
     //
     // we'd really like to have the helpers source in some intermediate language too!
 
-- dump globals
-
-  seems that temps[] holds the globals as well as the locals/temps
-  temps[i] where i < nb_globals is a global
-  TCGTemp structure
-    has a name and many other properties
-- dump ops (tcg_op_defs)
-
 - target dependent defines:
   TARGET_LONG_BITS      Client word size. This is different for arm, i386, ...
   TCG_TARGET_REG_BITS   Target word size (must be identical to pointer size of host machine).
@@ -116,3 +108,11 @@ Done:
   Just give a PC and buffer with the native instruction and it returns a list of TCG instructions for
   that instruction (without the nops).
   (or maybe also add option to process a whole block at once?)
+
+- dump globals
+
+  seems that temps[] holds the globals as well as the locals/temps
+  temps[i] where i < nb_globals is a global
+  TCGTemp structure
+    has a name and many other properties
+- dump ops (tcg_op_defs)

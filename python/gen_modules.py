@@ -9,13 +9,14 @@ import sys
 import subprocess
 
 TARGETS=[
-('DIS_TGT_ARM', 'arm', 'target-arm', []),
-('DIS_TGT_X86_32', 'x86_32', 'target-i386', []),
-('DIS_TGT_X86_64', 'x86_64', 'target-i386', ['-DTARGET_X86_64']),
-('DIS_TGT_MIPS_32', 'mips_32', 'target-mips', []),
-#('DIS_TGT_MIPS_64', 'mips_64', 'target-mips', ['-DTARGET_MIPS64']),
-#('DIS_TGT_PPC_32', 'ppc_32', 'target-ppc', []),
-#('DIS_TGT_PPC_64', 'ppc_64', 'target-ppc', ['-DTARGET_PPC64']),
+('QDIS_TGT_ARM', 'arm', 'target-arm', []),
+('QDIS_TGT_X86_32', 'x86_32', 'target-i386', []),
+('QDIS_TGT_X86_64', 'x86_64', 'target-i386', ['-DTARGET_X86_64']),
+('QDIS_TGT_MIPS_32', 'mips_32', 'target-mips', []),
+#('QDIS_TGT_MIPS_64', 'mips_64', 'target-mips', ['-DTARGET_MIPS64']),
+#('QDIS_TGT_PPC_32', 'ppc_32', 'target-ppc', []),
+#('QDIS_TGT_PPC_64', 'ppc_64', 'target-ppc', ['-DTARGET_PPC64']),
+
 ]
 #
 # Partial linking
@@ -91,8 +92,8 @@ def build_dispatcher(targets):
 #define DISPATCH_CREATE_H
 ''')
         for (enumname, objname, _, _) in targets:
-            f.write('extern Disassembler* %s_create(DisCPUFeature *feat);\n' % (objname))
-        f.write('''static CreateFunction create_disassembler(DisTarget tgt)
+            f.write('extern QDisassembler* %s_create(QDisCPUFeature *feat);\n' % (objname))
+        f.write('''static CreateFunction create_disassembler(QDisTarget tgt)
 {
     switch(tgt)
     {

@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include "tcg.h"
 #include "qemu-hooks.h"
-#include "disass.h"
+#include "qdis.h"
 #include "internal.h"
 
 struct Impl_ {
@@ -16,7 +16,7 @@ struct Impl_ {
     CPUArchState *env;
 };
 
-static CPUArchState *init_target(DisCPUFeature *features);
+static CPUArchState *init_target(QDisCPUFeature *features);
 static size_t target_pc_offset();
 static size_t target_sp_offset();
 
@@ -46,7 +46,7 @@ static size_t findGlobal(TCGContext *ctx, size_t offset)
            ctx->temps[i].mem_offset == offset)
             return i;
     }
-    return DIS_INVALID;
+    return QDIS_INVALID;
 }
 #endif
 /* Basetype to dis bitfield width */
@@ -54,9 +54,9 @@ static size_t baseTypeToDis(TCGType type)
 {
     switch(type)
     {
-    case TCG_TYPE_I32: return DIS_SIZE_32;
-    case TCG_TYPE_I64: return DIS_SIZE_64;
-    default: return DIS_SIZE_UNKNOWN;
+    case TCG_TYPE_I32: return QDIS_SIZE_32;
+    case TCG_TYPE_I64: return QDIS_SIZE_64;
+    default: return QDIS_SIZE_UNKNOWN;
     }
 }
 /* output stream funcs */
@@ -84,17 +84,17 @@ void *outbufAlloc(struct OutBuf *outbuf, size_t size)
 }
 
 /* helper functions for disassembly */
-static void fillSymbols(TCGContext *ctx, DisSym *syms)
+static void fillSymbols(TCGContext *ctx, QDisSym *syms)
 {
     int i = 0;
     for(i = ctx->nb_globals; i < ctx->nb_temps; ++i)
     {
         int symid = i - ctx->nb_globals;
-        syms[symid].type = ctx->temps[i].temp_local ? DIS_SYM_LOCAL : DIS_SYM_TEMP;
+        syms[symid].type = ctx->temps[i].temp_local ? QDIS_SYM_LOCAL : QDIS_SYM_TEMP;
         syms[symid].size = baseTypeToDis(ctx->temps[i].base_type);
     }
 }
-static void fillArg(TCGContext *s, DisArg *argo, uint32_t flags, int idx)
+static void fillArg(TCGContext *s, QDisArg *argo, uint32_t flags, int idx)
 {
     argo->flags = flags;
     if(idx < s->nb_globals)
@@ -102,28 +102,28 @@ static void fillArg(TCGContext *s, DisArg *argo, uint32_t flags, int idx)
 #if 0
         if(ctx->temps[i].mem_allocated && ctx->temps[i].mem_reg==0)
         {
-            argo->flags |= DIS_ARG_GLOBAL;
+            argo->flags |= QDIS_ARG_GLOBAL;
             argo->value = s->temp[idx].mem_offset; // offset into env
         } else {
-            argo->flags |= DIS_ARG_ENVPTR;
+            argo->flags |= QDIS_ARG_ENVPTR;
             argo->value = s->temp[idx].reg;
         }
 #endif
-        argo->flags |= DIS_ARG_GLOBAL;
-        argo->value = idx; // ordinal for DIS_INFO_GLOBAL
+        argo->flags |= QDIS_ARG_GLOBAL;
+        argo->value = idx; // ordinal for QDIS_INFO_GLOBAL
     } else if(idx < s->nb_temps) {
-        argo->flags |= DIS_ARG_TEMP;
+        argo->flags |= QDIS_ARG_TEMP;
         argo->value = idx - s->nb_globals;
     }
-    argo->size = DIS_SIZE_UNKNOWN;
+    argo->size = QDIS_SIZE_UNKNOWN;
 }
-static void fillConst(TCGContext *s, DisArg *argo, uint32_t flags, size_t value, DisBitsize size)
+static void fillConst(TCGContext *s, QDisArg *argo, uint32_t flags, size_t value, QDisBitsize size)
 {
     argo->flags = flags;
     argo->value = value;
     argo->size = size;
 }
-static void fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso, size_t *ops_ptr_out, size_t *args_ptr_out)
+static void fillOpcodes(TCGContext *s, QDisOp *opso, QDisArg *argso, size_t *ops_ptr_out, size_t *args_ptr_out)
 {
     const uint16_t *opc_ptr;
     const TCGArg *args;
@@ -161,15 +161,15 @@ static void fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso, size_t *ops_p
             nb_cargs = def->nb_cargs + 1;
             /* one carg at the end (flags) */
             /* function name */
-            fillArg(s, &argso[args_ptr + 0], DIS_ARG_INPUT | DIS_ARG_CALLTARGET, args[1 + nb_oargs + nb_iargs - 1]);
+            fillArg(s, &argso[args_ptr + 0], QDIS_ARG_INPUT | QDIS_ARG_CALLTARGET, args[1 + nb_oargs + nb_iargs - 1]);
             /* flags */
-            fillConst(s, &argso[args_ptr + 1], DIS_ARG_CONSTANT | DIS_ARG_CALLFLAGS,
-                args[1 + nb_oargs + nb_iargs], DIS_SIZE_64);
+            fillConst(s, &argso[args_ptr + 1], QDIS_ARG_CONSTANT | QDIS_ARG_CALLFLAGS,
+                args[1 + nb_oargs + nb_iargs], QDIS_SIZE_64);
             args_ptr += 2;
             for(i = 0; i < (nb_oargs + nb_iargs - 1); i++) {
                 if(args[1 + i] != TCG_CALL_DUMMY_ARG) // Not interested in dummy args
                 {
-                    fillArg(s, &argso[args_ptr], i<nb_oargs ? DIS_ARG_OUTPUT : DIS_ARG_INPUT, args[1 + i]);
+                    fillArg(s, &argso[args_ptr], i<nb_oargs ? QDIS_ARG_OUTPUT : QDIS_ARG_INPUT, args[1 + i]);
                     args_ptr += 1;
                 }
             }
@@ -179,17 +179,17 @@ static void fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso, size_t *ops_p
             nb_iargs = def->nb_iargs;
             nb_cargs = def->nb_cargs;
             for(i = 0; i < nb_oargs; i++) {
-                fillArg(s, &argso[args_ptr], DIS_ARG_OUTPUT, args[i]);
+                fillArg(s, &argso[args_ptr], QDIS_ARG_OUTPUT, args[i]);
                 args_ptr += 1;
             }
             for(i = 0; i < nb_iargs; i++) {
-                fillArg(s, &argso[args_ptr], DIS_ARG_INPUT, args[nb_oargs + i]);
+                fillArg(s, &argso[args_ptr], QDIS_ARG_INPUT, args[nb_oargs + i]);
                 args_ptr += 1;
             }
             for(i = 0; i < nb_cargs; i++) {
-                fillConst(s, &argso[args_ptr], DIS_ARG_CONSTANT,
+                fillConst(s, &argso[args_ptr], QDIS_ARG_CONSTANT,
                     args[nb_oargs + nb_iargs + i],
-                    (c == INDEX_op_movi_i64) ? DIS_SIZE_64 : DIS_SIZE_32);
+                    (c == INDEX_op_movi_i64) ? QDIS_SIZE_64 : QDIS_SIZE_32);
                 args_ptr += 1;
             }
         } else {
@@ -205,11 +205,11 @@ static void fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso, size_t *ops_p
             }
 
             for(i = 0; i < nb_oargs; i++) {
-                fillArg(s, &argso[args_ptr], DIS_ARG_OUTPUT, args[i]);
+                fillArg(s, &argso[args_ptr], QDIS_ARG_OUTPUT, args[i]);
                 args_ptr += 1;
             }
             for(i = 0; i < nb_iargs; i++) {
-                fillArg(s, &argso[args_ptr], DIS_ARG_INPUT, args[nb_oargs + i]);
+                fillArg(s, &argso[args_ptr], QDIS_ARG_INPUT, args[nb_oargs + i]);
                 args_ptr += 1;
             }
             switch (c) {
@@ -221,8 +221,8 @@ static void fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso, size_t *ops_p
             case INDEX_op_brcond_i64:
             case INDEX_op_setcond_i64:
             case INDEX_op_movcond_i64:
-                fillConst(s, &argso[args_ptr], DIS_ARG_CONSTANT | DIS_ARG_COND,
-                    args[nb_oargs + nb_iargs + i], DIS_SIZE_64);
+                fillConst(s, &argso[args_ptr], QDIS_ARG_CONSTANT | QDIS_ARG_COND,
+                    args[nb_oargs + nb_iargs + i], QDIS_SIZE_64);
                 args_ptr += 1;
                 i = 1;
                 break;
@@ -231,8 +231,8 @@ static void fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso, size_t *ops_p
                 break;
             }
             for(; i < nb_cargs; i++) {
-                fillConst(s, &argso[args_ptr], DIS_ARG_CONSTANT,
-                    args[nb_oargs + nb_iargs + i], DIS_SIZE_64);
+                fillConst(s, &argso[args_ptr], QDIS_ARG_CONSTANT,
+                    args[nb_oargs + nb_iargs + i], QDIS_SIZE_64);
                 args_ptr += 1;
             }
         }
@@ -249,14 +249,14 @@ static void fillOpcodes(TCGContext *s, DisOp *opso, DisArg *argso, size_t *ops_p
 }
 
 /* vtable method implementations */
-static DisStatus disassemble(Disassembler *dis, uint8_t *inst, size_t size, uint64_t pc, uint64_t inst_flags, uint32_t optimize,
+static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, uint64_t pc, uint64_t inst_flags, uint32_t optimize,
         void *outbuf, size_t outsize)
 {
     TCGContext *ctx = dis->impl->ctx;
     if(outbuf == NULL)
-        return DIS_ERR_NULLPOINTER;
+        return QDIS_ERR_NULLPOINTER;
     if(((size_t)outbuf) & 7) // Improperly aligned output buffer
-        return DIS_ERR_ALIGNMENT;
+        return QDIS_ERR_ALIGNMENT;
     disassembly_set_window(inst, pc, size);
     TranslationBlock tb = {
         .pc = pc,
@@ -273,47 +273,47 @@ static DisStatus disassemble(Disassembler *dis, uint8_t *inst, size_t size, uint
 
     if(disassembly_get_error())
     {
-        return DIS_ERR_OUT_OF_BOUNDS_ACCESS;
+        return QDIS_ERR_OUT_OF_BOUNDS_ACCESS;
     }
-    if(optimize & DIS_OPTIMIZE_GENERAL)
+    if(optimize & QDIS_OPTIMIZE_GENERAL)
     {
         gen_opparam_ptr =
             tcg_optimize(ctx, gen_opc_ptr, gen_opparam_buf, tcg_op_defs);
     }
-    if(optimize & DIS_OPTIMIZE_LIVENESS)
+    if(optimize & QDIS_OPTIMIZE_LIVENESS)
     {
         tcg_liveness_analysis(ctx);
     }
 
     /* allocation */
     struct OutBuf out = {.ptr = outbuf, .end = outbuf + outsize};
-    DisResult *result = outbufAlloc(&out, sizeof(DisResult));
+    QDisResult *result = outbufAlloc(&out, sizeof(QDisResult));
     if(result == NULL)
-        return DIS_ERR_BUFFER_TOO_SMALL;
+        return QDIS_ERR_BUFFER_TOO_SMALL;
     /*   opcodes */
     result->num_ops = gen_opc_ptr - gen_opc_buf;
-    result->ops = outbufAlloc(&out, result->num_ops * sizeof(DisOp));
-    memset(result->ops, 0, result->num_ops * sizeof(DisOp));
+    result->ops = outbufAlloc(&out, result->num_ops * sizeof(QDisOp));
+    memset(result->ops, 0, result->num_ops * sizeof(QDisOp));
     /*   arguments */
     result->num_args = gen_opparam_ptr - gen_opparam_buf;
-    result->args = outbufAlloc(&out, result->num_args * sizeof(DisArg));
-    memset(result->args, 0, result->num_args * sizeof(DisArg));
+    result->args = outbufAlloc(&out, result->num_args * sizeof(QDisArg));
+    memset(result->args, 0, result->num_args * sizeof(QDisArg));
     /*   symbols */
     result->num_syms = ctx->nb_temps - ctx->nb_globals;
-    result->syms = outbufAlloc(&out, result->num_syms * sizeof(DisSym));
-    memset(result->syms, 0, result->num_syms * sizeof(DisSym));
+    result->syms = outbufAlloc(&out, result->num_syms * sizeof(QDisSym));
+    memset(result->syms, 0, result->num_syms * sizeof(QDisSym));
 
     if(result->ops == NULL || result->args == NULL || result->syms == NULL)
-        return DIS_ERR_BUFFER_TOO_SMALL;
+        return QDIS_ERR_BUFFER_TOO_SMALL;
 
     fillSymbols(ctx, result->syms);
     fillOpcodes(ctx, result->ops, result->args, &result->num_ops, &result->num_args);
     //tcg_dump_ops(ctx);
 
-    return DIS_OK;
+    return QDIS_OK;
 }
 
-static void dump(Disassembler *dis)
+static void dump(QDisassembler *dis)
 {
     //
     // target setup complete: print tcg globals
@@ -341,46 +341,46 @@ static void dump(Disassembler *dis)
     printf("\n");
     tcg_dump_ops(ctx);
 }
-static const char *lookupName(Disassembler *dis, DisInfoType type, size_t id)
+static const char *lookupName(QDisassembler *dis, QDisInfoType type, size_t id)
 {
     TCGContext *ctx = dis->impl->ctx;
     switch(type)
     {
-    case DIS_INFO_OP:
+    case QDIS_INFO_OP:
         if(id < tcg_op_defs_max)
             return tcg_op_defs[id].name;
         else
             return NULL;
-    case DIS_INFO_COND:
-        if(id <= DIS_COND_GTU)
+    case QDIS_INFO_COND:
+        if(id <= QDIS_COND_GTU)
             return cond_name[id];
         else
             return NULL;
-    case DIS_INFO_CALLFLAG:
+    case QDIS_INFO_CALLFLAG:
         switch(type)
         {
-        case DIS_CALL_NO_READ_GLOBALS:
+        case QDIS_CALL_NO_READ_GLOBALS:
             return "NO_READ_GLOBALS";
-        case DIS_CALL_NO_WRITE_GLOBALS:
+        case QDIS_CALL_NO_WRITE_GLOBALS:
             return "NO_WRITE_GLOBALS";
-        case DIS_CALL_NO_SIDE_EFFECTS:
+        case QDIS_CALL_NO_SIDE_EFFECTS:
             return "NO_SIDE_EFFECTS";
         }
         return NULL;
-    case DIS_INFO_HELPER_BY_ADDR: {
+    case QDIS_INFO_HELPER_BY_ADDR: {
         TCGHelperInfo *info = tcg_find_helper(ctx, id);
         if(info != NULL)
             return info->name;
         else
             return NULL;
         }
-    case DIS_INFO_HELPER:
+    case QDIS_INFO_HELPER:
         if(id < ctx->nb_helpers)
             return ctx->helpers[id].name;
         else
             return NULL;
         break;
-    case DIS_INFO_GLOBAL:
+    case QDIS_INFO_GLOBAL:
         if(id < ctx->nb_globals)
             return ctx->temps[id].name;
         else
@@ -390,47 +390,47 @@ static const char *lookupName(Disassembler *dis, DisInfoType type, size_t id)
 }
 
 
-static size_t lookupValue(Disassembler *dis, DisInfoType type, size_t id)
+static size_t lookupValue(QDisassembler *dis, QDisInfoType type, size_t id)
 {
     TCGContext *ctx = dis->impl->ctx;
     switch(type)
     {
-    case DIS_INFO_NUM_OPS:
+    case QDIS_INFO_NUM_OPS:
         return tcg_op_defs_max;
-    case DIS_INFO_PC_OFFSET:
+    case QDIS_INFO_PC_OFFSET:
         return target_pc_offset();
-    case DIS_INFO_SP_OFFSET:
+    case QDIS_INFO_SP_OFFSET:
         return target_sp_offset();
-    case DIS_INFO_NUM_HELPERS:
+    case QDIS_INFO_NUM_HELPERS:
         return ctx->nb_helpers;
-    case DIS_INFO_NUM_GLOBALS:
+    case QDIS_INFO_NUM_GLOBALS:
         return ctx->nb_globals;
-    case DIS_INFO_GLOBAL_SIZE:
+    case QDIS_INFO_GLOBAL_SIZE:
         if(id < ctx->nb_globals)
             return baseTypeToDis(ctx->temps[id].base_type);
         else
             return 0;
-    case DIS_INFO_GLOBAL_OFFSET:
+    case QDIS_INFO_GLOBAL_OFFSET:
         if(id < ctx->nb_globals && !ctx->temps[id].fixed_reg && ctx->temps[id].mem_allocated)
             return ctx->temps[id].mem_offset;
         else
-            return DIS_INVALID;
-    case DIS_INFO_STATE_SIZE:
+            return QDIS_INVALID;
+    case QDIS_INFO_STATE_SIZE:
         return sizeof(CPUArchState);
     }
     return 0;
 }
 
-static void destroy(Disassembler *dis)
+static void destroy(QDisassembler *dis)
 {
     free(dis->impl);
     free(dis);
 }
 
-Disassembler *glue(TARGET,_create)(DisCPUFeature *feat)
+QDisassembler *glue(TARGET,_create)(QDisCPUFeature *feat)
 {
-    Disassembler *rv = malloc(sizeof(Disassembler));
-    memset(rv, 0, sizeof(Disassembler));
+    QDisassembler *rv = malloc(sizeof(QDisassembler));
+    memset(rv, 0, sizeof(QDisassembler));
     rv->impl = malloc(sizeof(struct Impl_));
     memset(rv->impl, 0, sizeof(struct Impl_));
 

@@ -1,4 +1,3 @@
-//#define TARGET arm
 #include "common.h"
 
 /* ARM specific */
@@ -56,7 +55,7 @@ void set_features(CPUARMState *env)
     }
 }
 
-static CPUArchState *init_target(DisCPUFeature *features)
+static CPUArchState *init_target(QDisCPUFeature *features)
 {
     // CPU specific initialization
     arm_translate_init();

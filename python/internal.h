@@ -1,15 +1,15 @@
 #ifndef H_INTERNAL
 #define H_INTERNAL
 
-typedef Disassembler* (*CreateFunction)(DisCPUFeature *feat);
-typedef DisStatus (*DisassembleFunction)(Disassembler *dis, uint8_t *inst, size_t size, uint64_t pc, uint64_t inst_flags, uint32_t optimize,
+typedef QDisassembler* (*CreateFunction)(QDisCPUFeature *feat);
+typedef QDisStatus (*DisassembleFunction)(QDisassembler *dis, uint8_t *inst, size_t size, uint64_t pc, uint64_t inst_flags, uint32_t optimize,
         void *outbuffer, size_t outsize);
-typedef void (*DumpFunction)(Disassembler *dis);
-typedef void (*DestroyFunction)(Disassembler *dis);
-typedef const char* (*LookupNameFunction)(Disassembler *dis, DisInfoType type, size_t id);
-typedef size_t (*LookupValueFunction)(Disassembler *dis, DisInfoType type, size_t id);
+typedef void (*DumpFunction)(QDisassembler *dis);
+typedef void (*DestroyFunction)(QDisassembler *dis);
+typedef const char* (*LookupNameFunction)(QDisassembler *dis, QDisInfoType type, size_t id);
+typedef size_t (*LookupValueFunction)(QDisassembler *dis, QDisInfoType type, size_t id);
 
-typedef struct Disassembler_
+typedef struct QDisassembler_
 {
     struct Impl_ *impl;
     // vtable
@@ -18,6 +18,6 @@ typedef struct Disassembler_
     DestroyFunction destroy;
     LookupNameFunction lookupName;
     LookupValueFunction lookupValue;
-} Disassembler;
+} QDisassembler;
 
 #endif
