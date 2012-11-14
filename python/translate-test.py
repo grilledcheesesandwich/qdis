@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Try code translator from python
+# Interleave machine instructions (from LLVM) and microcode (from QDIS)
 from __future__ import print_function, unicode_literals, division, absolute_import
 from ctypes import c_ubyte, create_string_buffer, cast, POINTER, byref
 import qdis

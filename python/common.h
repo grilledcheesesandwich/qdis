@@ -222,7 +222,7 @@ static void fillOpcodes(TCGContext *s, QDisOp *opso, QDisArg *argso, size_t *ops
             case INDEX_op_setcond_i64:
             case INDEX_op_movcond_i64:
                 fillConst(s, &argso[args_ptr], QDIS_ARG_CONSTANT | QDIS_ARG_COND,
-                    args[nb_oargs + nb_iargs + i], QDIS_SIZE_64);
+                    args[nb_oargs + nb_iargs], QDIS_SIZE_64);
                 args_ptr += 1;
                 i = 1;
                 break;
