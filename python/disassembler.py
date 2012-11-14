@@ -1,6 +1,7 @@
 '''
 Higher-level Python wrapper for the disass functions.
 '''
+from __future__ import print_function, unicode_literals, division, absolute_import
 from ctypes import c_ubyte, create_string_buffer, cast, POINTER, byref
 import qdis
 

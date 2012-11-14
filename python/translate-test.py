@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Try code translator from python
+from __future__ import print_function, unicode_literals, division, absolute_import
 from ctypes import c_ubyte, create_string_buffer, cast, POINTER, byref
 import qdis
 from disassembler import Disassembler,MAX_INST_SIZE,format_inst
@@ -27,7 +28,7 @@ if __name__ == '__main__':
         for i in result.ops:
             if i.opcode == qdis.QDIS_OP_END:
                 continue
-            print '  '+format_inst(d,i,result.syms)
+            print('  '+format_inst(d,i,result.syms))
 
         offset += 4
 
