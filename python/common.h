@@ -115,7 +115,7 @@ static void fillArg(TCGContext *s, QDisArg *argo, uint32_t flags, int idx)
         argo->flags |= QDIS_ARG_TEMP;
         argo->value = idx - s->nb_globals;
     }
-    argo->size = QDIS_SIZE_UNKNOWN;
+    argo->size = baseTypeToDis(s->temps[idx].base_type);
 }
 static void fillConst(TCGContext *s, QDisArg *argo, uint32_t flags, size_t value, QDisBitsize size)
 {
