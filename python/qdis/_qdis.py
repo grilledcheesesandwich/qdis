@@ -836,6 +836,8 @@ QDIS_ARG_TEMP = 2 # qdis.h: 220
 
 QDIS_ARG_COND = 8 # qdis.h: 220
 
+QDIS_ARG_LABEL = 16 # qdis.h: 220
+
 QDIS_ARG_CALLFLAGS = 64 # qdis.h: 220
 
 QDIS_ARG_CALLTARGET = 128 # qdis.h: 220
@@ -1130,6 +1132,7 @@ struct_anon_32.__slots__ = [
     'args',
     'num_syms',
     'syms',
+    'num_labels',
     '_padding',
 ]
 struct_anon_32._fields_ = [
@@ -1139,7 +1142,8 @@ struct_anon_32._fields_ = [
     ('args', POINTER(QDisArg)),
     ('num_syms', c_size_t),
     ('syms', POINTER(QDisSym)),
-    ('_padding', c_size_t * 10),
+    ('num_labels', c_size_t),
+    ('_padding', c_size_t * 9),
 ]
 
 QDisResult = struct_anon_32 # qdis.h: 379

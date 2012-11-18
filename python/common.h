@@ -212,6 +212,8 @@ static void fillOpcodes(TCGContext *s, QDisOp *opso, QDisArg *argso, size_t *ops
                 fillArg(s, &argso[args_ptr], QDIS_ARG_INPUT, args[nb_oargs + i]);
                 args_ptr += 1;
             }
+            i = 0;
+            /* condition */
             switch (c) {
             case INDEX_op_brcond_i32:
             case INDEX_op_setcond_i32:
@@ -222,12 +224,26 @@ static void fillOpcodes(TCGContext *s, QDisOp *opso, QDisArg *argso, size_t *ops
             case INDEX_op_setcond_i64:
             case INDEX_op_movcond_i64:
                 fillConst(s, &argso[args_ptr], QDIS_ARG_CONSTANT | QDIS_ARG_COND,
-                    args[nb_oargs + nb_iargs], QDIS_SIZE_64);
+                    args[nb_oargs + nb_iargs + i], QDIS_SIZE_64);
                 args_ptr += 1;
-                i = 1;
+                i += 1;
                 break;
             default:
-                i = 0;
+                break;
+            }
+            /* label */
+            switch (c) {
+            case INDEX_op_br:
+            case INDEX_op_brcond_i32:
+            case INDEX_op_brcond2_i32:
+            case INDEX_op_brcond_i64:
+            case INDEX_op_set_label:
+                fillConst(s, &argso[args_ptr], QDIS_ARG_CONSTANT | QDIS_ARG_LABEL,
+                    args[nb_oargs + nb_iargs + i], QDIS_SIZE_64);
+                args_ptr += 1;
+                i += 1;
+                break;
+            default:
                 break;
             }
             for(; i < nb_cargs; i++) {
@@ -302,6 +318,8 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
     result->num_syms = ctx->nb_temps - ctx->nb_globals;
     result->syms = outbufAlloc(&out, result->num_syms * sizeof(QDisSym));
     memset(result->syms, 0, result->num_syms * sizeof(QDisSym));
+    /*   labels */
+    result->num_labels = ctx->nb_labels;
 
     if(result->ops == NULL || result->args == NULL || result->syms == NULL)
         return QDIS_ERR_BUFFER_TOO_SMALL;

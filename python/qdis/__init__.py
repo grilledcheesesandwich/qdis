@@ -29,9 +29,13 @@ class Instruction(object):
         self.args = args
 
 class Block(object):
-    def __init__(self, ops, syms):
+    def __init__(self, ops, syms, labels):
+        # list of all instructions in this block
         self.ops = ops
+        # list of symbols (temps/locals)
         self.syms = syms
+        # list of indices into ops array for labels
+        self.labels = labels
 
 class Disassembler(object):
     def __init__(self, tgt, features=None):
@@ -51,18 +55,21 @@ class Disassembler(object):
                 self.outbuffer, len(self.outbuffer))
 
         if result != OK:
-            if result == QDIS_ERR_OUT_OF_BOUNDS_ACCESS:
+            if result == ERR_OUT_OF_BOUNDS_ACCESS:
                 raise IndexError('Out of bounds access')
             raise Exception('Disassembly error %i' % result)
 
         data = cast(self.outbuffer, POINTER(_qdis.QDisResult)).contents
         argptr = 0
         instructions = []
+        labels = [None] * data.num_labels
         for idx in xrange(data.num_ops):
             op = data.ops[idx]
+            if op.opcode == OP_SET_LABEL:
+                labels[data.args[argptr].value] = len(instructions)
             instructions.append(Instruction(op.opcode, data.args[argptr:argptr+op.args]))
             argptr += op.args
-        return Block(instructions, data.syms[0:data.num_syms])
+        return Block(instructions, data.syms[0:data.num_syms], labels)
 
     def lookup_name(self, infotype, x):
         '''

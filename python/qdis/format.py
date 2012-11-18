@@ -28,6 +28,8 @@ def format_arg(d, arg, syms, is_movi_inst):
         name = None
         if arg.flags & qdis.ARG_COND:
             name = d.lookup_name(qdis.INFO_COND, arg.value)
+        elif arg.flags & qdis.ARG_LABEL:
+            name = 'label%i' % arg.value
         elif arg.flags & qdis.ARG_CALLFLAGS:
             name = flags_to_str(d, qdis.INFO_CALLFLAG, arg.value)
         elif is_movi_inst:
@@ -59,4 +61,7 @@ def format_inst(d, i, syms):
     is_movi_inst = i.opcode in [qdis.OP_MOVI_I32, qdis.OP_MOVI_I64]
     for arg in i.args:
         args.append(format_arg(d, arg, syms, is_movi_inst))
-    return ('%s %s' % (op_str, (','.join(args))))
+    if i.opcode == qdis.OP_SET_LABEL:
+        return ('%s:' % (args[0]))
+    else:
+        return ('%s %s' % (op_str, (','.join(args))))

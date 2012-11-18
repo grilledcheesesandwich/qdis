@@ -212,6 +212,7 @@ typedef enum
     QDIS_ARG_GLOBAL = 0x1, // global offset
     QDIS_ARG_TEMP = 0x2,  // temp symbol id
     QDIS_ARG_COND = 0x8,   // condition code (DisConditionCode)
+    QDIS_ARG_LABEL = 0x10,  // label id
     QDIS_ARG_CALLFLAGS = 0x40, // DisCallFlags
     QDIS_ARG_CALLTARGET = 0x80, // Target of call instruction
     QDIS_ARG_INPUT = 0x100,  // Input argument
@@ -375,7 +376,8 @@ typedef struct
     QDisArg *args;   // Pointer to arguments
     size_t num_syms; // Total number of temp symbols
     QDisSym *syms; // Pointer to temp symbols
-    size_t _padding[10];
+    size_t num_labels; // Total number of labels
+    size_t _padding[9];
 } QDisResult;
 
 typedef enum {
