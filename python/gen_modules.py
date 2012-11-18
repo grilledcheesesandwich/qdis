@@ -47,16 +47,12 @@ def build_tgt(outfile, objname, basename, cflags):
     targetcflags = 'TARGETCFLAGS_'+objname
     outfile.write(targetcflags+'='+join(TARGETCFLAGS)+'\n')
     RENAME_SYMS = [ # objdump -t XXX-module.o | grep COM
-    "gen_opparam_buf",
     "dis_size",
-    "gen_opc_ptr",
     "gen_opc_instr_start",
     "gen_opc_pc",
-    "gen_opc_buf",
     "tcg_ctx",
     "dis_offset",
     "gen_opc_icount",
-    "gen_opparam_ptr",
     "dis_memory",
     "dis_fault"
     ]

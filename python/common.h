@@ -135,9 +135,9 @@ static void fillOpcodes(TCGContext *s, QDisOp *opso, QDisArg *argso, size_t *ops
     const TCGOpDef *def;
     char buf[128];
 
-    opc_ptr = gen_opc_buf;
-    args = gen_opparam_buf;
-    while (opc_ptr < gen_opc_ptr)
+    opc_ptr = s->gen_opc_buf;
+    args = s->gen_opparam_buf;
+    while (opc_ptr < s->gen_opc_ptr)
     {
         bool nop = false;
         c = *opc_ptr++;
@@ -293,8 +293,8 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
     }
     if(optimize & QDIS_OPTIMIZE_GENERAL)
     {
-        gen_opparam_ptr =
-            tcg_optimize(ctx, gen_opc_ptr, gen_opparam_buf, tcg_op_defs);
+        ctx->gen_opparam_ptr =
+            tcg_optimize(ctx, ctx->gen_opc_ptr, ctx->gen_opparam_buf, tcg_op_defs);
     }
     if(optimize & QDIS_OPTIMIZE_LIVENESS)
     {
@@ -307,11 +307,11 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
     if(result == NULL)
         return QDIS_ERR_BUFFER_TOO_SMALL;
     /*   opcodes */
-    result->num_ops = gen_opc_ptr - gen_opc_buf;
+    result->num_ops = ctx->gen_opc_ptr - ctx->gen_opc_buf;
     result->ops = outbufAlloc(&out, result->num_ops * sizeof(QDisOp));
     memset(result->ops, 0, result->num_ops * sizeof(QDisOp));
     /*   arguments */
-    result->num_args = gen_opparam_ptr - gen_opparam_buf;
+    result->num_args = ctx->gen_opparam_ptr - ctx->gen_opparam_buf;
     result->args = outbufAlloc(&out, result->num_args * sizeof(QDisArg));
     memset(result->args, 0, result->num_args * sizeof(QDisArg));
     /*   symbols */

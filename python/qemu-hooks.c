@@ -4,12 +4,6 @@ struct TranslationBlock;
 typedef struct TranslationBlock TranslationBlock;
 #include "cpu.h"
 #include "tcg.h"
-/* OPC_BUF_SIZE is defined in exec_all.h */
-/** Instruction buffers **/
-uint16_t gen_opc_buf[OPC_BUF_SIZE]; /* opcodes */
-// XX external uint16_t *gen_opc_ptr; /* delimits end of opc_buf, defined in tcg.c */
-TCGArg gen_opparam_buf[OPPARAM_BUF_SIZE];
-// XX external TCGArg *gen_opparam_ptr; /* delimits end of opparam_buf, defined in tcg.c */
 uint8_t gen_opc_instr_start[OPC_BUF_SIZE]; /* search_pc */
 target_ulong gen_opc_pc[OPC_BUF_SIZE]; /* search_pc */
 uint16_t gen_opc_icount[OPC_BUF_SIZE]; /* search_pc */
