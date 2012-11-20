@@ -90,9 +90,12 @@ we have to work around it
   oargs output args  register / global / local
   what are cargs?  constant args (implicit)
 
-- force TCG_TARGET_REG_BITS to 64; for analysis it makes no sense to make anything depend on the host arch register size
+- test on 32 bit Python
 ======================================================================================
 Done:
+- force TCG_TARGET_REG_BITS to 64; for analysis it makes no sense to make anything depend on the host arch register size
+  don't generate 32-bit compatibility instructions when disassembling 64 bit code on a 32 bit host 
+
 - softfloat.c: why do we need this? just for defines?
 
 - ops numbers are the same for 32/64 bit (luckily)

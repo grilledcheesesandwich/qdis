@@ -4,8 +4,12 @@ Python wrapper
 
 Building:
 
-$ python build.py
+$ python gen_modules.py  (optional)
 $ make
-$ bash gen_python_binding.sh
 
-Creates a libdis.so
+Creates a libqdis.so
+
+To re-generate the Python binding:
+
+$ bash gen_python_binding.sh (optional, needs ctypesgen)
+
