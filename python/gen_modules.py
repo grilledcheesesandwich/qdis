@@ -21,7 +21,7 @@ TARGETS=[
 ('QDIS_TGT_ALPHA', 'alpha', 'target-alpha', []),
 #('QDIS_TGT_CRIS', 'cris', 'target-cris', []),
 #('QDIS_TGT_LM32', 'lm32', 'target-lm32', []),
-#('QDIS_TGT_M68K', 'm68k', 'target-m68k', []),
+('QDIS_TGT_M68K', 'm68k', 'target-m68k', []),
 #('QDIS_TGT_MICROBLAZE', 'microblaze', 'target-microblaze', []),
 #('QDIS_TGT_OPENRISC', 'openrisc', 'target-openrisc', []),
 #('QDIS_TGT_S390X', 's390x', 'target-s390x', []),

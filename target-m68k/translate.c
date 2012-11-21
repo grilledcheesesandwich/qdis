@@ -884,7 +884,9 @@ DISAS_INSN(undef_fpu)
 DISAS_INSN(undef)
 {
     gen_exception(s, s->pc - 2, EXCP_UNSUPPORTED);
+#ifndef TCG_PYTHON
     cpu_abort(env, "Illegal instruction: %04x @ %08x", insn, s->pc - 2);
+#endif
 }
 
 DISAS_INSN(mulw)
@@ -2185,8 +2187,11 @@ DISAS_INSN(fpu)
         case 1: /* FPIAR */
         case 2: /* FPSR */
         default:
+#ifndef TCG_PYTHON
             cpu_abort(NULL, "Unimplemented: fmove to control %d",
                       (ext >> 10) & 7);
+#endif
+            break;
         }
         break;
     case 5: /* fmove from control register.  */
@@ -2198,8 +2203,10 @@ DISAS_INSN(fpu)
         case 1: /* FPIAR */
         case 2: /* FPSR */
         default:
+#ifndef TCG_PYTHON
             cpu_abort(NULL, "Unimplemented: fmove from control %d",
                       (ext >> 10) & 7);
+#endif
             goto undef;
         }
         DEST_EA(env, insn, OS_LONG, tmp32, NULL);

@@ -89,6 +89,24 @@ alpha-unstripped.o: translate-alpha.o tcg-alpha.o optimize-alpha.o qemu-hooks-al
 alpha-module.o: alpha-unstripped.o
 	$(OBJCOPY) -G alpha_create $(RENAME_SYMBOLS_alpha) alpha-unstripped.o alpha-module.o
 
+# target: target-m68k
+TARGETCFLAGS_m68k=$(CFLAGS) -I$(QEMUROOT)/target-m68k -DNEED_CPU_H -w -DTARGET=m68k
+RENAME_SYMBOLS_m68k=--redefine-sym dis_size=m68k_dis_size --redefine-sym gen_opc_instr_start=m68k_gen_opc_instr_start --redefine-sym gen_opc_pc=m68k_gen_opc_pc --redefine-sym tcg_ctx=m68k_tcg_ctx --redefine-sym dis_offset=m68k_dis_offset --redefine-sym gen_opc_icount=m68k_gen_opc_icount --redefine-sym dis_memory=m68k_dis_memory --redefine-sym dis_fault=m68k_dis_fault
+translate-m68k.o: $(QEMUROOT)/target-m68k/translate.c
+	$(CC) $(TARGETCFLAGS_m68k) $(QEMUROOT)/target-m68k/translate.c -c -o translate-m68k.o
+tcg-m68k.o: $(QEMUROOT)/tcg/tcg.c
+	$(CC) $(TARGETCFLAGS_m68k) $(QEMUROOT)/tcg/tcg.c -c -o tcg-m68k.o
+optimize-m68k.o: $(QEMUROOT)/tcg/optimize.c
+	$(CC) $(TARGETCFLAGS_m68k) $(QEMUROOT)/tcg/optimize.c -c -o optimize-m68k.o
+qemu-hooks-m68k.o: qemu-hooks.c
+	$(CC) $(TARGETCFLAGS_m68k) qemu-hooks.c -c -o qemu-hooks-m68k.o
+target-m68k-m68k.o: target-m68k.c
+	$(CC) $(TARGETCFLAGS_m68k) target-m68k.c -c -o target-m68k-m68k.o
+m68k-unstripped.o: translate-m68k.o tcg-m68k.o optimize-m68k.o qemu-hooks-m68k.o target-m68k-m68k.o
+	$(LD) -r translate-m68k.o tcg-m68k.o optimize-m68k.o qemu-hooks-m68k.o target-m68k-m68k.o -o m68k-unstripped.o
+m68k-module.o: m68k-unstripped.o
+	$(OBJCOPY) -G m68k_create $(RENAME_SYMBOLS_m68k) m68k-unstripped.o m68k-module.o
+
 # target: target-sparc
 TARGETCFLAGS_sparc_64=$(CFLAGS) -I$(QEMUROOT)/target-sparc -DNEED_CPU_H -w -DTARGET=sparc_64 -DTARGET_SPARC64
 RENAME_SYMBOLS_sparc_64=--redefine-sym dis_size=sparc_64_dis_size --redefine-sym gen_opc_instr_start=sparc_64_gen_opc_instr_start --redefine-sym gen_opc_pc=sparc_64_gen_opc_pc --redefine-sym tcg_ctx=sparc_64_tcg_ctx --redefine-sym dis_offset=sparc_64_dis_offset --redefine-sym gen_opc_icount=sparc_64_gen_opc_icount --redefine-sym dis_memory=sparc_64_dis_memory --redefine-sym dis_fault=sparc_64_dis_fault
@@ -107,4 +125,4 @@ sparc_64-unstripped.o: translate-sparc_64.o tcg-sparc_64.o optimize-sparc_64.o q
 sparc_64-module.o: sparc_64-unstripped.o
 	$(OBJCOPY) -G sparc_64_create $(RENAME_SYMBOLS_sparc_64) sparc_64-unstripped.o sparc_64-module.o
 
-MODULES=arm-module.o x86_64-module.o mips_64-module.o ppc_64-module.o alpha-module.o sparc_64-module.o
+MODULES=arm-module.o x86_64-module.o mips_64-module.o ppc_64-module.o alpha-module.o m68k-module.o sparc_64-module.o
