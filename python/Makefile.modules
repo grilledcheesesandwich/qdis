@@ -2,15 +2,15 @@
 # target: target-arm
 TARGETCFLAGS_arm=$(CFLAGS) -I$(QEMUROOT)/target-arm -DNEED_CPU_H -w -DTARGET=arm
 RENAME_SYMBOLS_arm=--redefine-sym dis_size=arm_dis_size --redefine-sym gen_opc_instr_start=arm_gen_opc_instr_start --redefine-sym gen_opc_pc=arm_gen_opc_pc --redefine-sym tcg_ctx=arm_tcg_ctx --redefine-sym dis_offset=arm_dis_offset --redefine-sym gen_opc_icount=arm_gen_opc_icount --redefine-sym dis_memory=arm_dis_memory --redefine-sym dis_fault=arm_dis_fault
-translate-arm.o:
+translate-arm.o: $(QEMUROOT)/target-arm/translate.c
 	$(CC) $(TARGETCFLAGS_arm) $(QEMUROOT)/target-arm/translate.c -c -o translate-arm.o
-tcg-arm.o:
+tcg-arm.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_arm) $(QEMUROOT)/tcg/tcg.c -c -o tcg-arm.o
-optimize-arm.o:
+optimize-arm.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_arm) $(QEMUROOT)/tcg/optimize.c -c -o optimize-arm.o
-qemu-hooks-arm.o:
+qemu-hooks-arm.o: qemu-hooks.c
 	$(CC) $(TARGETCFLAGS_arm) qemu-hooks.c -c -o qemu-hooks-arm.o
-target-arm-arm.o:
+target-arm-arm.o: target-arm.c
 	$(CC) $(TARGETCFLAGS_arm) target-arm.c -c -o target-arm-arm.o
 arm-unstripped.o: translate-arm.o tcg-arm.o optimize-arm.o qemu-hooks-arm.o target-arm-arm.o
 	$(LD) -r translate-arm.o tcg-arm.o optimize-arm.o qemu-hooks-arm.o target-arm-arm.o -o arm-unstripped.o
@@ -18,35 +18,17 @@ arm-module.o: arm-unstripped.o
 	$(OBJCOPY) -G arm_create $(RENAME_SYMBOLS_arm) arm-unstripped.o arm-module.o
 
 # target: target-i386
-TARGETCFLAGS_x86_32=$(CFLAGS) -I$(QEMUROOT)/target-i386 -DNEED_CPU_H -w -DTARGET=x86_32
-RENAME_SYMBOLS_x86_32=--redefine-sym dis_size=x86_32_dis_size --redefine-sym gen_opc_instr_start=x86_32_gen_opc_instr_start --redefine-sym gen_opc_pc=x86_32_gen_opc_pc --redefine-sym tcg_ctx=x86_32_tcg_ctx --redefine-sym dis_offset=x86_32_dis_offset --redefine-sym gen_opc_icount=x86_32_gen_opc_icount --redefine-sym dis_memory=x86_32_dis_memory --redefine-sym dis_fault=x86_32_dis_fault
-translate-x86_32.o:
-	$(CC) $(TARGETCFLAGS_x86_32) $(QEMUROOT)/target-i386/translate.c -c -o translate-x86_32.o
-tcg-x86_32.o:
-	$(CC) $(TARGETCFLAGS_x86_32) $(QEMUROOT)/tcg/tcg.c -c -o tcg-x86_32.o
-optimize-x86_32.o:
-	$(CC) $(TARGETCFLAGS_x86_32) $(QEMUROOT)/tcg/optimize.c -c -o optimize-x86_32.o
-qemu-hooks-x86_32.o:
-	$(CC) $(TARGETCFLAGS_x86_32) qemu-hooks.c -c -o qemu-hooks-x86_32.o
-target-i386-x86_32.o:
-	$(CC) $(TARGETCFLAGS_x86_32) target-i386.c -c -o target-i386-x86_32.o
-x86_32-unstripped.o: translate-x86_32.o tcg-x86_32.o optimize-x86_32.o qemu-hooks-x86_32.o target-i386-x86_32.o
-	$(LD) -r translate-x86_32.o tcg-x86_32.o optimize-x86_32.o qemu-hooks-x86_32.o target-i386-x86_32.o -o x86_32-unstripped.o
-x86_32-module.o: x86_32-unstripped.o
-	$(OBJCOPY) -G x86_32_create $(RENAME_SYMBOLS_x86_32) x86_32-unstripped.o x86_32-module.o
-
-# target: target-i386
 TARGETCFLAGS_x86_64=$(CFLAGS) -I$(QEMUROOT)/target-i386 -DNEED_CPU_H -w -DTARGET=x86_64 -DTARGET_X86_64
 RENAME_SYMBOLS_x86_64=--redefine-sym dis_size=x86_64_dis_size --redefine-sym gen_opc_instr_start=x86_64_gen_opc_instr_start --redefine-sym gen_opc_pc=x86_64_gen_opc_pc --redefine-sym tcg_ctx=x86_64_tcg_ctx --redefine-sym dis_offset=x86_64_dis_offset --redefine-sym gen_opc_icount=x86_64_gen_opc_icount --redefine-sym dis_memory=x86_64_dis_memory --redefine-sym dis_fault=x86_64_dis_fault
-translate-x86_64.o:
+translate-x86_64.o: $(QEMUROOT)/target-i386/translate.c
 	$(CC) $(TARGETCFLAGS_x86_64) $(QEMUROOT)/target-i386/translate.c -c -o translate-x86_64.o
-tcg-x86_64.o:
+tcg-x86_64.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_x86_64) $(QEMUROOT)/tcg/tcg.c -c -o tcg-x86_64.o
-optimize-x86_64.o:
+optimize-x86_64.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_x86_64) $(QEMUROOT)/tcg/optimize.c -c -o optimize-x86_64.o
-qemu-hooks-x86_64.o:
+qemu-hooks-x86_64.o: qemu-hooks.c
 	$(CC) $(TARGETCFLAGS_x86_64) qemu-hooks.c -c -o qemu-hooks-x86_64.o
-target-i386-x86_64.o:
+target-i386-x86_64.o: target-i386.c
 	$(CC) $(TARGETCFLAGS_x86_64) target-i386.c -c -o target-i386-x86_64.o
 x86_64-unstripped.o: translate-x86_64.o tcg-x86_64.o optimize-x86_64.o qemu-hooks-x86_64.o target-i386-x86_64.o
 	$(LD) -r translate-x86_64.o tcg-x86_64.o optimize-x86_64.o qemu-hooks-x86_64.o target-i386-x86_64.o -o x86_64-unstripped.o
@@ -54,21 +36,57 @@ x86_64-module.o: x86_64-unstripped.o
 	$(OBJCOPY) -G x86_64_create $(RENAME_SYMBOLS_x86_64) x86_64-unstripped.o x86_64-module.o
 
 # target: target-mips
-TARGETCFLAGS_mips_32=$(CFLAGS) -I$(QEMUROOT)/target-mips -DNEED_CPU_H -w -DTARGET=mips_32
-RENAME_SYMBOLS_mips_32=--redefine-sym dis_size=mips_32_dis_size --redefine-sym gen_opc_instr_start=mips_32_gen_opc_instr_start --redefine-sym gen_opc_pc=mips_32_gen_opc_pc --redefine-sym tcg_ctx=mips_32_tcg_ctx --redefine-sym dis_offset=mips_32_dis_offset --redefine-sym gen_opc_icount=mips_32_gen_opc_icount --redefine-sym dis_memory=mips_32_dis_memory --redefine-sym dis_fault=mips_32_dis_fault
-translate-mips_32.o:
-	$(CC) $(TARGETCFLAGS_mips_32) $(QEMUROOT)/target-mips/translate.c -c -o translate-mips_32.o
-tcg-mips_32.o:
-	$(CC) $(TARGETCFLAGS_mips_32) $(QEMUROOT)/tcg/tcg.c -c -o tcg-mips_32.o
-optimize-mips_32.o:
-	$(CC) $(TARGETCFLAGS_mips_32) $(QEMUROOT)/tcg/optimize.c -c -o optimize-mips_32.o
-qemu-hooks-mips_32.o:
-	$(CC) $(TARGETCFLAGS_mips_32) qemu-hooks.c -c -o qemu-hooks-mips_32.o
-target-mips-mips_32.o:
-	$(CC) $(TARGETCFLAGS_mips_32) target-mips.c -c -o target-mips-mips_32.o
-mips_32-unstripped.o: translate-mips_32.o tcg-mips_32.o optimize-mips_32.o qemu-hooks-mips_32.o target-mips-mips_32.o
-	$(LD) -r translate-mips_32.o tcg-mips_32.o optimize-mips_32.o qemu-hooks-mips_32.o target-mips-mips_32.o -o mips_32-unstripped.o
-mips_32-module.o: mips_32-unstripped.o
-	$(OBJCOPY) -G mips_32_create $(RENAME_SYMBOLS_mips_32) mips_32-unstripped.o mips_32-module.o
+TARGETCFLAGS_mips_64=$(CFLAGS) -I$(QEMUROOT)/target-mips -DNEED_CPU_H -w -DTARGET=mips_64 -DTARGET_MIPS64
+RENAME_SYMBOLS_mips_64=--redefine-sym dis_size=mips_64_dis_size --redefine-sym gen_opc_instr_start=mips_64_gen_opc_instr_start --redefine-sym gen_opc_pc=mips_64_gen_opc_pc --redefine-sym tcg_ctx=mips_64_tcg_ctx --redefine-sym dis_offset=mips_64_dis_offset --redefine-sym gen_opc_icount=mips_64_gen_opc_icount --redefine-sym dis_memory=mips_64_dis_memory --redefine-sym dis_fault=mips_64_dis_fault
+translate-mips_64.o: $(QEMUROOT)/target-mips/translate.c
+	$(CC) $(TARGETCFLAGS_mips_64) $(QEMUROOT)/target-mips/translate.c -c -o translate-mips_64.o
+tcg-mips_64.o: $(QEMUROOT)/tcg/tcg.c
+	$(CC) $(TARGETCFLAGS_mips_64) $(QEMUROOT)/tcg/tcg.c -c -o tcg-mips_64.o
+optimize-mips_64.o: $(QEMUROOT)/tcg/optimize.c
+	$(CC) $(TARGETCFLAGS_mips_64) $(QEMUROOT)/tcg/optimize.c -c -o optimize-mips_64.o
+qemu-hooks-mips_64.o: qemu-hooks.c
+	$(CC) $(TARGETCFLAGS_mips_64) qemu-hooks.c -c -o qemu-hooks-mips_64.o
+target-mips-mips_64.o: target-mips.c
+	$(CC) $(TARGETCFLAGS_mips_64) target-mips.c -c -o target-mips-mips_64.o
+mips_64-unstripped.o: translate-mips_64.o tcg-mips_64.o optimize-mips_64.o qemu-hooks-mips_64.o target-mips-mips_64.o
+	$(LD) -r translate-mips_64.o tcg-mips_64.o optimize-mips_64.o qemu-hooks-mips_64.o target-mips-mips_64.o -o mips_64-unstripped.o
+mips_64-module.o: mips_64-unstripped.o
+	$(OBJCOPY) -G mips_64_create $(RENAME_SYMBOLS_mips_64) mips_64-unstripped.o mips_64-module.o
 
-MODULES=arm-module.o x86_32-module.o x86_64-module.o mips_32-module.o
+# target: target-ppc
+TARGETCFLAGS_ppc_64=$(CFLAGS) -I$(QEMUROOT)/target-ppc -DNEED_CPU_H -w -DTARGET=ppc_64 -DTARGET_PPC64
+RENAME_SYMBOLS_ppc_64=--redefine-sym dis_size=ppc_64_dis_size --redefine-sym gen_opc_instr_start=ppc_64_gen_opc_instr_start --redefine-sym gen_opc_pc=ppc_64_gen_opc_pc --redefine-sym tcg_ctx=ppc_64_tcg_ctx --redefine-sym dis_offset=ppc_64_dis_offset --redefine-sym gen_opc_icount=ppc_64_gen_opc_icount --redefine-sym dis_memory=ppc_64_dis_memory --redefine-sym dis_fault=ppc_64_dis_fault
+translate-ppc_64.o: $(QEMUROOT)/target-ppc/translate.c
+	$(CC) $(TARGETCFLAGS_ppc_64) $(QEMUROOT)/target-ppc/translate.c -c -o translate-ppc_64.o
+tcg-ppc_64.o: $(QEMUROOT)/tcg/tcg.c
+	$(CC) $(TARGETCFLAGS_ppc_64) $(QEMUROOT)/tcg/tcg.c -c -o tcg-ppc_64.o
+optimize-ppc_64.o: $(QEMUROOT)/tcg/optimize.c
+	$(CC) $(TARGETCFLAGS_ppc_64) $(QEMUROOT)/tcg/optimize.c -c -o optimize-ppc_64.o
+qemu-hooks-ppc_64.o: qemu-hooks.c
+	$(CC) $(TARGETCFLAGS_ppc_64) qemu-hooks.c -c -o qemu-hooks-ppc_64.o
+target-ppc-ppc_64.o: target-ppc.c
+	$(CC) $(TARGETCFLAGS_ppc_64) target-ppc.c -c -o target-ppc-ppc_64.o
+ppc_64-unstripped.o: translate-ppc_64.o tcg-ppc_64.o optimize-ppc_64.o qemu-hooks-ppc_64.o target-ppc-ppc_64.o
+	$(LD) -r translate-ppc_64.o tcg-ppc_64.o optimize-ppc_64.o qemu-hooks-ppc_64.o target-ppc-ppc_64.o -o ppc_64-unstripped.o
+ppc_64-module.o: ppc_64-unstripped.o
+	$(OBJCOPY) -G ppc_64_create $(RENAME_SYMBOLS_ppc_64) ppc_64-unstripped.o ppc_64-module.o
+
+# target: target-sparc
+TARGETCFLAGS_sparc_64=$(CFLAGS) -I$(QEMUROOT)/target-sparc -DNEED_CPU_H -w -DTARGET=sparc_64 -DTARGET_SPARC64
+RENAME_SYMBOLS_sparc_64=--redefine-sym dis_size=sparc_64_dis_size --redefine-sym gen_opc_instr_start=sparc_64_gen_opc_instr_start --redefine-sym gen_opc_pc=sparc_64_gen_opc_pc --redefine-sym tcg_ctx=sparc_64_tcg_ctx --redefine-sym dis_offset=sparc_64_dis_offset --redefine-sym gen_opc_icount=sparc_64_gen_opc_icount --redefine-sym dis_memory=sparc_64_dis_memory --redefine-sym dis_fault=sparc_64_dis_fault
+translate-sparc_64.o: $(QEMUROOT)/target-sparc/translate.c
+	$(CC) $(TARGETCFLAGS_sparc_64) $(QEMUROOT)/target-sparc/translate.c -c -o translate-sparc_64.o
+tcg-sparc_64.o: $(QEMUROOT)/tcg/tcg.c
+	$(CC) $(TARGETCFLAGS_sparc_64) $(QEMUROOT)/tcg/tcg.c -c -o tcg-sparc_64.o
+optimize-sparc_64.o: $(QEMUROOT)/tcg/optimize.c
+	$(CC) $(TARGETCFLAGS_sparc_64) $(QEMUROOT)/tcg/optimize.c -c -o optimize-sparc_64.o
+qemu-hooks-sparc_64.o: qemu-hooks.c
+	$(CC) $(TARGETCFLAGS_sparc_64) qemu-hooks.c -c -o qemu-hooks-sparc_64.o
+target-sparc-sparc_64.o: target-sparc.c
+	$(CC) $(TARGETCFLAGS_sparc_64) target-sparc.c -c -o target-sparc-sparc_64.o
+sparc_64-unstripped.o: translate-sparc_64.o tcg-sparc_64.o optimize-sparc_64.o qemu-hooks-sparc_64.o target-sparc-sparc_64.o
+	$(LD) -r translate-sparc_64.o tcg-sparc_64.o optimize-sparc_64.o qemu-hooks-sparc_64.o target-sparc-sparc_64.o -o sparc_64-unstripped.o
+sparc_64-module.o: sparc_64-unstripped.o
+	$(OBJCOPY) -G sparc_64_create $(RENAME_SYMBOLS_sparc_64) sparc_64-unstripped.o sparc_64-module.o
+
+MODULES=arm-module.o x86_64-module.o mips_64-module.o ppc_64-module.o sparc_64-module.o

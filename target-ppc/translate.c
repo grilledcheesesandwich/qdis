@@ -9707,6 +9707,7 @@ static inline void gen_intermediate_code_internal(CPUPPCState *env,
         table = env->opcodes;
         num_insns++;
         handler = table[opc1(ctx.opcode)];
+#ifndef TCG_PYTHON
         if (is_indirect_opcode(handler)) {
             table = ind_table(handler);
             handler = table[opc2(ctx.opcode)];
@@ -9715,14 +9716,17 @@ static inline void gen_intermediate_code_internal(CPUPPCState *env,
                 handler = table[opc3(ctx.opcode)];
             }
         }
+#endif
         /* Is opcode *REALLY* valid ? */
         if (unlikely(handler->handler == &gen_invalid)) {
+#ifndef TCG_PYTHON
             if (qemu_log_enabled()) {
                 qemu_log("invalid/unsupported opcode: "
                          "%02x - %02x - %02x (%08x) " TARGET_FMT_lx " %d\n",
                          opc1(ctx.opcode), opc2(ctx.opcode),
                          opc3(ctx.opcode), ctx.opcode, ctx.nip - 4, (int)msr_ir);
             }
+#endif
         } else {
             uint32_t inval;
 
@@ -9733,6 +9737,7 @@ static inline void gen_intermediate_code_internal(CPUPPCState *env,
             }
 
             if (unlikely((ctx.opcode & inval) != 0)) {
+#ifndef TCG_PYTHON
                 if (qemu_log_enabled()) {
                     qemu_log("invalid bits: %08x for opcode: "
                              "%02x - %02x - %02x (%08x) " TARGET_FMT_lx "\n",
@@ -9740,6 +9745,7 @@ static inline void gen_intermediate_code_internal(CPUPPCState *env,
                              opc2(ctx.opcode), opc3(ctx.opcode),
                              ctx.opcode, ctx.nip - 4);
                 }
+#endif
                 gen_inval_exception(ctxp, POWERPC_EXCP_INVAL_INVAL);
                 break;
             }

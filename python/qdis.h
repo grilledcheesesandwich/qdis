@@ -23,25 +23,26 @@ typedef enum
     QDIS_TGT_64BIT = 0x3000,
     // Supported architectures
     QDIS_TGT_ARM = 0 | QDIS_TGT_32BIT,
-    QDIS_TGT_X86_32 = 1 | QDIS_TGT_32BIT,
+    //* QDIS_TGT_X86_32 = 1 | QDIS_TGT_32BIT,
     QDIS_TGT_X86_64 = 1 | QDIS_TGT_64BIT,
     QDIS_TGT_ALPHA = 2 | QDIS_TGT_64BIT,
     QDIS_TGT_CRIS = 3 | QDIS_TGT_32BIT,
     QDIS_TGT_LM32 = 4 | QDIS_TGT_32BIT,
     QDIS_TGT_M68K = 5 | QDIS_TGT_32BIT,
     QDIS_TGT_MICROBLAZE = 6 | QDIS_TGT_32BIT,
-    QDIS_TGT_MIPS_32 = 7 | QDIS_TGT_32BIT,
+    //* QDIS_TGT_MIPS_32 = 7 | QDIS_TGT_32BIT,
     QDIS_TGT_MIPS_64 = 7 | QDIS_TGT_64BIT,
     QDIS_TGT_OPENRISC = 8 | QDIS_TGT_32BIT,
-    QDIS_TGT_PPC_32 = 9 | QDIS_TGT_32BIT,
+    //* QDIS_TGT_PPC_32 = 9 | QDIS_TGT_32BIT,
     QDIS_TGT_PPC_64 = 9 | QDIS_TGT_64BIT,
     QDIS_TGT_S390X = 10 | QDIS_TGT_64BIT,
     QDIS_TGT_SH4 = 11 | QDIS_TGT_32BIT,
-    QDIS_TGT_SPARC_32 = 12 | QDIS_TGT_32BIT,
+    //* QDIS_TGT_SPARC_32 = 12 | QDIS_TGT_32BIT,
     QDIS_TGT_SPARC_64 = 12 | QDIS_TGT_64BIT,
     QDIS_TGT_UNICORE32 = 13 | QDIS_TGT_32BIT,
     QDIS_TGT_XTENSA = 14 | QDIS_TGT_32BIT
 } QDisTarget;
+//* use the 64 bit target
 
 // Tokens for CPU features
 // XX use ELF hwcap flags here?
@@ -83,7 +84,8 @@ typedef enum
     // TODO i386 etc
 } QDisCPUFeature;
 
-/* XXX need a more standarized way that doesn't rely on qemu internals as much? */
+/* XXX need a more standarized way that doesn't rely on qemu internals as much? 
+ * also make a selection of flags that actually affect instruction decoding */
 /* arm */
 #define QDIS_INST_ARM_THUMB_SHIFT      0
 #define QDIS_INST_ARM_THUMB_MASK       (1 << QDIS_INST_ARM_THUMB_SHIFT)

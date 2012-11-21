@@ -90,7 +90,7 @@ int main(int argc, char **argv)
     else
         print_dis_result(dis_x86, outbuffer);
 
-    QDisassembler *dis_mips = qdis_Create(QDIS_TGT_MIPS_32, NULL);
+    QDisassembler *dis_mips = qdis_Create(QDIS_TGT_MIPS_64, NULL);
 
     printf("* MIPS\n");
     // Now let's disassemble an instruction!

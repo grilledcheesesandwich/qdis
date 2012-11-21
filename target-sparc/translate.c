@@ -32,7 +32,9 @@
 #define GEN_HELPER 1
 #include "helper.h"
 
+#ifndef TCG_PYTHON
 #define DEBUG_DISAS
+#endif
 
 #define DYNAMIC_PC  1 /* dynamic pc value */
 #define JUMP_PC     2 /* dynamic pc value which takes only two values

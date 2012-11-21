@@ -12,12 +12,12 @@ import subprocess
 #  subsets or special modes?
 TARGETS=[
 ('QDIS_TGT_ARM', 'arm', 'target-arm', []),
-('QDIS_TGT_X86_32', 'x86_32', 'target-i386', []),
+#('QDIS_TGT_X86_32', 'x86_32', 'target-i386', []),
 ('QDIS_TGT_X86_64', 'x86_64', 'target-i386', ['-DTARGET_X86_64']),
-('QDIS_TGT_MIPS_32', 'mips_32', 'target-mips', []),
-#('QDIS_TGT_MIPS_64', 'mips_64', 'target-mips', ['-DTARGET_MIPS64']),
+#('QDIS_TGT_MIPS_32', 'mips_32', 'target-mips', []),
+('QDIS_TGT_MIPS_64', 'mips_64', 'target-mips', ['-DTARGET_MIPS64']),
 #('QDIS_TGT_PPC_32', 'ppc_32', 'target-ppc', []),
-#('QDIS_TGT_PPC_64', 'ppc_64', 'target-ppc', ['-DTARGET_PPC64']),
+('QDIS_TGT_PPC_64', 'ppc_64', 'target-ppc', ['-DTARGET_PPC64']),
 #('QDIS_TGT_ALPHA', 'alpha', 'target-alpha', []),
 #('QDIS_TGT_CRIS', 'cris', 'target-cris', []),
 #('QDIS_TGT_LM32', 'lm32', 'target-lm32', []),
@@ -27,7 +27,7 @@ TARGETS=[
 #('QDIS_TGT_S390X', 's390x', 'target-s390x', []),
 #('QDIS_TGT_SH4', 'sh4', 'target-sh4', []),
 #('QDIS_TGT_SPARC_32', 'sparc_32', 'target-sparc', []),
-#('QDIS_TGT_SPARC_64', 'sparc_64', 'target-sparc', ['-DTARGET_SPARC64']),
+('QDIS_TGT_SPARC_64', 'sparc_64', 'target-sparc', ['-DTARGET_SPARC64']),
 #('QDIS_TGT_UNICORE32', 'unicore', 'target-unicore', []),
 #('QDIS_TGT_XTENSA', 'xtensa', 'target-xtensa', []),
 ]
@@ -80,7 +80,7 @@ def build_tgt(outfile, objname, basename, cflags):
     for srcname in TARGETSOURCES:
         out = path.splitext(path.basename(srcname))[0] + '-' + objname + '.o'
         TARGETINTERMEDIATES.append(out)
-        outfile.write(out+':\n')
+        outfile.write(out+': '+ srcname+ '\n')
         outfile.write('\t'+join(['$(CC)','$('+targetcflags+')', srcname, '-c', '-o', out])+'\n')
     TARGETOUT_UNSTRIPPED = objname + '-unstripped.o'
     TARGETOUT = objname + '-module.o'
