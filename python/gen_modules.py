@@ -18,7 +18,7 @@ TARGETS=[
 ('QDIS_TGT_MIPS_64', 'mips_64', 'target-mips', ['-DTARGET_MIPS64']),
 #('QDIS_TGT_PPC_32', 'ppc_32', 'target-ppc', []),
 ('QDIS_TGT_PPC_64', 'ppc_64', 'target-ppc', ['-DTARGET_PPC64']),
-#('QDIS_TGT_ALPHA', 'alpha', 'target-alpha', []),
+('QDIS_TGT_ALPHA', 'alpha', 'target-alpha', []),
 #('QDIS_TGT_CRIS', 'cris', 'target-cris', []),
 #('QDIS_TGT_LM32', 'lm32', 'target-lm32', []),
 #('QDIS_TGT_M68K', 'm68k', 'target-m68k', []),

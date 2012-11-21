@@ -71,6 +71,24 @@ ppc_64-unstripped.o: translate-ppc_64.o tcg-ppc_64.o optimize-ppc_64.o qemu-hook
 ppc_64-module.o: ppc_64-unstripped.o
 	$(OBJCOPY) -G ppc_64_create $(RENAME_SYMBOLS_ppc_64) ppc_64-unstripped.o ppc_64-module.o
 
+# target: target-alpha
+TARGETCFLAGS_alpha=$(CFLAGS) -I$(QEMUROOT)/target-alpha -DNEED_CPU_H -w -DTARGET=alpha
+RENAME_SYMBOLS_alpha=--redefine-sym dis_size=alpha_dis_size --redefine-sym gen_opc_instr_start=alpha_gen_opc_instr_start --redefine-sym gen_opc_pc=alpha_gen_opc_pc --redefine-sym tcg_ctx=alpha_tcg_ctx --redefine-sym dis_offset=alpha_dis_offset --redefine-sym gen_opc_icount=alpha_gen_opc_icount --redefine-sym dis_memory=alpha_dis_memory --redefine-sym dis_fault=alpha_dis_fault
+translate-alpha.o: $(QEMUROOT)/target-alpha/translate.c
+	$(CC) $(TARGETCFLAGS_alpha) $(QEMUROOT)/target-alpha/translate.c -c -o translate-alpha.o
+tcg-alpha.o: $(QEMUROOT)/tcg/tcg.c
+	$(CC) $(TARGETCFLAGS_alpha) $(QEMUROOT)/tcg/tcg.c -c -o tcg-alpha.o
+optimize-alpha.o: $(QEMUROOT)/tcg/optimize.c
+	$(CC) $(TARGETCFLAGS_alpha) $(QEMUROOT)/tcg/optimize.c -c -o optimize-alpha.o
+qemu-hooks-alpha.o: qemu-hooks.c
+	$(CC) $(TARGETCFLAGS_alpha) qemu-hooks.c -c -o qemu-hooks-alpha.o
+target-alpha-alpha.o: target-alpha.c
+	$(CC) $(TARGETCFLAGS_alpha) target-alpha.c -c -o target-alpha-alpha.o
+alpha-unstripped.o: translate-alpha.o tcg-alpha.o optimize-alpha.o qemu-hooks-alpha.o target-alpha-alpha.o
+	$(LD) -r translate-alpha.o tcg-alpha.o optimize-alpha.o qemu-hooks-alpha.o target-alpha-alpha.o -o alpha-unstripped.o
+alpha-module.o: alpha-unstripped.o
+	$(OBJCOPY) -G alpha_create $(RENAME_SYMBOLS_alpha) alpha-unstripped.o alpha-module.o
+
 # target: target-sparc
 TARGETCFLAGS_sparc_64=$(CFLAGS) -I$(QEMUROOT)/target-sparc -DNEED_CPU_H -w -DTARGET=sparc_64 -DTARGET_SPARC64
 RENAME_SYMBOLS_sparc_64=--redefine-sym dis_size=sparc_64_dis_size --redefine-sym gen_opc_instr_start=sparc_64_gen_opc_instr_start --redefine-sym gen_opc_pc=sparc_64_gen_opc_pc --redefine-sym tcg_ctx=sparc_64_tcg_ctx --redefine-sym dis_offset=sparc_64_dis_offset --redefine-sym gen_opc_icount=sparc_64_gen_opc_icount --redefine-sym dis_memory=sparc_64_dis_memory --redefine-sym dis_fault=sparc_64_dis_fault
@@ -89,4 +107,4 @@ sparc_64-unstripped.o: translate-sparc_64.o tcg-sparc_64.o optimize-sparc_64.o q
 sparc_64-module.o: sparc_64-unstripped.o
 	$(OBJCOPY) -G sparc_64_create $(RENAME_SYMBOLS_sparc_64) sparc_64-unstripped.o sparc_64-module.o
 
-MODULES=arm-module.o x86_64-module.o mips_64-module.o ppc_64-module.o sparc_64-module.o
+MODULES=arm-module.o x86_64-module.o mips_64-module.o ppc_64-module.o alpha-module.o sparc_64-module.o

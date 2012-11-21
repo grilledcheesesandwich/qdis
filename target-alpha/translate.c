@@ -90,7 +90,11 @@ static char cpu_reg_names[10*4+21*5 + 10*5+21*6];
 
 #include "gen-icount.h"
 
+#ifndef TCG_PYTHON
 static void alpha_translate_init(void)
+#else
+void alpha_translate_init(void)
+#endif
 {
     int i;
     char *p;
@@ -3516,7 +3520,7 @@ static const struct cpu_def_t cpu_defs[] = {
     { "21264a", IMPLVER_21264, (AMASK_BWX | AMASK_FIX | AMASK_CIX
 				| AMASK_MVI | AMASK_TRAP | AMASK_PREFETCH), }
 };
-
+#ifndef TCG_PYTHON
 CPUAlphaState * cpu_alpha_init (const char *cpu_model)
 {
     AlphaCPU *cpu;
@@ -3548,7 +3552,7 @@ CPUAlphaState * cpu_alpha_init (const char *cpu_model)
     qemu_init_vcpu(env);
     return env;
 }
-
+#endif
 void restore_state_to_opc(CPUAlphaState *env, TranslationBlock *tb, int pc_pos)
 {
     env->pc = gen_opc_pc[pc_pos];
