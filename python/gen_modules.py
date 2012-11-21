@@ -8,6 +8,8 @@ from os import path
 import sys
 import subprocess
 
+# TODO do the 32 bit targets make sense where a 64 bit one exists, or are they all just
+#  subsets or special modes?
 TARGETS=[
 ('QDIS_TGT_ARM', 'arm', 'target-arm', []),
 ('QDIS_TGT_X86_32', 'x86_32', 'target-i386', []),
@@ -16,18 +18,18 @@ TARGETS=[
 #('QDIS_TGT_MIPS_64', 'mips_64', 'target-mips', ['-DTARGET_MIPS64']),
 #('QDIS_TGT_PPC_32', 'ppc_32', 'target-ppc', []),
 #('QDIS_TGT_PPC_64', 'ppc_64', 'target-ppc', ['-DTARGET_PPC64']),
-#('QDIS_TGT_ALPHA
-#('QDIS_TGT_CRIS
-#('QDIS_TGT_LM32
-#('QDIS_TGT_M68K
-#('QDIS_TGT_MICROBLAZE
-#('QDIS_TGT_OPENRISC
-#('QDIS_TGT_S390X
-#('QDIS_TGT_SH4
-#('QDIS_TGT_SPARC_32
-#('QDIS_TGT_SPARC_64
-#('QDIS_TGT_UNICORE32
-#('QDIS_TGT_XTENSA
+#('QDIS_TGT_ALPHA', 'alpha', 'target-alpha', []),
+#('QDIS_TGT_CRIS', 'cris', 'target-cris', []),
+#('QDIS_TGT_LM32', 'lm32', 'target-lm32', []),
+#('QDIS_TGT_M68K', 'm68k', 'target-m68k', []),
+#('QDIS_TGT_MICROBLAZE', 'microblaze', 'target-microblaze', []),
+#('QDIS_TGT_OPENRISC', 'openrisc', 'target-openrisc', []),
+#('QDIS_TGT_S390X', 's390x', 'target-s390x', []),
+#('QDIS_TGT_SH4', 'sh4', 'target-sh4', []),
+#('QDIS_TGT_SPARC_32', 'sparc_32', 'target-sparc', []),
+#('QDIS_TGT_SPARC_64', 'sparc_64', 'target-sparc', ['-DTARGET_SPARC64']),
+#('QDIS_TGT_UNICORE32', 'unicore', 'target-unicore', []),
+#('QDIS_TGT_XTENSA', 'xtensa', 'target-xtensa', []),
 ]
 #
 # Partial linking
