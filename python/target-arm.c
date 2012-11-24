@@ -68,6 +68,7 @@ static CPUArchState *init_target(QDisCPUFeature *features)
     set_feature(env, ARM_FEATURE_VFP_FP16);
     set_feature(env, ARM_FEATURE_NEON);
     set_feature(env, ARM_FEATURE_THUMB2EE);
+    set_feature(env, ARM_FEATURE_DUMMY_C15_REGS);
     set_features(env);
     return env;
 }

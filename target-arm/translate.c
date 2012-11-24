@@ -6374,8 +6374,10 @@ static int disas_coproc_insn(CPUARMState * env, DisasContext *s, uint32_t insn)
         }
         return 0;
     }
-#endif
     return 1;
+#else
+    return 0; /* ignore unknown coprocessor regs for now */
+#endif
 }
 
 
