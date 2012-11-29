@@ -45,7 +45,8 @@ typedef enum
 //* use the 64 bit target
 
 // Tokens for CPU features
-// XX use ELF hwcap flags here?
+// XXX this list quickly gets out of hand
+// use ELF hwcap flags here?
 typedef enum
 {
     QDIS_FEATURE_END = 0,
@@ -84,22 +85,24 @@ typedef enum
     // TODO i386 etc
 } QDisCPUFeature;
 
-/* XXX need a more standarized way that doesn't rely on qemu internals as much? 
- * also make a selection of flags that actually affect instruction decoding */
-/* arm */
-#define QDIS_INST_ARM_THUMB_SHIFT      0
+/* Instruction interpretation flags */
+/* XXX would like a more standarized way that doesn't rely on qemu internals as much? 
+ * also make a selection of flags that usefully affect instruction decoding 
+ */
+/* ARM */
+#define QDIS_INST_ARM_THUMB_SHIFT      0   /* true if thumb instruction set mode */
 #define QDIS_INST_ARM_THUMB_MASK       (1 << QDIS_INST_ARM_THUMB_SHIFT)
 #define QDIS_INST_ARM_VECLEN_SHIFT     1
 #define QDIS_INST_ARM_VECLEN_MASK      (0x7 << QDIS_INST_ARM_VECLEN_SHIFT)
 #define QDIS_INST_ARM_VECSTRIDE_SHIFT  4
 #define QDIS_INST_ARM_VECSTRIDE_MASK   (0x3 << QDIS_INST_ARM_VECSTRIDE_SHIFT)
-#define QDIS_INST_ARM_PRIV_SHIFT       6
+#define QDIS_INST_ARM_PRIV_SHIFT       6   /* true if in privileged mode */
 #define QDIS_INST_ARM_PRIV_MASK        (1 << QDIS_INST_ARM_PRIV_SHIFT)
-#define QDIS_INST_ARM_VFPEN_SHIFT      7
+#define QDIS_INST_ARM_VFPEN_SHIFT      7   /* true if vfp enabled */
 #define QDIS_INST_ARM_VFPEN_MASK       (1 << QDIS_INST_ARM_VFPEN_SHIFT)
 #define QDIS_INST_ARM_CONDEXEC_SHIFT   8
 #define QDIS_INST_ARM_CONDEXEC_MASK    (0xff << QDIS_INST_ARM_CONDEXEC_SHIFT)
-#define QDIS_INST_ARM_BSWAP_CODE_SHIFT 16
+#define QDIS_INST_ARM_BSWAP_CODE_SHIFT 16  /* true if big endian */
 #define QDIS_INST_ARM_BSWAP_CODE_MASK  (1 << QDIS_INST_ARM_BSWAP_CODE_SHIFT)
 
 /* x86 */
@@ -148,6 +151,13 @@ typedef enum
 #define QDIS_INST_X86_SVMI_MASK         (1 << QDIS_INST_X86_SVMI_SHIFT)
 #define QDIS_INST_X86_OSFXSR_MASK       (1 << QDIS_INST_X86_OSFXSR_SHIFT)
 #define QDIS_INST_X86_SMAP_MASK         (1 << QDIS_INST_X86_SMAP_SHIFT)
+
+/* A few useful selections */
+#define QDIS_IFLAGS_DEFAULT_ARM         (QDIS_INST_ARM_VFPEN_MASK)
+#define QDIS_IFLAGS_DEFAULT_THUMB       (QDIS_INST_ARM_VFPEN_MASK | QDIS_INST_ARM_THUMB_MASK)
+#define QDIS_IFLAGS_DEFAULT_I386        (QDIS_INST_X86_PE_MASK | QDIS_INST_X86_CS32_MASK | QDIS_INST_X86_SS32_MASK)
+#define QDIS_IFLAGS_DEFAULT_AMD64       (QDIS_INST_X86_PE_MASK | QDIS_INST_X86_CS32_MASK | \
+                                       QDIS_INST_X86_SS32_MASK | QDIS_INST_X86_CS64_MASK | QDIS_INST_X86_LMA_MASK)
 
 typedef struct QDisassembler_ QDisassembler;
 

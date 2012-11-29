@@ -1,7 +1,7 @@
 '''Wrapper for qdis.h
 
 Generated with:
-/home/orion/upstream/python/ctypesgen-read-only/ctypesgen.py -lqdis qdis.h -L .
+/home/orion/upstream/python/ctypesgen/ctypesgen.py -lqdis qdis.h -L .
 
 Do not modify this file.
 '''
@@ -622,8 +622,6 @@ QDIS_TGT_64BIT = 12288 # qdis.h: 44
 
 QDIS_TGT_ARM = (0 | QDIS_TGT_32BIT) # qdis.h: 44
 
-QDIS_TGT_X86_32 = (1 | QDIS_TGT_32BIT) # qdis.h: 44
-
 QDIS_TGT_X86_64 = (1 | QDIS_TGT_64BIT) # qdis.h: 44
 
 QDIS_TGT_ALPHA = (2 | QDIS_TGT_64BIT) # qdis.h: 44
@@ -636,21 +634,15 @@ QDIS_TGT_M68K = (5 | QDIS_TGT_32BIT) # qdis.h: 44
 
 QDIS_TGT_MICROBLAZE = (6 | QDIS_TGT_32BIT) # qdis.h: 44
 
-QDIS_TGT_MIPS_32 = (7 | QDIS_TGT_32BIT) # qdis.h: 44
-
 QDIS_TGT_MIPS_64 = (7 | QDIS_TGT_64BIT) # qdis.h: 44
 
 QDIS_TGT_OPENRISC = (8 | QDIS_TGT_32BIT) # qdis.h: 44
-
-QDIS_TGT_PPC_32 = (9 | QDIS_TGT_32BIT) # qdis.h: 44
 
 QDIS_TGT_PPC_64 = (9 | QDIS_TGT_64BIT) # qdis.h: 44
 
 QDIS_TGT_S390X = (10 | QDIS_TGT_64BIT) # qdis.h: 44
 
 QDIS_TGT_SH4 = (11 | QDIS_TGT_32BIT) # qdis.h: 44
-
-QDIS_TGT_SPARC_32 = (12 | QDIS_TGT_32BIT) # qdis.h: 44
 
 QDIS_TGT_SPARC_64 = (12 | QDIS_TGT_64BIT) # qdis.h: 44
 
@@ -660,117 +652,117 @@ QDIS_TGT_XTENSA = (14 | QDIS_TGT_32BIT) # qdis.h: 44
 
 QDisTarget = enum_anon_21 # qdis.h: 44
 
-enum_anon_22 = c_int # qdis.h: 84
+enum_anon_22 = c_int # qdis.h: 86
 
-QDIS_FEATURE_END = 0 # qdis.h: 84
+QDIS_FEATURE_END = 0 # qdis.h: 86
 
-QDIS_ARM_FEATURE_VFP = (QDIS_FEATURE_END + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_VFP = (QDIS_FEATURE_END + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_AUXCR = (QDIS_ARM_FEATURE_VFP + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_AUXCR = (QDIS_ARM_FEATURE_VFP + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_XSCALE = (QDIS_ARM_FEATURE_AUXCR + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_XSCALE = (QDIS_ARM_FEATURE_AUXCR + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_IWMMXT = (QDIS_ARM_FEATURE_XSCALE + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_IWMMXT = (QDIS_ARM_FEATURE_XSCALE + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_V6 = (QDIS_ARM_FEATURE_IWMMXT + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_V6 = (QDIS_ARM_FEATURE_IWMMXT + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_V6K = (QDIS_ARM_FEATURE_V6 + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_V6K = (QDIS_ARM_FEATURE_V6 + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_V7 = (QDIS_ARM_FEATURE_V6K + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_V7 = (QDIS_ARM_FEATURE_V6K + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_THUMB2 = (QDIS_ARM_FEATURE_V7 + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_THUMB2 = (QDIS_ARM_FEATURE_V7 + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_MPU = (QDIS_ARM_FEATURE_THUMB2 + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_MPU = (QDIS_ARM_FEATURE_THUMB2 + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_VFP3 = (QDIS_ARM_FEATURE_MPU + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_VFP3 = (QDIS_ARM_FEATURE_MPU + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_VFP_FP16 = (QDIS_ARM_FEATURE_VFP3 + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_VFP_FP16 = (QDIS_ARM_FEATURE_VFP3 + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_NEON = (QDIS_ARM_FEATURE_VFP_FP16 + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_NEON = (QDIS_ARM_FEATURE_VFP_FP16 + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_THUMB_DIV = (QDIS_ARM_FEATURE_NEON + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_THUMB_DIV = (QDIS_ARM_FEATURE_NEON + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_M = (QDIS_ARM_FEATURE_THUMB_DIV + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_M = (QDIS_ARM_FEATURE_THUMB_DIV + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_OMAPCP = (QDIS_ARM_FEATURE_M + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_OMAPCP = (QDIS_ARM_FEATURE_M + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_THUMB2EE = (QDIS_ARM_FEATURE_OMAPCP + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_THUMB2EE = (QDIS_ARM_FEATURE_OMAPCP + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_V7MP = (QDIS_ARM_FEATURE_THUMB2EE + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_V7MP = (QDIS_ARM_FEATURE_THUMB2EE + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_V4T = (QDIS_ARM_FEATURE_V7MP + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_V4T = (QDIS_ARM_FEATURE_V7MP + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_V5 = (QDIS_ARM_FEATURE_V4T + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_V5 = (QDIS_ARM_FEATURE_V4T + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_STRONGARM = (QDIS_ARM_FEATURE_V5 + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_STRONGARM = (QDIS_ARM_FEATURE_V5 + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_VAPA = (QDIS_ARM_FEATURE_STRONGARM + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_VAPA = (QDIS_ARM_FEATURE_STRONGARM + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_ARM_DIV = (QDIS_ARM_FEATURE_VAPA + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_ARM_DIV = (QDIS_ARM_FEATURE_VAPA + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_VFP4 = (QDIS_ARM_FEATURE_ARM_DIV + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_VFP4 = (QDIS_ARM_FEATURE_ARM_DIV + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_GENERIC_TIMER = (QDIS_ARM_FEATURE_VFP4 + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_GENERIC_TIMER = (QDIS_ARM_FEATURE_VFP4 + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_MVFR = (QDIS_ARM_FEATURE_GENERIC_TIMER + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_MVFR = (QDIS_ARM_FEATURE_GENERIC_TIMER + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_DUMMY_C15_REGS = (QDIS_ARM_FEATURE_MVFR + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_DUMMY_C15_REGS = (QDIS_ARM_FEATURE_MVFR + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_CACHE_TEST_CLEAN = (QDIS_ARM_FEATURE_DUMMY_C15_REGS + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_CACHE_TEST_CLEAN = (QDIS_ARM_FEATURE_DUMMY_C15_REGS + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_CACHE_DIRTY_REG = (QDIS_ARM_FEATURE_CACHE_TEST_CLEAN + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_CACHE_DIRTY_REG = (QDIS_ARM_FEATURE_CACHE_TEST_CLEAN + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_CACHE_BLOCK_OPS = (QDIS_ARM_FEATURE_CACHE_DIRTY_REG + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_CACHE_BLOCK_OPS = (QDIS_ARM_FEATURE_CACHE_DIRTY_REG + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_MPIDR = (QDIS_ARM_FEATURE_CACHE_BLOCK_OPS + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_MPIDR = (QDIS_ARM_FEATURE_CACHE_BLOCK_OPS + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_PXN = (QDIS_ARM_FEATURE_MPIDR + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_PXN = (QDIS_ARM_FEATURE_MPIDR + 1) # qdis.h: 86
 
-QDIS_ARM_FEATURE_LPAE = (QDIS_ARM_FEATURE_PXN + 1) # qdis.h: 84
+QDIS_ARM_FEATURE_LPAE = (QDIS_ARM_FEATURE_PXN + 1) # qdis.h: 86
 
-QDisCPUFeature = enum_anon_22 # qdis.h: 84
+QDisCPUFeature = enum_anon_22 # qdis.h: 86
 
-# qdis.h: 150
+# qdis.h: 162
 class struct_QDisassembler_(Structure):
     pass
 
-QDisassembler = struct_QDisassembler_ # qdis.h: 150
+QDisassembler = struct_QDisassembler_ # qdis.h: 162
 
-enum_anon_23 = c_int # qdis.h: 157
+enum_anon_23 = c_int # qdis.h: 169
 
-QDIS_OPTIMIZE_NONE = 0 # qdis.h: 157
+QDIS_OPTIMIZE_NONE = 0 # qdis.h: 169
 
-QDIS_OPTIMIZE_LIVENESS = 1 # qdis.h: 157
+QDIS_OPTIMIZE_LIVENESS = 1 # qdis.h: 169
 
-QDIS_OPTIMIZE_GENERAL = 2 # qdis.h: 157
+QDIS_OPTIMIZE_GENERAL = 2 # qdis.h: 169
 
-QDIS_OPTIMIZE_FULL = (QDIS_OPTIMIZE_LIVENESS | QDIS_OPTIMIZE_GENERAL) # qdis.h: 157
+QDIS_OPTIMIZE_FULL = (QDIS_OPTIMIZE_LIVENESS | QDIS_OPTIMIZE_GENERAL) # qdis.h: 169
 
-QDisOptimizeFlags = enum_anon_23 # qdis.h: 157
+QDisOptimizeFlags = enum_anon_23 # qdis.h: 169
 
-enum_anon_24 = c_int # qdis.h: 164
+enum_anon_24 = c_int # qdis.h: 176
 
-QDIS_SYM_LOCAL = 1 # qdis.h: 164
+QDIS_SYM_LOCAL = 1 # qdis.h: 176
 
-QDIS_SYM_TEMP = 2 # qdis.h: 164
+QDIS_SYM_TEMP = 2 # qdis.h: 176
 
-QDisSymType = enum_anon_24 # qdis.h: 164
+QDisSymType = enum_anon_24 # qdis.h: 176
 
-enum_anon_25 = c_int # qdis.h: 174
+enum_anon_25 = c_int # qdis.h: 186
 
-QDIS_SIZE_UNKNOWN = 0 # qdis.h: 174
+QDIS_SIZE_UNKNOWN = 0 # qdis.h: 186
 
-QDIS_SIZE_8 = 8 # qdis.h: 174
+QDIS_SIZE_8 = 8 # qdis.h: 186
 
-QDIS_SIZE_16 = 16 # qdis.h: 174
+QDIS_SIZE_16 = 16 # qdis.h: 186
 
-QDIS_SIZE_32 = 32 # qdis.h: 174
+QDIS_SIZE_32 = 32 # qdis.h: 186
 
-QDIS_SIZE_64 = 64 # qdis.h: 174
+QDIS_SIZE_64 = 64 # qdis.h: 186
 
-QDisBitsize = enum_anon_25 # qdis.h: 174
+QDisBitsize = enum_anon_25 # qdis.h: 186
 
-# qdis.h: 181
+# qdis.h: 193
 class struct_anon_26(Structure):
     pass
 
@@ -783,37 +775,37 @@ struct_anon_26._fields_ = [
     ('size', QDisBitsize),
 ]
 
-QDisSym = struct_anon_26 # qdis.h: 181
+QDisSym = struct_anon_26 # qdis.h: 193
 
-enum_anon_27 = c_int # qdis.h: 201
+enum_anon_27 = c_int # qdis.h: 213
 
-QDIS_COND_NEVER = (((0 | 0) | 0) | 0) # qdis.h: 201
+QDIS_COND_NEVER = (((0 | 0) | 0) | 0) # qdis.h: 213
 
-QDIS_COND_ALWAYS = (((0 | 0) | 0) | 1) # qdis.h: 201
+QDIS_COND_ALWAYS = (((0 | 0) | 0) | 1) # qdis.h: 213
 
-QDIS_COND_EQ = (((8 | 0) | 0) | 0) # qdis.h: 201
+QDIS_COND_EQ = (((8 | 0) | 0) | 0) # qdis.h: 213
 
-QDIS_COND_NE = (((8 | 0) | 0) | 1) # qdis.h: 201
+QDIS_COND_NE = (((8 | 0) | 0) | 1) # qdis.h: 213
 
-QDIS_COND_LT = (((0 | 0) | 2) | 0) # qdis.h: 201
+QDIS_COND_LT = (((0 | 0) | 2) | 0) # qdis.h: 213
 
-QDIS_COND_GE = (((0 | 0) | 2) | 1) # qdis.h: 201
+QDIS_COND_GE = (((0 | 0) | 2) | 1) # qdis.h: 213
 
-QDIS_COND_LE = (((8 | 0) | 2) | 0) # qdis.h: 201
+QDIS_COND_LE = (((8 | 0) | 2) | 0) # qdis.h: 213
 
-QDIS_COND_GT = (((8 | 0) | 2) | 1) # qdis.h: 201
+QDIS_COND_GT = (((8 | 0) | 2) | 1) # qdis.h: 213
 
-QDIS_COND_LTU = (((0 | 4) | 0) | 0) # qdis.h: 201
+QDIS_COND_LTU = (((0 | 4) | 0) | 0) # qdis.h: 213
 
-QDIS_COND_GEU = (((0 | 4) | 0) | 1) # qdis.h: 201
+QDIS_COND_GEU = (((0 | 4) | 0) | 1) # qdis.h: 213
 
-QDIS_COND_LEU = (((8 | 4) | 0) | 0) # qdis.h: 201
+QDIS_COND_LEU = (((8 | 4) | 0) | 0) # qdis.h: 213
 
-QDIS_COND_GTU = (((8 | 4) | 0) | 1) # qdis.h: 201
+QDIS_COND_GTU = (((8 | 4) | 0) | 1) # qdis.h: 213
 
-QDisConditionCode = enum_anon_27 # qdis.h: 201
+QDisConditionCode = enum_anon_27 # qdis.h: 213
 
-# qdis.h: 207
+# qdis.h: 219
 class struct_anon_28(Structure):
     pass
 
@@ -826,33 +818,33 @@ struct_anon_28._fields_ = [
     ('args', c_uint8),
 ]
 
-QDisOp = struct_anon_28 # qdis.h: 207
+QDisOp = struct_anon_28 # qdis.h: 219
 
-enum_anon_29 = c_int # qdis.h: 220
+enum_anon_29 = c_int # qdis.h: 233
 
-QDIS_ARG_GLOBAL = 1 # qdis.h: 220
+QDIS_ARG_GLOBAL = 1 # qdis.h: 233
 
-QDIS_ARG_TEMP = 2 # qdis.h: 220
+QDIS_ARG_TEMP = 2 # qdis.h: 233
 
-QDIS_ARG_COND = 8 # qdis.h: 220
+QDIS_ARG_COND = 8 # qdis.h: 233
 
-QDIS_ARG_LABEL = 16 # qdis.h: 220
+QDIS_ARG_LABEL = 16 # qdis.h: 233
 
-QDIS_ARG_CALLFLAGS = 64 # qdis.h: 220
+QDIS_ARG_CALLFLAGS = 64 # qdis.h: 233
 
-QDIS_ARG_CALLTARGET = 128 # qdis.h: 220
+QDIS_ARG_CALLTARGET = 128 # qdis.h: 233
 
-QDIS_ARG_INPUT = 256 # qdis.h: 220
+QDIS_ARG_INPUT = 256 # qdis.h: 233
 
-QDIS_ARG_OUTPUT = 512 # qdis.h: 220
+QDIS_ARG_OUTPUT = 512 # qdis.h: 233
 
-QDIS_ARG_CONSTANT = 1024 # qdis.h: 220
+QDIS_ARG_CONSTANT = 1024 # qdis.h: 233
 
-QDisArgFlags = enum_anon_29 # qdis.h: 220
+QDisArgFlags = enum_anon_29 # qdis.h: 233
 
-QDisVal = c_uint64 # qdis.h: 222
+QDisVal = c_uint64 # qdis.h: 235
 
-# qdis.h: 230
+# qdis.h: 243
 class struct_anon_30(Structure):
     pass
 
@@ -867,261 +859,261 @@ struct_anon_30._fields_ = [
     ('flags', c_uint16),
 ]
 
-QDisArg = struct_anon_30 # qdis.h: 230
+QDisArg = struct_anon_30 # qdis.h: 243
 
-enum_anon_31 = c_int # qdis.h: 359
+enum_anon_31 = c_int # qdis.h: 372
 
-QDIS_OP_END = 0 # qdis.h: 359
+QDIS_OP_END = 0 # qdis.h: 372
 
-QDIS_OP_NOP = 1 # qdis.h: 359
+QDIS_OP_NOP = 1 # qdis.h: 372
 
-QDIS_OP_NOP1 = 2 # qdis.h: 359
+QDIS_OP_NOP1 = 2 # qdis.h: 372
 
-QDIS_OP_NOP2 = 3 # qdis.h: 359
+QDIS_OP_NOP2 = 3 # qdis.h: 372
 
-QDIS_OP_NOP3 = 4 # qdis.h: 359
+QDIS_OP_NOP3 = 4 # qdis.h: 372
 
-QDIS_OP_NOPN = 5 # qdis.h: 359
+QDIS_OP_NOPN = 5 # qdis.h: 372
 
-QDIS_OP_DISCARD = 6 # qdis.h: 359
+QDIS_OP_DISCARD = 6 # qdis.h: 372
 
-QDIS_OP_SET_LABEL = 7 # qdis.h: 359
+QDIS_OP_SET_LABEL = 7 # qdis.h: 372
 
-QDIS_OP_CALL = 8 # qdis.h: 359
+QDIS_OP_CALL = 8 # qdis.h: 372
 
-QDIS_OP_BR = 9 # qdis.h: 359
+QDIS_OP_BR = 9 # qdis.h: 372
 
-QDIS_OP_MOV_I32 = 10 # qdis.h: 359
+QDIS_OP_MOV_I32 = 10 # qdis.h: 372
 
-QDIS_OP_MOVI_I32 = 11 # qdis.h: 359
+QDIS_OP_MOVI_I32 = 11 # qdis.h: 372
 
-QDIS_OP_SETCOND_I32 = 12 # qdis.h: 359
+QDIS_OP_SETCOND_I32 = 12 # qdis.h: 372
 
-QDIS_OP_MOVCOND_I32 = 13 # qdis.h: 359
+QDIS_OP_MOVCOND_I32 = 13 # qdis.h: 372
 
-QDIS_OP_LD8U_I32 = 14 # qdis.h: 359
+QDIS_OP_LD8U_I32 = 14 # qdis.h: 372
 
-QDIS_OP_LD8S_I32 = 15 # qdis.h: 359
+QDIS_OP_LD8S_I32 = 15 # qdis.h: 372
 
-QDIS_OP_LD16U_I32 = 16 # qdis.h: 359
+QDIS_OP_LD16U_I32 = 16 # qdis.h: 372
 
-QDIS_OP_LD16S_I32 = 17 # qdis.h: 359
+QDIS_OP_LD16S_I32 = 17 # qdis.h: 372
 
-QDIS_OP_LD_I32 = 18 # qdis.h: 359
+QDIS_OP_LD_I32 = 18 # qdis.h: 372
 
-QDIS_OP_ST8_I32 = 19 # qdis.h: 359
+QDIS_OP_ST8_I32 = 19 # qdis.h: 372
 
-QDIS_OP_ST16_I32 = 20 # qdis.h: 359
+QDIS_OP_ST16_I32 = 20 # qdis.h: 372
 
-QDIS_OP_ST_I32 = 21 # qdis.h: 359
+QDIS_OP_ST_I32 = 21 # qdis.h: 372
 
-QDIS_OP_ADD_I32 = 22 # qdis.h: 359
+QDIS_OP_ADD_I32 = 22 # qdis.h: 372
 
-QDIS_OP_SUB_I32 = 23 # qdis.h: 359
+QDIS_OP_SUB_I32 = 23 # qdis.h: 372
 
-QDIS_OP_MUL_I32 = 24 # qdis.h: 359
+QDIS_OP_MUL_I32 = 24 # qdis.h: 372
 
-QDIS_OP_DIV_I32 = 25 # qdis.h: 359
+QDIS_OP_DIV_I32 = 25 # qdis.h: 372
 
-QDIS_OP_DIVU_I32 = 26 # qdis.h: 359
+QDIS_OP_DIVU_I32 = 26 # qdis.h: 372
 
-QDIS_OP_REM_I32 = 27 # qdis.h: 359
+QDIS_OP_REM_I32 = 27 # qdis.h: 372
 
-QDIS_OP_REMU_I32 = 28 # qdis.h: 359
+QDIS_OP_REMU_I32 = 28 # qdis.h: 372
 
-QDIS_OP_DIV2_I32 = 29 # qdis.h: 359
+QDIS_OP_DIV2_I32 = 29 # qdis.h: 372
 
-QDIS_OP_DIVU2_I32 = 30 # qdis.h: 359
+QDIS_OP_DIVU2_I32 = 30 # qdis.h: 372
 
-QDIS_OP_AND_I32 = 31 # qdis.h: 359
+QDIS_OP_AND_I32 = 31 # qdis.h: 372
 
-QDIS_OP_OR_I32 = 32 # qdis.h: 359
+QDIS_OP_OR_I32 = 32 # qdis.h: 372
 
-QDIS_OP_XOR_I32 = 33 # qdis.h: 359
+QDIS_OP_XOR_I32 = 33 # qdis.h: 372
 
-QDIS_OP_SHL_I32 = 34 # qdis.h: 359
+QDIS_OP_SHL_I32 = 34 # qdis.h: 372
 
-QDIS_OP_SHR_I32 = 35 # qdis.h: 359
+QDIS_OP_SHR_I32 = 35 # qdis.h: 372
 
-QDIS_OP_SAR_I32 = 36 # qdis.h: 359
+QDIS_OP_SAR_I32 = 36 # qdis.h: 372
 
-QDIS_OP_ROTL_I32 = 37 # qdis.h: 359
+QDIS_OP_ROTL_I32 = 37 # qdis.h: 372
 
-QDIS_OP_ROTR_I32 = 38 # qdis.h: 359
+QDIS_OP_ROTR_I32 = 38 # qdis.h: 372
 
-QDIS_OP_DEPOSIT_I32 = 39 # qdis.h: 359
+QDIS_OP_DEPOSIT_I32 = 39 # qdis.h: 372
 
-QDIS_OP_BRCOND_I32 = 40 # qdis.h: 359
+QDIS_OP_BRCOND_I32 = 40 # qdis.h: 372
 
-QDIS_OP_ADD2_I32 = 41 # qdis.h: 359
+QDIS_OP_ADD2_I32 = 41 # qdis.h: 372
 
-QDIS_OP_SUB2_I32 = 42 # qdis.h: 359
+QDIS_OP_SUB2_I32 = 42 # qdis.h: 372
 
-QDIS_OP_BRCOND2_I32 = 43 # qdis.h: 359
+QDIS_OP_BRCOND2_I32 = 43 # qdis.h: 372
 
-QDIS_OP_MULU2_I32 = 44 # qdis.h: 359
+QDIS_OP_MULU2_I32 = 44 # qdis.h: 372
 
-QDIS_OP_SETCOND2_I32 = 45 # qdis.h: 359
+QDIS_OP_SETCOND2_I32 = 45 # qdis.h: 372
 
-QDIS_OP_EXT8S_I32 = 46 # qdis.h: 359
+QDIS_OP_EXT8S_I32 = 46 # qdis.h: 372
 
-QDIS_OP_EXT16S_I32 = 47 # qdis.h: 359
+QDIS_OP_EXT16S_I32 = 47 # qdis.h: 372
 
-QDIS_OP_EXT8U_I32 = 48 # qdis.h: 359
+QDIS_OP_EXT8U_I32 = 48 # qdis.h: 372
 
-QDIS_OP_EXT16U_I32 = 49 # qdis.h: 359
+QDIS_OP_EXT16U_I32 = 49 # qdis.h: 372
 
-QDIS_OP_BSWAP16_I32 = 50 # qdis.h: 359
+QDIS_OP_BSWAP16_I32 = 50 # qdis.h: 372
 
-QDIS_OP_BSWAP32_I32 = 51 # qdis.h: 359
+QDIS_OP_BSWAP32_I32 = 51 # qdis.h: 372
 
-QDIS_OP_NOT_I32 = 52 # qdis.h: 359
+QDIS_OP_NOT_I32 = 52 # qdis.h: 372
 
-QDIS_OP_NEG_I32 = 53 # qdis.h: 359
+QDIS_OP_NEG_I32 = 53 # qdis.h: 372
 
-QDIS_OP_ANDC_I32 = 54 # qdis.h: 359
+QDIS_OP_ANDC_I32 = 54 # qdis.h: 372
 
-QDIS_OP_ORC_I32 = 55 # qdis.h: 359
+QDIS_OP_ORC_I32 = 55 # qdis.h: 372
 
-QDIS_OP_EQV_I32 = 56 # qdis.h: 359
+QDIS_OP_EQV_I32 = 56 # qdis.h: 372
 
-QDIS_OP_NAND_I32 = 57 # qdis.h: 359
+QDIS_OP_NAND_I32 = 57 # qdis.h: 372
 
-QDIS_OP_NOR_I32 = 58 # qdis.h: 359
+QDIS_OP_NOR_I32 = 58 # qdis.h: 372
 
-QDIS_OP_MOV_I64 = 59 # qdis.h: 359
+QDIS_OP_MOV_I64 = 59 # qdis.h: 372
 
-QDIS_OP_MOVI_I64 = 60 # qdis.h: 359
+QDIS_OP_MOVI_I64 = 60 # qdis.h: 372
 
-QDIS_OP_SETCOND_I64 = 61 # qdis.h: 359
+QDIS_OP_SETCOND_I64 = 61 # qdis.h: 372
 
-QDIS_OP_MOVCOND_I64 = 62 # qdis.h: 359
+QDIS_OP_MOVCOND_I64 = 62 # qdis.h: 372
 
-QDIS_OP_LD8U_I64 = 63 # qdis.h: 359
+QDIS_OP_LD8U_I64 = 63 # qdis.h: 372
 
-QDIS_OP_LD8S_I64 = 64 # qdis.h: 359
+QDIS_OP_LD8S_I64 = 64 # qdis.h: 372
 
-QDIS_OP_LD16U_I64 = 65 # qdis.h: 359
+QDIS_OP_LD16U_I64 = 65 # qdis.h: 372
 
-QDIS_OP_LD16S_I64 = 66 # qdis.h: 359
+QDIS_OP_LD16S_I64 = 66 # qdis.h: 372
 
-QDIS_OP_LD32U_I64 = 67 # qdis.h: 359
+QDIS_OP_LD32U_I64 = 67 # qdis.h: 372
 
-QDIS_OP_LD32S_I64 = 68 # qdis.h: 359
+QDIS_OP_LD32S_I64 = 68 # qdis.h: 372
 
-QDIS_OP_LD_I64 = 69 # qdis.h: 359
+QDIS_OP_LD_I64 = 69 # qdis.h: 372
 
-QDIS_OP_ST8_I64 = 70 # qdis.h: 359
+QDIS_OP_ST8_I64 = 70 # qdis.h: 372
 
-QDIS_OP_ST16_I64 = 71 # qdis.h: 359
+QDIS_OP_ST16_I64 = 71 # qdis.h: 372
 
-QDIS_OP_ST32_I64 = 72 # qdis.h: 359
+QDIS_OP_ST32_I64 = 72 # qdis.h: 372
 
-QDIS_OP_ST_I64 = 73 # qdis.h: 359
+QDIS_OP_ST_I64 = 73 # qdis.h: 372
 
-QDIS_OP_ADD_I64 = 74 # qdis.h: 359
+QDIS_OP_ADD_I64 = 74 # qdis.h: 372
 
-QDIS_OP_SUB_I64 = 75 # qdis.h: 359
+QDIS_OP_SUB_I64 = 75 # qdis.h: 372
 
-QDIS_OP_MUL_I64 = 76 # qdis.h: 359
+QDIS_OP_MUL_I64 = 76 # qdis.h: 372
 
-QDIS_OP_DIV_I64 = 77 # qdis.h: 359
+QDIS_OP_DIV_I64 = 77 # qdis.h: 372
 
-QDIS_OP_DIVU_I64 = 78 # qdis.h: 359
+QDIS_OP_DIVU_I64 = 78 # qdis.h: 372
 
-QDIS_OP_REM_I64 = 79 # qdis.h: 359
+QDIS_OP_REM_I64 = 79 # qdis.h: 372
 
-QDIS_OP_REMU_I64 = 80 # qdis.h: 359
+QDIS_OP_REMU_I64 = 80 # qdis.h: 372
 
-QDIS_OP_DIV2_I64 = 81 # qdis.h: 359
+QDIS_OP_DIV2_I64 = 81 # qdis.h: 372
 
-QDIS_OP_DIVU2_I64 = 82 # qdis.h: 359
+QDIS_OP_DIVU2_I64 = 82 # qdis.h: 372
 
-QDIS_OP_AND_I64 = 83 # qdis.h: 359
+QDIS_OP_AND_I64 = 83 # qdis.h: 372
 
-QDIS_OP_OR_I64 = 84 # qdis.h: 359
+QDIS_OP_OR_I64 = 84 # qdis.h: 372
 
-QDIS_OP_XOR_I64 = 85 # qdis.h: 359
+QDIS_OP_XOR_I64 = 85 # qdis.h: 372
 
-QDIS_OP_SHL_I64 = 86 # qdis.h: 359
+QDIS_OP_SHL_I64 = 86 # qdis.h: 372
 
-QDIS_OP_SHR_I64 = 87 # qdis.h: 359
+QDIS_OP_SHR_I64 = 87 # qdis.h: 372
 
-QDIS_OP_SAR_I64 = 88 # qdis.h: 359
+QDIS_OP_SAR_I64 = 88 # qdis.h: 372
 
-QDIS_OP_ROTL_I64 = 89 # qdis.h: 359
+QDIS_OP_ROTL_I64 = 89 # qdis.h: 372
 
-QDIS_OP_ROTR_I64 = 90 # qdis.h: 359
+QDIS_OP_ROTR_I64 = 90 # qdis.h: 372
 
-QDIS_OP_DEPOSIT_I64 = 91 # qdis.h: 359
+QDIS_OP_DEPOSIT_I64 = 91 # qdis.h: 372
 
-QDIS_OP_BRCOND_I64 = 92 # qdis.h: 359
+QDIS_OP_BRCOND_I64 = 92 # qdis.h: 372
 
-QDIS_OP_EXT8S_I64 = 93 # qdis.h: 359
+QDIS_OP_EXT8S_I64 = 93 # qdis.h: 372
 
-QDIS_OP_EXT16S_I64 = 94 # qdis.h: 359
+QDIS_OP_EXT16S_I64 = 94 # qdis.h: 372
 
-QDIS_OP_EXT32S_I64 = 95 # qdis.h: 359
+QDIS_OP_EXT32S_I64 = 95 # qdis.h: 372
 
-QDIS_OP_EXT8U_I64 = 96 # qdis.h: 359
+QDIS_OP_EXT8U_I64 = 96 # qdis.h: 372
 
-QDIS_OP_EXT16U_I64 = 97 # qdis.h: 359
+QDIS_OP_EXT16U_I64 = 97 # qdis.h: 372
 
-QDIS_OP_EXT32U_I64 = 98 # qdis.h: 359
+QDIS_OP_EXT32U_I64 = 98 # qdis.h: 372
 
-QDIS_OP_BSWAP16_I64 = 99 # qdis.h: 359
+QDIS_OP_BSWAP16_I64 = 99 # qdis.h: 372
 
-QDIS_OP_BSWAP32_I64 = 100 # qdis.h: 359
+QDIS_OP_BSWAP32_I64 = 100 # qdis.h: 372
 
-QDIS_OP_BSWAP64_I64 = 101 # qdis.h: 359
+QDIS_OP_BSWAP64_I64 = 101 # qdis.h: 372
 
-QDIS_OP_NOT_I64 = 102 # qdis.h: 359
+QDIS_OP_NOT_I64 = 102 # qdis.h: 372
 
-QDIS_OP_NEG_I64 = 103 # qdis.h: 359
+QDIS_OP_NEG_I64 = 103 # qdis.h: 372
 
-QDIS_OP_ANDC_I64 = 104 # qdis.h: 359
+QDIS_OP_ANDC_I64 = 104 # qdis.h: 372
 
-QDIS_OP_ORC_I64 = 105 # qdis.h: 359
+QDIS_OP_ORC_I64 = 105 # qdis.h: 372
 
-QDIS_OP_EQV_I64 = 106 # qdis.h: 359
+QDIS_OP_EQV_I64 = 106 # qdis.h: 372
 
-QDIS_OP_NAND_I64 = 107 # qdis.h: 359
+QDIS_OP_NAND_I64 = 107 # qdis.h: 372
 
-QDIS_OP_NOR_I64 = 108 # qdis.h: 359
+QDIS_OP_NOR_I64 = 108 # qdis.h: 372
 
-QDIS_OP_DEBUG_INSN_START = 109 # qdis.h: 359
+QDIS_OP_DEBUG_INSN_START = 109 # qdis.h: 372
 
-QDIS_OP_EXIT_TB = 110 # qdis.h: 359
+QDIS_OP_EXIT_TB = 110 # qdis.h: 372
 
-QDIS_OP_GOTO_TB = 111 # qdis.h: 359
+QDIS_OP_GOTO_TB = 111 # qdis.h: 372
 
-QDIS_OP_QEMU_LD8U = 112 # qdis.h: 359
+QDIS_OP_QEMU_LD8U = 112 # qdis.h: 372
 
-QDIS_OP_QEMU_LD8S = 113 # qdis.h: 359
+QDIS_OP_QEMU_LD8S = 113 # qdis.h: 372
 
-QDIS_OP_QEMU_LD16U = 114 # qdis.h: 359
+QDIS_OP_QEMU_LD16U = 114 # qdis.h: 372
 
-QDIS_OP_QEMU_LD16S = 115 # qdis.h: 359
+QDIS_OP_QEMU_LD16S = 115 # qdis.h: 372
 
-QDIS_OP_QEMU_LD32 = 116 # qdis.h: 359
+QDIS_OP_QEMU_LD32 = 116 # qdis.h: 372
 
-QDIS_OP_QEMU_LD32U = 117 # qdis.h: 359
+QDIS_OP_QEMU_LD32U = 117 # qdis.h: 372
 
-QDIS_OP_QEMU_LD32S = 118 # qdis.h: 359
+QDIS_OP_QEMU_LD32S = 118 # qdis.h: 372
 
-QDIS_OP_QEMU_LD64 = 119 # qdis.h: 359
+QDIS_OP_QEMU_LD64 = 119 # qdis.h: 372
 
-QDIS_OP_QEMU_ST8 = 120 # qdis.h: 359
+QDIS_OP_QEMU_ST8 = 120 # qdis.h: 372
 
-QDIS_OP_QEMU_ST16 = 121 # qdis.h: 359
+QDIS_OP_QEMU_ST16 = 121 # qdis.h: 372
 
-QDIS_OP_QEMU_ST32 = 122 # qdis.h: 359
+QDIS_OP_QEMU_ST32 = 122 # qdis.h: 372
 
-QDIS_OP_QEMU_ST64 = 123 # qdis.h: 359
+QDIS_OP_QEMU_ST64 = 123 # qdis.h: 372
 
-DisOpcode = enum_anon_31 # qdis.h: 359
+DisOpcode = enum_anon_31 # qdis.h: 372
 
-# qdis.h: 379
+# qdis.h: 393
 class struct_anon_32(Structure):
     pass
 
@@ -1146,63 +1138,63 @@ struct_anon_32._fields_ = [
     ('_padding', c_size_t * 9),
 ]
 
-QDisResult = struct_anon_32 # qdis.h: 379
+QDisResult = struct_anon_32 # qdis.h: 393
 
-enum_anon_33 = c_int # qdis.h: 400
+enum_anon_33 = c_int # qdis.h: 414
 
-QDIS_INFO_OP = 1 # qdis.h: 400
+QDIS_INFO_OP = 1 # qdis.h: 414
 
-QDIS_INFO_COND = 2 # qdis.h: 400
+QDIS_INFO_COND = 2 # qdis.h: 414
 
-QDIS_INFO_CALLFLAG = 3 # qdis.h: 400
+QDIS_INFO_CALLFLAG = 3 # qdis.h: 414
 
-QDIS_INFO_NUM_OPS = 256 # qdis.h: 400
+QDIS_INFO_NUM_OPS = 256 # qdis.h: 414
 
-QDIS_INFO_HELPER = 513 # qdis.h: 400
+QDIS_INFO_HELPER = 513 # qdis.h: 414
 
-QDIS_INFO_HELPER_BY_ADDR = 514 # qdis.h: 400
+QDIS_INFO_HELPER_BY_ADDR = 514 # qdis.h: 414
 
-QDIS_INFO_GLOBAL = 515 # qdis.h: 400
+QDIS_INFO_GLOBAL = 515 # qdis.h: 414
 
-QDIS_INFO_PC_OFFSET = 768 # qdis.h: 400
+QDIS_INFO_PC_OFFSET = 768 # qdis.h: 414
 
-QDIS_INFO_SP_OFFSET = 769 # qdis.h: 400
+QDIS_INFO_SP_OFFSET = 769 # qdis.h: 414
 
-QDIS_INFO_NUM_HELPERS = 770 # qdis.h: 400
+QDIS_INFO_NUM_HELPERS = 770 # qdis.h: 414
 
-QDIS_INFO_NUM_GLOBALS = 771 # qdis.h: 400
+QDIS_INFO_NUM_GLOBALS = 771 # qdis.h: 414
 
-QDIS_INFO_GLOBAL_SIZE = 772 # qdis.h: 400
+QDIS_INFO_GLOBAL_SIZE = 772 # qdis.h: 414
 
-QDIS_INFO_GLOBAL_OFFSET = 773 # qdis.h: 400
+QDIS_INFO_GLOBAL_OFFSET = 773 # qdis.h: 414
 
-QDIS_INFO_STATE_SIZE = 774 # qdis.h: 400
+QDIS_INFO_STATE_SIZE = 774 # qdis.h: 414
 
-QDisInfoType = enum_anon_33 # qdis.h: 400
+QDisInfoType = enum_anon_33 # qdis.h: 414
 
-enum_anon_34 = c_int # qdis.h: 412
+enum_anon_34 = c_int # qdis.h: 426
 
-QDIS_CALL_NO_READ_GLOBALS = 16 # qdis.h: 412
+QDIS_CALL_NO_READ_GLOBALS = 16 # qdis.h: 426
 
-QDIS_CALL_NO_WRITE_GLOBALS = 32 # qdis.h: 412
+QDIS_CALL_NO_WRITE_GLOBALS = 32 # qdis.h: 426
 
-QDIS_CALL_NO_SIDE_EFFECTS = 64 # qdis.h: 412
+QDIS_CALL_NO_SIDE_EFFECTS = 64 # qdis.h: 426
 
-QDisCallFlags = enum_anon_34 # qdis.h: 412
+QDisCallFlags = enum_anon_34 # qdis.h: 426
 
-# qdis.h: 419
+# qdis.h: 433
 if hasattr(_libs['qdis'], 'qdis_Create'):
     qdis_Create = _libs['qdis'].qdis_Create
     qdis_Create.argtypes = [QDisTarget, POINTER(QDisCPUFeature)]
     qdis_Create.restype = POINTER(QDisassembler)
 
-# qdis.h: 424
+# qdis.h: 438
 if hasattr(_libs['qdis'], 'qdis_Disassemble'):
     qdis_Disassemble = _libs['qdis'].qdis_Disassemble
     qdis_Disassemble.argtypes = [POINTER(QDisassembler), POINTER(c_uint8), c_size_t, c_uint64, c_uint64, c_uint32, POINTER(None), c_size_t]
     qdis_Disassemble.restype = QDisStatus
 
-# qdis.h: 430
+# qdis.h: 444
 if hasattr(_libs['qdis'], 'qdis_LookupName'):
     qdis_LookupName = _libs['qdis'].qdis_LookupName
     qdis_LookupName.argtypes = [POINTER(QDisassembler), QDisInfoType, c_size_t]
@@ -1212,384 +1204,409 @@ if hasattr(_libs['qdis'], 'qdis_LookupName'):
         qdis_LookupName.restype = String
         qdis_LookupName.errcheck = ReturnString
 
-# qdis.h: 434
+# qdis.h: 448
 if hasattr(_libs['qdis'], 'qdis_LookupValue'):
     qdis_LookupValue = _libs['qdis'].qdis_LookupValue
     qdis_LookupValue.argtypes = [POINTER(QDisassembler), QDisInfoType, c_size_t]
     qdis_LookupValue.restype = c_size_t
 
-# qdis.h: 438
+# qdis.h: 452
 if hasattr(_libs['qdis'], 'qdis_Dump'):
     qdis_Dump = _libs['qdis'].qdis_Dump
     qdis_Dump.argtypes = [POINTER(QDisassembler)]
     qdis_Dump.restype = None
 
-# qdis.h: 442
+# qdis.h: 456
 if hasattr(_libs['qdis'], 'qdis_Destroy'):
     qdis_Destroy = _libs['qdis'].qdis_Destroy
     qdis_Destroy.argtypes = [POINTER(QDisassembler)]
     qdis_Destroy.restype = None
 
-# qdis.h: 88
+# qdis.h: 93
 try:
     QDIS_INST_ARM_THUMB_SHIFT = 0
 except:
     pass
 
-# qdis.h: 89
+# qdis.h: 94
 try:
     QDIS_INST_ARM_THUMB_MASK = (1 << QDIS_INST_ARM_THUMB_SHIFT)
 except:
     pass
 
-# qdis.h: 90
+# qdis.h: 95
 try:
     QDIS_INST_ARM_VECLEN_SHIFT = 1
 except:
     pass
 
-# qdis.h: 91
+# qdis.h: 96
 try:
     QDIS_INST_ARM_VECLEN_MASK = (7 << QDIS_INST_ARM_VECLEN_SHIFT)
 except:
     pass
 
-# qdis.h: 92
+# qdis.h: 97
 try:
     QDIS_INST_ARM_VECSTRIDE_SHIFT = 4
 except:
     pass
 
-# qdis.h: 93
+# qdis.h: 98
 try:
     QDIS_INST_ARM_VECSTRIDE_MASK = (3 << QDIS_INST_ARM_VECSTRIDE_SHIFT)
 except:
     pass
 
-# qdis.h: 94
+# qdis.h: 99
 try:
     QDIS_INST_ARM_PRIV_SHIFT = 6
 except:
     pass
 
-# qdis.h: 95
+# qdis.h: 100
 try:
     QDIS_INST_ARM_PRIV_MASK = (1 << QDIS_INST_ARM_PRIV_SHIFT)
 except:
     pass
 
-# qdis.h: 96
+# qdis.h: 101
 try:
     QDIS_INST_ARM_VFPEN_SHIFT = 7
 except:
     pass
 
-# qdis.h: 97
+# qdis.h: 102
 try:
     QDIS_INST_ARM_VFPEN_MASK = (1 << QDIS_INST_ARM_VFPEN_SHIFT)
 except:
     pass
 
-# qdis.h: 98
+# qdis.h: 103
 try:
     QDIS_INST_ARM_CONDEXEC_SHIFT = 8
 except:
     pass
 
-# qdis.h: 99
+# qdis.h: 104
 try:
     QDIS_INST_ARM_CONDEXEC_MASK = (255 << QDIS_INST_ARM_CONDEXEC_SHIFT)
 except:
     pass
 
-# qdis.h: 100
+# qdis.h: 105
 try:
     QDIS_INST_ARM_BSWAP_CODE_SHIFT = 16
 except:
     pass
 
-# qdis.h: 101
+# qdis.h: 106
 try:
     QDIS_INST_ARM_BSWAP_CODE_MASK = (1 << QDIS_INST_ARM_BSWAP_CODE_SHIFT)
 except:
     pass
 
-# qdis.h: 104
+# qdis.h: 109
 try:
     QDIS_INST_X86_CPL_SHIFT = 0
 except:
     pass
 
-# qdis.h: 105
+# qdis.h: 110
 try:
     QDIS_INST_X86_SOFTMMU_SHIFT = 2
 except:
     pass
 
-# qdis.h: 106
+# qdis.h: 111
 try:
     QDIS_INST_X86_INHIBIT_IRQ_SHIFT = 3
 except:
     pass
 
-# qdis.h: 107
+# qdis.h: 112
 try:
     QDIS_INST_X86_CS32_SHIFT = 4
 except:
     pass
 
-# qdis.h: 108
+# qdis.h: 113
 try:
     QDIS_INST_X86_SS32_SHIFT = 5
 except:
     pass
 
-# qdis.h: 109
+# qdis.h: 114
 try:
     QDIS_INST_X86_ADDSEG_SHIFT = 6
 except:
     pass
 
-# qdis.h: 110
+# qdis.h: 115
 try:
     QDIS_INST_X86_PE_SHIFT = 7
 except:
     pass
 
-# qdis.h: 111
+# qdis.h: 116
 try:
     QDIS_INST_X86_TF_SHIFT = 8
 except:
     pass
 
-# qdis.h: 112
+# qdis.h: 117
 try:
     QDIS_INST_X86_MP_SHIFT = 9
 except:
     pass
 
-# qdis.h: 113
+# qdis.h: 118
 try:
     QDIS_INST_X86_EM_SHIFT = 10
 except:
     pass
 
-# qdis.h: 114
+# qdis.h: 119
 try:
     QDIS_INST_X86_TS_SHIFT = 11
 except:
     pass
 
-# qdis.h: 115
+# qdis.h: 120
 try:
     QDIS_INST_X86_IOPL_SHIFT = 12
 except:
     pass
 
-# qdis.h: 116
+# qdis.h: 121
 try:
     QDIS_INST_X86_LMA_SHIFT = 14
 except:
     pass
 
-# qdis.h: 117
+# qdis.h: 122
 try:
     QDIS_INST_X86_CS64_SHIFT = 15
 except:
     pass
 
-# qdis.h: 118
+# qdis.h: 123
 try:
     QDIS_INST_X86_RF_SHIFT = 16
 except:
     pass
 
-# qdis.h: 119
+# qdis.h: 124
 try:
     QDIS_INST_X86_VM_SHIFT = 17
 except:
     pass
 
-# qdis.h: 120
+# qdis.h: 125
 try:
     QDIS_INST_X86_AC_SHIFT = 18
 except:
     pass
 
-# qdis.h: 121
+# qdis.h: 126
 try:
     QDIS_INST_X86_SMM_SHIFT = 19
 except:
     pass
 
-# qdis.h: 122
+# qdis.h: 127
 try:
     QDIS_INST_X86_SVME_SHIFT = 20
 except:
     pass
 
-# qdis.h: 123
+# qdis.h: 128
 try:
     QDIS_INST_X86_SVMI_SHIFT = 21
 except:
     pass
 
-# qdis.h: 124
+# qdis.h: 129
 try:
     QDIS_INST_X86_OSFXSR_SHIFT = 22
 except:
     pass
 
-# qdis.h: 125
+# qdis.h: 130
 try:
     QDIS_INST_X86_SMAP_SHIFT = 23
 except:
     pass
 
-# qdis.h: 127
+# qdis.h: 132
 try:
     QDIS_INST_X86_CPL_MASK = (3 << QDIS_INST_X86_CPL_SHIFT)
 except:
     pass
 
-# qdis.h: 128
+# qdis.h: 133
 try:
     QDIS_INST_X86_SOFTMMU_MASK = (1 << QDIS_INST_X86_SOFTMMU_SHIFT)
 except:
     pass
 
-# qdis.h: 129
+# qdis.h: 134
 try:
     QDIS_INST_X86_INHIBIT_IRQ_MASK = (1 << QDIS_INST_X86_INHIBIT_IRQ_SHIFT)
 except:
     pass
 
-# qdis.h: 130
+# qdis.h: 135
 try:
     QDIS_INST_X86_CS32_MASK = (1 << QDIS_INST_X86_CS32_SHIFT)
 except:
     pass
 
-# qdis.h: 131
+# qdis.h: 136
 try:
     QDIS_INST_X86_SS32_MASK = (1 << QDIS_INST_X86_SS32_SHIFT)
 except:
     pass
 
-# qdis.h: 132
+# qdis.h: 137
 try:
     QDIS_INST_X86_ADDSEG_MASK = (1 << QDIS_INST_X86_ADDSEG_SHIFT)
 except:
     pass
 
-# qdis.h: 133
+# qdis.h: 138
 try:
     QDIS_INST_X86_PE_MASK = (1 << QDIS_INST_X86_PE_SHIFT)
 except:
     pass
 
-# qdis.h: 134
+# qdis.h: 139
 try:
     QDIS_INST_X86_TF_MASK = (1 << QDIS_INST_X86_TF_SHIFT)
 except:
     pass
 
-# qdis.h: 135
+# qdis.h: 140
 try:
     QDIS_INST_X86_MP_MASK = (1 << QDIS_INST_X86_MP_SHIFT)
 except:
     pass
 
-# qdis.h: 136
+# qdis.h: 141
 try:
     QDIS_INST_X86_EM_MASK = (1 << QDIS_INST_X86_EM_SHIFT)
 except:
     pass
 
-# qdis.h: 137
+# qdis.h: 142
 try:
     QDIS_INST_X86_TS_MASK = (1 << QDIS_INST_X86_TS_SHIFT)
 except:
     pass
 
-# qdis.h: 138
+# qdis.h: 143
 try:
     QDIS_INST_X86_IOPL_MASK = (3 << QDIS_INST_X86_IOPL_SHIFT)
 except:
     pass
 
-# qdis.h: 139
+# qdis.h: 144
 try:
     QDIS_INST_X86_LMA_MASK = (1 << QDIS_INST_X86_LMA_SHIFT)
 except:
     pass
 
-# qdis.h: 140
+# qdis.h: 145
 try:
     QDIS_INST_X86_CS64_MASK = (1 << QDIS_INST_X86_CS64_SHIFT)
 except:
     pass
 
-# qdis.h: 141
+# qdis.h: 146
 try:
     QDIS_INST_X86_RF_MASK = (1 << QDIS_INST_X86_RF_SHIFT)
 except:
     pass
 
-# qdis.h: 142
+# qdis.h: 147
 try:
     QDIS_INST_X86_VM_MASK = (1 << QDIS_INST_X86_VM_SHIFT)
 except:
     pass
 
-# qdis.h: 143
+# qdis.h: 148
 try:
     QDIS_INST_X86_AC_MASK = (1 << QDIS_INST_X86_AC_SHIFT)
 except:
     pass
 
-# qdis.h: 144
+# qdis.h: 149
 try:
     QDIS_INST_X86_SMM_MASK = (1 << QDIS_INST_X86_SMM_SHIFT)
 except:
     pass
 
-# qdis.h: 145
+# qdis.h: 150
 try:
     QDIS_INST_X86_SVME_MASK = (1 << QDIS_INST_X86_SVME_SHIFT)
 except:
     pass
 
-# qdis.h: 146
+# qdis.h: 151
 try:
     QDIS_INST_X86_SVMI_MASK = (1 << QDIS_INST_X86_SVMI_SHIFT)
 except:
     pass
 
-# qdis.h: 147
+# qdis.h: 152
 try:
     QDIS_INST_X86_OSFXSR_MASK = (1 << QDIS_INST_X86_OSFXSR_SHIFT)
 except:
     pass
 
-# qdis.h: 148
+# qdis.h: 153
 try:
     QDIS_INST_X86_SMAP_MASK = (1 << QDIS_INST_X86_SMAP_SHIFT)
 except:
     pass
 
-# qdis.h: 364
+# qdis.h: 156
+try:
+    QDIS_IFLAGS_DEFAULT_ARM = QDIS_INST_ARM_VFPEN_MASK
+except:
+    pass
+
+# qdis.h: 157
+try:
+    QDIS_IFLAGS_DEFAULT_THUMB = (QDIS_INST_ARM_VFPEN_MASK | QDIS_INST_ARM_THUMB_MASK)
+except:
+    pass
+
+# qdis.h: 158
+try:
+    QDIS_IFLAGS_DEFAULT_I386 = ((QDIS_INST_X86_PE_MASK | QDIS_INST_X86_CS32_MASK) | QDIS_INST_X86_SS32_MASK)
+except:
+    pass
+
+# qdis.h: 159
+try:
+    QDIS_IFLAGS_DEFAULT_AMD64 = ((((QDIS_INST_X86_PE_MASK | QDIS_INST_X86_CS32_MASK) | QDIS_INST_X86_SS32_MASK) | QDIS_INST_X86_CS64_MASK) | QDIS_INST_X86_LMA_MASK)
+except:
+    pass
+
+# qdis.h: 377
 try:
     QDIS_BUFFER_SIZE = 16384
 except:
     pass
 
-# qdis.h: 367
+# qdis.h: 380
 try:
     QDIS_INVALID = (-1)
 except:
     pass
 
-QDisassembler_ = struct_QDisassembler_ # qdis.h: 150
+QDisassembler_ = struct_QDisassembler_ # qdis.h: 162
 
 # No inserted files
+

@@ -90,7 +90,70 @@ we have to work around it
   oargs output args  register / global / local
   what are cargs?  constant args (implicit)
 
-- test on 32 bit Python
+- test on 32 bit Python/host
+  especially with 64 bit target
+  make sure output is still in single 64 bit words
+
+- default instruction flags
+  INITIAL_IFLAGS (mode/llvm subtarget)
+
+  ARM: 
+    arm: (1 << INST_ARM_VFPEN_MASK)
+    thumb: (1 << INST_ARM_THUMB_SHIFT) | (1 << INST_ARM_VFPEN_MASK)
+  i386: 64 addr / 64 reg
+    bit32: (1 << HF_PE_SHIFT) | (1 << HF_CS32_SHIFT) | (1 << HF_SS32_SHIFT)
+    bit64: (1 << HF_PE_SHIFT) | (1 << HF_CS32_SHIFT) | (1 << HF_SS32_SHIFT) | (1 << HF_CS64_SHIFT) | (1 << HF_LMA_SHIFT)
+
+  other flags influence the generated instructions as well:
+    for ARM, these are VECLEN, VECSTRIDE, CONDEXEC, PRIV, VFPEN, BSWAP_CODE
+
+    BSWAP_CODE -> is simply the endian (as compared to current endian), general flag (this should be normalized so it's the same on little endian archs)
+    VFPEN -> always enable, makes no sense to disable
+    USER -> not sure
+
+- disable CONFIG_USER_ONLY?
+   could be useful to support privileged instructions
+
+    need platform-independent way to compute instruction flag and pc changes from env change instructions
+    maybe add a virtual global for the instruction flags?
+
+- output is_call / is_return flags
+
+  normalized instruction category type
+  (see S2E)
+  return, call, ...
+  getType() TB_CALL_IND TB_JMP TB_DEFAULT ... TB_RET
+  (has patched qemu to return special output, like is_jmp but also marks CALLs)
+  This is what we need too... and a way to return it from translation (ie, put it in context)
+
+also this would be useful:
+  #define DISAS_NEXT    0 /* next instruction can be analyzed */
+  #define DISAS_JUMP    1 /* only pc was modified dynamically */
+  #define DISAS_UPDATE  2 /* cpu state was modified dynamically */
+  #define DISAS_TB_JUMP 3 /* only pc was modified statically */
+  arm specific:
+  #define DISAS_WFI 4
+  #define DISAS_SWI 5
+
+  (qemu translate arm has s->is_jmp: DISAS_UPDATE, DISAS_SWI, )
+These can be determined from the generated code:
+  goto_tb 1 -> DISAS_NEXT (within basic block)
+  exit_tb 0 -> DISAS_JUMP / DISAS_UPDATE
+  goto_tb 0, dest -> DISAS_TB_JUMP
+
+However, iscall/isreturn cannot
+
+- move is_valid_pc(pc, iflags) into qdis
+    Check if pc is a valid instruction location, given instruction flags
+    iflag.
+    Checks alignment etc...
+
+- cpu_get_tb_cpu_state
+  gets state from cpu environment, produces TB flags and PC
+  -> need to symbolically compile this
+     so that we can derive modified TB flags from instructions that modify the env
+
+
 ======================================================================================
 Done:
 - force TCG_TARGET_REG_BITS to 64; for analysis it makes no sense to make anything depend on the host arch register size

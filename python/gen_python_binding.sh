@@ -3,4 +3,4 @@
 # Uses http://code.google.com/p/ctypesgen/source/checkout
 # Strip current path
 DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ctypesgen.py --strip-build-path=${DIR} -lqdis qdis.h -L . > qdis.py
+ctypesgen.py --strip-build-path=${DIR} -lqdis qdis.h -L . > qdis/_qdis.py
