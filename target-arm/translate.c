@@ -68,6 +68,12 @@ typedef struct DisasContext {
     int vec_stride;
 } DisasContext;
 
+#ifdef TCG_PYTHON
+#define SET_TB_TYPE(t) s->tb->s2e_tb_type = t
+#else
+#define SET_TB_TYPE(t)
+#endif
+
 static uint32_t gen_opc_condexec_bits[OPC_BUF_SIZE];
 
 #if defined(CONFIG_USER_ONLY)
@@ -6738,6 +6744,7 @@ static void disas_arm_insn(CPUARMState * env, DisasContext *s)
         } else if ((insn & 0x0e000000) == 0x0a000000) {
             /* branch link and change to thumb (blx <offset>) */
             int32_t offset;
+            SET_TB_TYPE(TB_CALL);
 
             val = (uint32_t)s->pc;
             tmp = tcg_temp_new_i32();
@@ -6863,6 +6870,12 @@ static void disas_arm_insn(CPUARMState * env, DisasContext *s)
             if (op1 == 1) {
                 /* branch/exchange thumb (bx).  */
                 ARCH(4T);
+                if(rm == 14)
+                {
+                    SET_TB_TYPE(TB_RET);
+                } else {
+                    SET_TB_TYPE(TB_CALL);
+                }
                 tmp = load_reg(s, rm);
                 gen_bx(s, tmp);
             } else if (op1 == 3) {
@@ -6892,6 +6905,7 @@ static void disas_arm_insn(CPUARMState * env, DisasContext *s)
 
             ARCH(5);
             /* branch link/exchange thumb (blx) */
+            SET_TB_TYPE(TB_CALL);
             tmp = load_reg(s, rm);
             tmp2 = tcg_temp_new_i32();
             tcg_gen_movi_i32(tmp2, s->pc);
@@ -7721,6 +7735,14 @@ static void disas_arm_insn(CPUARMState * env, DisasContext *s)
                 rn = (insn >> 16) & 0xf;
                 addr = load_reg(s, rn);
 
+#ifdef TCG_PYTHON
+                if(rn == 13 && (insn & (1 << 20)) && (insn & (1 << 15)) &&
+                         (insn & (1 << 21)) && (insn & (1 << 23)) && !(insn & (1 << 24))) {
+                    /* if load pc from sp, with post-increment, regard this as return */
+                    SET_TB_TYPE(TB_RET);
+                }
+#endif
+
                 /* compute total size */
                 loaded_base = 0;
                 TCGV_UNUSED(loaded_var);
@@ -7830,9 +7852,12 @@ static void disas_arm_insn(CPUARMState * env, DisasContext *s)
                 /* branch (and link) */
                 val = (int32_t)s->pc;
                 if (insn & (1 << 24)) {
+                    SET_TB_TYPE(TB_CALL);
                     tmp = tcg_temp_new_i32();
                     tcg_gen_movi_i32(tmp, val);
                     store_reg(s, 14, tmp);
+                } else {
+                    SET_TB_TYPE(TB_JMP);
                 }
                 offset = (((int32_t)insn << 8) >> 8);
                 val += (offset << 2) + 4;
@@ -7963,6 +7988,7 @@ static int disas_thumb2_insn(CPUARMState *env, DisasContext *s, uint16_t insn_hw
         insn = insn_hw1;
         if ((insn & (1 << 12)) == 0) {
             ARCH(5);
+            SET_TB_TYPE(TB_CALL);
             /* Second half of blx.  */
             offset = ((insn & 0x7ff) << 1);
             tmp = load_reg(s, 14);
@@ -7977,6 +8003,7 @@ static int disas_thumb2_insn(CPUARMState *env, DisasContext *s, uint16_t insn_hw
         }
         if (insn & (1 << 11)) {
             /* Second half of bl.  */
+            SET_TB_TYPE(TB_CALL);
             offset = ((insn & 0x7ff) << 1) | 1;
             tmp = load_reg(s, 14);
             tcg_gen_addi_i32(tmp, tmp, offset);
@@ -9153,10 +9180,13 @@ static void disas_thumb_insn(CPUARMState *env, DisasContext *s)
                 tmp = load_reg(s, rm);
                 if (insn & (1 << 7)) {
                     ARCH(5);
+                    SET_TB_TYPE(TB_CALL_IND);
                     val = (uint32_t)s->pc | 1;
                     tmp2 = tcg_temp_new_i32();
                     tcg_gen_movi_i32(tmp2, val);
                     store_reg(s, 14, tmp2);
+                } else {
+                    SET_TB_TYPE(TB_JMP_IND);
                 }
                 /* already thumb, no need to check */
                 gen_bx(s, tmp);
@@ -9502,6 +9532,7 @@ static void disas_thumb_insn(CPUARMState *env, DisasContext *s)
             if (insn & (1 << 8)) {
                 if (insn & (1 << 11)) {
                     /* pop pc */
+                    SET_TB_TYPE(TB_RET);
                     tmp = gen_ld32(addr, IS_USER(s));
                     /* don't set the pc until the rest of the instruction
                        has completed */
@@ -9761,6 +9792,10 @@ static inline void gen_intermediate_code_internal(CPUARMState *env,
     if (max_insns == 0)
         max_insns = CF_COUNT_MASK;
 
+#ifdef TCG_PYTHON
+    tb->s2e_tb_type = TB_DEFAULT;
+#endif
+
     gen_icount_start();
 
     tcg_clear_temp_count();
@@ -9985,6 +10020,13 @@ done_generating:
         tb->size = dc->pc - pc_start;
         tb->icount = num_insns;
     }
+#ifdef TCG_PYTHON
+    /* Catch-all for jump instructions */
+    if(tb->s2e_tb_type == TB_DEFAULT && dc->is_jmp != DISAS_NEXT)
+    {
+        tb->s2e_tb_type = TB_JMP;
+    }
+#endif
 }
 
 void gen_intermediate_code(CPUARMState *env, TranslationBlock *tb)

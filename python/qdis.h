@@ -369,7 +369,22 @@ typedef enum
     QDIS_OP_QEMU_ST16 = 121,
     QDIS_OP_QEMU_ST32 = 122,
     QDIS_OP_QEMU_ST64 = 123,
-} DisOpcode;
+} QDisOpcode;
+
+/* Instruction types */
+typedef enum
+{
+    QDIS_ITYPE_UNKNOWN=-1,  /* unlabeled instruction */
+    QDIS_ITYPE_DEFAULT=0,   /* go to next instruction */
+    QDIS_ITYPE_JMP,         /* jump */
+    QDIS_ITYPE_JMP_IND,     /* indirect jump */
+    QDIS_ITYPE_COND_JMP,    /* conditional jump */
+    QDIS_ITYPE_COND_JMP_IND,/* conditional indirect jump */
+    QDIS_ITYPE_CALL,        /* call */
+    QDIS_ITYPE_CALL_IND,    /* indirect call */
+    QDIS_ITYPE_REP,         /* x86 rep */
+    QDIS_ITYPE_RET          /* return from function */
+} QDisInstType;
 
 /* Hint for output buffer size.
  * Microcode output is generally guaranteed to stay within this size.
@@ -389,7 +404,8 @@ typedef struct
     size_t num_syms; // Total number of temp symbols
     QDisSym *syms; // Pointer to temp symbols
     size_t num_labels; // Total number of labels
-    size_t _padding[9];
+    QDisInstType inst_type; // Instruction type
+    size_t _padding[8];
 } QDisResult;
 
 typedef enum {

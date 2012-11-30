@@ -153,6 +153,8 @@ However, iscall/isreturn cannot
   -> need to symbolically compile this
      so that we can derive modified TB flags from instructions that modify the env
 
+- return instruction size (address after parsing instruction)? this is useful for showing the user the instruction in hex
+  LLVM already does this
 
 ======================================================================================
 Done:

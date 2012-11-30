@@ -276,7 +276,9 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
     disassembly_set_window(inst, pc, size);
     TranslationBlock tb = {
         .pc = pc,
-        .flags = inst_flags
+        .flags = inst_flags,
+        /* set tb type to unknown for translators that don't override it */
+        .s2e_tb_type = TB_UNKNOWN
     };
 
     // there are two singlestep flags, one in the environment, and one global
@@ -326,6 +328,8 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
 
     fillSymbols(ctx, result->syms);
     fillOpcodes(ctx, result->ops, result->args, &result->num_ops, &result->num_args);
+
+    result->inst_type = (QDisInstType)tb.s2e_tb_type;
     //tcg_dump_ops(ctx);
 
     return QDIS_OK;

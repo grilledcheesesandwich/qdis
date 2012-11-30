@@ -139,6 +139,17 @@ static inline void tlb_flush(CPUArchState *env, int flush_global)
 #define USE_DIRECT_JUMP
 #endif
 
+#ifdef TCG_PYTHON
+enum ETranslationBlockType
+{
+    TB_UNKNOWN=-1,
+    TB_DEFAULT=0,
+    TB_JMP, TB_JMP_IND,
+    TB_COND_JMP, TB_COND_JMP_IND,
+    TB_CALL, TB_CALL_IND, TB_REP, TB_RET
+};
+#endif
+
 struct TranslationBlock {
     target_ulong pc;   /* simulated PC corresponding to this block (EIP + CS base) */
     target_ulong cs_base; /* CS base for this block */
@@ -172,6 +183,9 @@ struct TranslationBlock {
     struct TranslationBlock *jmp_next[2];
     struct TranslationBlock *jmp_first;
     uint32_t icount;
+#ifdef TCG_PYTHON 
+    enum ETranslationBlockType s2e_tb_type;
+#endif
 };
 
 static inline unsigned int tb_jmp_cache_hash_page(target_ulong pc)

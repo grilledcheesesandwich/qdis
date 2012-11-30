@@ -16,6 +16,20 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
+
+/*
+ * The file was modified for S2E Selective Symbolic Execution Framework
+ *
+ * Copyright (c) 2010, Dependable Systems Laboratory, EPFL
+ *
+ * Currently maintained by:
+ *    Volodymyr Kuznetsov <vova.kuznetsov@epfl.ch>
+ *    Vitaly Chipounov <vitaly.chipounov@epfl.ch>
+ *
+ * All contributors are listed in S2E-AUTHORS file.
+ *
+ */
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -109,6 +123,12 @@ typedef struct DisasContext {
     int cpuid_ext3_features;
     int cpuid_7_0_ebx_features;
 } DisasContext;
+
+#ifdef TCG_PYTHON
+#define SET_TB_TYPE(t) s->tb->s2e_tb_type = t
+#else
+#define SET_TB_TYPE(t)
+#endif
 
 static void gen_eob(DisasContext *s);
 static void gen_jmp(DisasContext *s, target_ulong eip);
@@ -1234,6 +1254,7 @@ static inline void gen_repz_ ## op(DisasContext *s, int ot,                   \
                                  target_ulong cur_eip, target_ulong next_eip) \
 {                                                                             \
     int l2;\
+    SET_TB_TYPE(TB_REP);\
     gen_update_cc_op(s);                                                      \
     l2 = gen_jz_ecx_string(s, next_eip);                                      \
     gen_ ## op(s, ot);                                                        \
@@ -1252,6 +1273,7 @@ static inline void gen_repz_ ## op(DisasContext *s, int ot,                   \
                                    int nz)                                    \
 {                                                                             \
     int l2;\
+    SET_TB_TYPE(TB_REP);\
     gen_update_cc_op(s);                                                      \
     l2 = gen_jz_ecx_string(s, next_eip);                                      \
     gen_ ## op(s, ot);                                                        \
@@ -4747,6 +4769,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
             break;
         case 2: /* call Ev */
             /* XXX: optimize if memory (no 'and' is necessary) */
+            SET_TB_TYPE(TB_CALL_IND);
             if (s->dflag == 0)
                 gen_op_andl_T0_ffff();
             next_eip = s->pc - s->cs_base;
@@ -4756,6 +4779,8 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
             gen_eob(s);
             break;
         case 3: /* lcall Ev */
+            SET_TB_TYPE(TB_CALL_IND);
+
             gen_op_ld_T1_A0(ot + s->mem_index);
             gen_add_A0_im(s, 1 << (ot - OT_WORD + 1));
             gen_op_ldu_T0_A0(OT_WORD + s->mem_index);
@@ -4777,12 +4802,14 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
             gen_eob(s);
             break;
         case 4: /* jmp Ev */
+            SET_TB_TYPE(TB_JMP_IND);
             if (s->dflag == 0)
                 gen_op_andl_T0_ffff();
             gen_op_jmp_T0();
             gen_eob(s);
             break;
         case 5: /* ljmp Ev */
+            SET_TB_TYPE(TB_JMP_IND);
             gen_op_ld_T1_A0(ot + s->mem_index);
             gen_add_A0_im(s, 1 << (ot - OT_WORD + 1));
             gen_op_ldu_T0_A0(OT_WORD + s->mem_index);
@@ -6299,6 +6326,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
         /************************/
         /* control */
     case 0xc2: /* ret im */
+        SET_TB_TYPE(TB_RET);
         val = cpu_ldsw_code(env, s->pc);
         s->pc += 2;
         gen_pop_T0(s);
@@ -6311,6 +6339,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
         gen_eob(s);
         break;
     case 0xc3: /* ret */
+        SET_TB_TYPE(TB_RET);
         gen_pop_T0(s);
         gen_pop_update(s);
         if (s->dflag == 0)
@@ -6319,6 +6348,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
         gen_eob(s);
         break;
     case 0xca: /* lret im */
+        SET_TB_TYPE(TB_RET);
         val = cpu_ldsw_code(env, s->pc);
         s->pc += 2;
     do_lret:
@@ -6348,8 +6378,10 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
         break;
     case 0xcb: /* lret */
         val = 0;
+        SET_TB_TYPE(TB_RET);
         goto do_lret;
     case 0xcf: /* iret */
+        SET_TB_TYPE(TB_RET);
         gen_svm_check_intercept(s, pc_start, SVM_EXIT_IRET);
         if (!s->pe) {
             /* real mode */
@@ -6374,6 +6406,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
         break;
     case 0xe8: /* call im */
         {
+            SET_TB_TYPE(TB_CALL);
             if (dflag)
                 tval = (int32_t)insn_get(env, s, OT_LONG);
             else
@@ -6393,6 +6426,8 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
         {
             unsigned int selector, offset;
 
+            SET_TB_TYPE(TB_CALL);
+
             if (CODE64(s))
                 goto illegal_op;
             ot = dflag ? OT_LONG : OT_WORD;
@@ -6404,6 +6439,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
         }
         goto do_lcall;
     case 0xe9: /* jmp im */
+        SET_TB_TYPE(TB_JMP);
         if (dflag)
             tval = (int32_t)insn_get(env, s, OT_LONG);
         else
@@ -6418,7 +6454,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
     case 0xea: /* ljmp im */
         {
             unsigned int selector, offset;
-
+            SET_TB_TYPE(TB_JMP);
             if (CODE64(s))
                 goto illegal_op;
             ot = dflag ? OT_LONG : OT_WORD;
@@ -6430,6 +6466,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
         }
         goto do_ljmp;
     case 0xeb: /* jmp Jb */
+        SET_TB_TYPE(TB_JMP);
         tval = (int8_t)insn_get(env, s, OT_BYTE);
         tval += s->pc - s->cs_base;
         if (s->dflag == 0)
@@ -6437,9 +6474,11 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
         gen_jmp(s, tval);
         break;
     case 0x70 ... 0x7f: /* jcc Jb */
+        SET_TB_TYPE(TB_COND_JMP);
         tval = (int8_t)insn_get(env, s, OT_BYTE);
         goto do_jcc;
     case 0x180 ... 0x18f: /* jcc Jv */
+        SET_TB_TYPE(TB_COND_JMP);
         if (dflag) {
             tval = (int32_t)insn_get(env, s, OT_LONG);
         } else {
@@ -6947,6 +6986,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
     case 0xe3: /* jecxz */
         {
             int l1, l2, l3;
+            SET_TB_TYPE(TB_JMP);
 
             tval = (int8_t)insn_get(env, s, OT_BYTE);
             next_eip = s->pc - s->cs_base;
@@ -7971,6 +8011,10 @@ static inline void gen_intermediate_code_internal(CPUX86State *env,
     max_insns = tb->cflags & CF_COUNT_MASK;
     if (max_insns == 0)
         max_insns = CF_COUNT_MASK;
+
+#ifdef TCG_PYTHON
+    tb->s2e_tb_type = TB_DEFAULT;
+#endif
 
     gen_icount_start();
     for(;;) {
