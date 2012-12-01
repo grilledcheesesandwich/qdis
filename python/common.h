@@ -311,10 +311,11 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
     fillOpcodes(ctx, result->ops, result->args, &result->num_ops, &result->num_args);
 
     result->inst_type = (QDisInstType)tb.s2e_tb_type;
+    result->inst_size = tb.size;
 
     if(!(optimize & QDIS_OPTIMIZE_NOTEXT))
     {
-        result->text = outbuf_printf_start(&out);
+        result->inst_text = outbuf_printf_start(&out);
         disassemble_info dis_info;
         disas_init(&dis_info, &out, inst, pc, size);
 #ifdef TARGET_WORDS_BIGENDIAN

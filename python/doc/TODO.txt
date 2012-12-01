@@ -162,10 +162,6 @@ However, iscall/isreturn cannot
   ...
 
 TODO before release:
-- return instruction size (address after parsing instruction)? this is useful for showing the user the instruction in hex
-  also in the case of call instructions this signifies the return address (how does S2E handle this?)
-  LLVM already does this.
-
 - rename TGT to ARCH. Target is a confusing word within qemu lingo.
   rename OPTIMIZE to OPT. These are specific options, not only optimizations.
 

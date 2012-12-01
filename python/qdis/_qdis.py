@@ -1139,7 +1139,7 @@ QDIS_ITYPE_RET = (QDIS_ITYPE_REP + 1) # qdis.h: 388
 
 QDisInstType = enum_anon_32 # qdis.h: 388
 
-# qdis.h: 412
+# qdis.h: 413
 class struct_anon_33(Structure):
     pass
 
@@ -1153,7 +1153,8 @@ struct_anon_33.__slots__ = [
     'syms',
     'num_labels',
     'inst_type',
-    'text',
+    'inst_size',
+    'inst_text',
     '_padding',
 ]
 struct_anon_33._fields_ = [
@@ -1166,67 +1167,68 @@ struct_anon_33._fields_ = [
     ('syms', POINTER(QDisSym)),
     ('num_labels', c_size_t),
     ('inst_type', QDisInstType),
-    ('text', String),
+    ('inst_size', c_size_t),
+    ('inst_text', String),
     ('_padding', c_size_t * 8),
 ]
 
-QDisResult = struct_anon_33 # qdis.h: 412
+QDisResult = struct_anon_33 # qdis.h: 413
 
-enum_anon_34 = c_int # qdis.h: 433
+enum_anon_34 = c_int # qdis.h: 434
 
-QDIS_INFO_OP = 1 # qdis.h: 433
+QDIS_INFO_OP = 1 # qdis.h: 434
 
-QDIS_INFO_COND = 2 # qdis.h: 433
+QDIS_INFO_COND = 2 # qdis.h: 434
 
-QDIS_INFO_CALLFLAG = 3 # qdis.h: 433
+QDIS_INFO_CALLFLAG = 3 # qdis.h: 434
 
-QDIS_INFO_NUM_OPS = 256 # qdis.h: 433
+QDIS_INFO_NUM_OPS = 256 # qdis.h: 434
 
-QDIS_INFO_HELPER = 513 # qdis.h: 433
+QDIS_INFO_HELPER = 513 # qdis.h: 434
 
-QDIS_INFO_HELPER_BY_ADDR = 514 # qdis.h: 433
+QDIS_INFO_HELPER_BY_ADDR = 514 # qdis.h: 434
 
-QDIS_INFO_GLOBAL = 515 # qdis.h: 433
+QDIS_INFO_GLOBAL = 515 # qdis.h: 434
 
-QDIS_INFO_PC_OFFSET = 768 # qdis.h: 433
+QDIS_INFO_PC_OFFSET = 768 # qdis.h: 434
 
-QDIS_INFO_SP_OFFSET = 769 # qdis.h: 433
+QDIS_INFO_SP_OFFSET = 769 # qdis.h: 434
 
-QDIS_INFO_NUM_HELPERS = 770 # qdis.h: 433
+QDIS_INFO_NUM_HELPERS = 770 # qdis.h: 434
 
-QDIS_INFO_NUM_GLOBALS = 771 # qdis.h: 433
+QDIS_INFO_NUM_GLOBALS = 771 # qdis.h: 434
 
-QDIS_INFO_GLOBAL_SIZE = 772 # qdis.h: 433
+QDIS_INFO_GLOBAL_SIZE = 772 # qdis.h: 434
 
-QDIS_INFO_GLOBAL_OFFSET = 773 # qdis.h: 433
+QDIS_INFO_GLOBAL_OFFSET = 773 # qdis.h: 434
 
-QDIS_INFO_STATE_SIZE = 774 # qdis.h: 433
+QDIS_INFO_STATE_SIZE = 774 # qdis.h: 434
 
-QDisInfoType = enum_anon_34 # qdis.h: 433
+QDisInfoType = enum_anon_34 # qdis.h: 434
 
-enum_anon_35 = c_int # qdis.h: 445
+enum_anon_35 = c_int # qdis.h: 446
 
-QDIS_CALL_NO_READ_GLOBALS = 16 # qdis.h: 445
+QDIS_CALL_NO_READ_GLOBALS = 16 # qdis.h: 446
 
-QDIS_CALL_NO_WRITE_GLOBALS = 32 # qdis.h: 445
+QDIS_CALL_NO_WRITE_GLOBALS = 32 # qdis.h: 446
 
-QDIS_CALL_NO_SIDE_EFFECTS = 64 # qdis.h: 445
+QDIS_CALL_NO_SIDE_EFFECTS = 64 # qdis.h: 446
 
-QDisCallFlags = enum_anon_35 # qdis.h: 445
+QDisCallFlags = enum_anon_35 # qdis.h: 446
 
-# qdis.h: 452
+# qdis.h: 453
 if hasattr(_libs['qdis'], 'qdis_Create'):
     qdis_Create = _libs['qdis'].qdis_Create
     qdis_Create.argtypes = [QDisTarget, POINTER(QDisCPUFeature)]
     qdis_Create.restype = POINTER(QDisassembler)
 
-# qdis.h: 457
+# qdis.h: 458
 if hasattr(_libs['qdis'], 'qdis_Disassemble'):
     qdis_Disassemble = _libs['qdis'].qdis_Disassemble
     qdis_Disassemble.argtypes = [POINTER(QDisassembler), POINTER(c_uint8), c_size_t, c_uint64, c_uint64, c_uint32, POINTER(None), c_size_t]
     qdis_Disassemble.restype = QDisStatus
 
-# qdis.h: 463
+# qdis.h: 464
 if hasattr(_libs['qdis'], 'qdis_LookupName'):
     qdis_LookupName = _libs['qdis'].qdis_LookupName
     qdis_LookupName.argtypes = [POINTER(QDisassembler), QDisInfoType, c_size_t]
@@ -1236,19 +1238,19 @@ if hasattr(_libs['qdis'], 'qdis_LookupName'):
         qdis_LookupName.restype = String
         qdis_LookupName.errcheck = ReturnString
 
-# qdis.h: 467
+# qdis.h: 468
 if hasattr(_libs['qdis'], 'qdis_LookupValue'):
     qdis_LookupValue = _libs['qdis'].qdis_LookupValue
     qdis_LookupValue.argtypes = [POINTER(QDisassembler), QDisInfoType, c_size_t]
     qdis_LookupValue.restype = c_size_t
 
-# qdis.h: 471
+# qdis.h: 472
 if hasattr(_libs['qdis'], 'qdis_Dump'):
     qdis_Dump = _libs['qdis'].qdis_Dump
     qdis_Dump.argtypes = [POINTER(QDisassembler)]
     qdis_Dump.restype = None
 
-# qdis.h: 475
+# qdis.h: 476
 if hasattr(_libs['qdis'], 'qdis_Destroy'):
     qdis_Destroy = _libs['qdis'].qdis_Destroy
     qdis_Destroy.argtypes = [POINTER(QDisassembler)]

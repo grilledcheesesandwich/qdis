@@ -407,7 +407,8 @@ typedef struct
     QDisSym *syms; // Pointer to temp symbols
     size_t num_labels; // Total number of labels
     QDisInstType inst_type; // Instruction type
-    char *text; // Text for instruction (if QDIS_OPTIMIZE_NOTEXT not set)
+    size_t inst_size; // Size of disassembled instruction
+    char *inst_text; // Text for instruction (if QDIS_OPTIMIZE_NOTEXT not set)
     size_t _padding[8];
 } QDisResult;
 
