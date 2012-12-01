@@ -37,9 +37,9 @@ static TCGContext *init_global()
     tcg_context_init(ctx);
     return ctx;
 }
-#if 0
+
 /* Find global with state offset `offset` */
-static size_t findGlobal(TCGContext *ctx, size_t offset)
+static size_t find_global(TCGContext *ctx, size_t offset)
 {
     int i = 0;
     for(i=0; i<ctx->nb_globals; ++i)
@@ -51,7 +51,7 @@ static size_t findGlobal(TCGContext *ctx, size_t offset)
     }
     return QDIS_INVALID;
 }
-#endif
+
 /* Basetype to dis bitfield width */
 static size_t baseTypeToDis(TCGType type)
 {
@@ -419,6 +419,10 @@ static size_t lookupValue(QDisassembler *dis, QDisInfoType type, size_t id)
         return target_pc_offset();
     case QDIS_INFO_SP_OFFSET:
         return target_sp_offset();
+    case QDIS_INFO_PC_GLOBAL:
+        return find_global(ctx, target_pc_offset());
+    case QDIS_INFO_SP_GLOBAL:
+        return find_global(ctx, target_sp_offset());
     case QDIS_INFO_NUM_HELPERS:
         return ctx->nb_helpers;
     case QDIS_INFO_NUM_GLOBALS:

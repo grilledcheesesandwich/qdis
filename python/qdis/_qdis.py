@@ -1174,61 +1174,65 @@ struct_anon_33._fields_ = [
 
 QDisResult = struct_anon_33 # qdis.h: 413
 
-enum_anon_34 = c_int # qdis.h: 434
+enum_anon_34 = c_int # qdis.h: 436
 
-QDIS_INFO_OP = 1 # qdis.h: 434
+QDIS_INFO_OP = 1 # qdis.h: 436
 
-QDIS_INFO_COND = 2 # qdis.h: 434
+QDIS_INFO_COND = 2 # qdis.h: 436
 
-QDIS_INFO_CALLFLAG = 3 # qdis.h: 434
+QDIS_INFO_CALLFLAG = 3 # qdis.h: 436
 
-QDIS_INFO_NUM_OPS = 256 # qdis.h: 434
+QDIS_INFO_NUM_OPS = 256 # qdis.h: 436
 
-QDIS_INFO_HELPER = 513 # qdis.h: 434
+QDIS_INFO_HELPER = 513 # qdis.h: 436
 
-QDIS_INFO_HELPER_BY_ADDR = 514 # qdis.h: 434
+QDIS_INFO_HELPER_BY_ADDR = 514 # qdis.h: 436
 
-QDIS_INFO_GLOBAL = 515 # qdis.h: 434
+QDIS_INFO_GLOBAL = 515 # qdis.h: 436
 
-QDIS_INFO_PC_OFFSET = 768 # qdis.h: 434
+QDIS_INFO_PC_OFFSET = 768 # qdis.h: 436
 
-QDIS_INFO_SP_OFFSET = 769 # qdis.h: 434
+QDIS_INFO_SP_OFFSET = 769 # qdis.h: 436
 
-QDIS_INFO_NUM_HELPERS = 770 # qdis.h: 434
+QDIS_INFO_PC_GLOBAL = 770 # qdis.h: 436
 
-QDIS_INFO_NUM_GLOBALS = 771 # qdis.h: 434
+QDIS_INFO_SP_GLOBAL = 771 # qdis.h: 436
 
-QDIS_INFO_GLOBAL_SIZE = 772 # qdis.h: 434
+QDIS_INFO_NUM_HELPERS = 772 # qdis.h: 436
 
-QDIS_INFO_GLOBAL_OFFSET = 773 # qdis.h: 434
+QDIS_INFO_NUM_GLOBALS = 773 # qdis.h: 436
 
-QDIS_INFO_STATE_SIZE = 774 # qdis.h: 434
+QDIS_INFO_GLOBAL_SIZE = 774 # qdis.h: 436
 
-QDisInfoType = enum_anon_34 # qdis.h: 434
+QDIS_INFO_GLOBAL_OFFSET = 775 # qdis.h: 436
 
-enum_anon_35 = c_int # qdis.h: 446
+QDIS_INFO_STATE_SIZE = 776 # qdis.h: 436
 
-QDIS_CALL_NO_READ_GLOBALS = 16 # qdis.h: 446
+QDisInfoType = enum_anon_34 # qdis.h: 436
 
-QDIS_CALL_NO_WRITE_GLOBALS = 32 # qdis.h: 446
+enum_anon_35 = c_int # qdis.h: 448
 
-QDIS_CALL_NO_SIDE_EFFECTS = 64 # qdis.h: 446
+QDIS_CALL_NO_READ_GLOBALS = 16 # qdis.h: 448
 
-QDisCallFlags = enum_anon_35 # qdis.h: 446
+QDIS_CALL_NO_WRITE_GLOBALS = 32 # qdis.h: 448
 
-# qdis.h: 453
+QDIS_CALL_NO_SIDE_EFFECTS = 64 # qdis.h: 448
+
+QDisCallFlags = enum_anon_35 # qdis.h: 448
+
+# qdis.h: 455
 if hasattr(_libs['qdis'], 'qdis_Create'):
     qdis_Create = _libs['qdis'].qdis_Create
     qdis_Create.argtypes = [QDisTarget, POINTER(QDisCPUFeature)]
     qdis_Create.restype = POINTER(QDisassembler)
 
-# qdis.h: 458
+# qdis.h: 460
 if hasattr(_libs['qdis'], 'qdis_Disassemble'):
     qdis_Disassemble = _libs['qdis'].qdis_Disassemble
     qdis_Disassemble.argtypes = [POINTER(QDisassembler), POINTER(c_uint8), c_size_t, c_uint64, c_uint64, c_uint32, POINTER(None), c_size_t]
     qdis_Disassemble.restype = QDisStatus
 
-# qdis.h: 464
+# qdis.h: 466
 if hasattr(_libs['qdis'], 'qdis_LookupName'):
     qdis_LookupName = _libs['qdis'].qdis_LookupName
     qdis_LookupName.argtypes = [POINTER(QDisassembler), QDisInfoType, c_size_t]
@@ -1238,19 +1242,19 @@ if hasattr(_libs['qdis'], 'qdis_LookupName'):
         qdis_LookupName.restype = String
         qdis_LookupName.errcheck = ReturnString
 
-# qdis.h: 468
+# qdis.h: 470
 if hasattr(_libs['qdis'], 'qdis_LookupValue'):
     qdis_LookupValue = _libs['qdis'].qdis_LookupValue
     qdis_LookupValue.argtypes = [POINTER(QDisassembler), QDisInfoType, c_size_t]
     qdis_LookupValue.restype = c_size_t
 
-# qdis.h: 472
+# qdis.h: 474
 if hasattr(_libs['qdis'], 'qdis_Dump'):
     qdis_Dump = _libs['qdis'].qdis_Dump
     qdis_Dump.argtypes = [POINTER(QDisassembler)]
     qdis_Dump.restype = None
 
-# qdis.h: 476
+# qdis.h: 478
 if hasattr(_libs['qdis'], 'qdis_Destroy'):
     qdis_Destroy = _libs['qdis'].qdis_Destroy
     qdis_Destroy.argtypes = [POINTER(QDisassembler)]

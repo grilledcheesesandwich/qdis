@@ -426,11 +426,13 @@ typedef enum {
     /* Values: CPU arch specific */
     QDIS_INFO_PC_OFFSET = 768,   // Program counter register (env offset)
     QDIS_INFO_SP_OFFSET = 769,   // Stack pointer register (env offset)
-    QDIS_INFO_NUM_HELPERS = 770, // Number of helper functions defined
-    QDIS_INFO_NUM_GLOBALS = 771, // Number of globals defined
-    QDIS_INFO_GLOBAL_SIZE = 772, // global (register) bit size (DisBitsize)
-    QDIS_INFO_GLOBAL_OFFSET = 773, // global (register) address into environment
-    QDIS_INFO_STATE_SIZE = 774,  // environment size
+    QDIS_INFO_PC_GLOBAL = 770,   // Program counter register (global #, or QDIS_INVALID)
+    QDIS_INFO_SP_GLOBAL = 771,   // Stack pointer register (global #, or QDIS_INVALID)
+    QDIS_INFO_NUM_HELPERS = 772, // Number of helper functions defined
+    QDIS_INFO_NUM_GLOBALS = 773, // Number of globals defined
+    QDIS_INFO_GLOBAL_SIZE = 774, // global (register) bit size (DisBitsize)
+    QDIS_INFO_GLOBAL_OFFSET = 775, // global (register) address into environment
+    QDIS_INFO_STATE_SIZE = 776,  // environment size
 } QDisInfoType;
 
 /* Call flags */
