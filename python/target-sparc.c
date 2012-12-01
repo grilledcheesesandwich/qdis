@@ -21,3 +21,8 @@ static size_t target_sp_offset()
     //       Sparc has multiple register windows, so this is not simply an offset
     return 0;
 }
+
+static void target_disassemble_text(disassemble_info *info, uint64_t pc, uint64_t flags)
+{
+    print_insn_sparc(pc, info);
+}

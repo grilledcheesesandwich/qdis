@@ -162,10 +162,11 @@ typedef enum
 typedef struct QDisassembler_ QDisassembler;
 
 typedef enum {
-    QDIS_OPTIMIZE_NONE = 0x0,
-    QDIS_OPTIMIZE_LIVENESS = 0x1,
-    QDIS_OPTIMIZE_GENERAL = 0x2,
-    QDIS_OPTIMIZE_FULL = QDIS_OPTIMIZE_LIVENESS | QDIS_OPTIMIZE_GENERAL
+    QDIS_OPTIMIZE_NONE = 0x0,     /* no optimization at all */
+    QDIS_OPTIMIZE_LIVENESS = 0x1, /* liveness analysis */
+    QDIS_OPTIMIZE_GENERAL = 0x2,  /* general tcg optimizations */
+    QDIS_OPTIMIZE_FULL = QDIS_OPTIMIZE_LIVENESS | QDIS_OPTIMIZE_GENERAL,
+    QDIS_OPTIMIZE_NOTEXT = 0x4    /* do not produce text output using libbfd */
 } QDisOptimizeFlags;
 
 /* Symbol type */
@@ -397,6 +398,7 @@ typedef enum
 /* Disassembly result structure, as written to output buffer */
 typedef struct
 {
+    size_t total_size; // Total size of structure + data
     size_t num_ops;  // Number of opcodes
     QDisOp *ops;     // Pointer to opcodes
     size_t num_args; // Total number of arguments
@@ -405,6 +407,7 @@ typedef struct
     QDisSym *syms; // Pointer to temp symbols
     size_t num_labels; // Total number of labels
     QDisInstType inst_type; // Instruction type
+    char *text; // Text for instruction (if QDIS_OPTIMIZE_NOTEXT not set)
     size_t _padding[8];
 } QDisResult;
 

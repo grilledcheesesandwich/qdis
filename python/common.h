@@ -7,18 +7,21 @@
  */
 #include <stdio.h>
 #include "tcg.h"
-#include "qemu-hooks.h"
+#include "qemu-stubs.h"
 #include "qdis.h"
 #include "internal.h"
+#include "disas-util.h"
 
 struct Impl_ {
     TCGContext *ctx;
     CPUArchState *env;
 };
 
+/* target specific */
 static CPUArchState *init_target(QDisCPUFeature *features);
 static size_t target_pc_offset();
 static size_t target_sp_offset();
+static void target_disassemble_text(disassemble_info *dis_info, uint64_t pc, uint64_t inst_flags);
 
 /* from tcg.c */
 extern TCGOpDef tcg_op_defs[];
@@ -58,29 +61,6 @@ static size_t baseTypeToDis(TCGType type)
     case TCG_TYPE_I64: return QDIS_SIZE_64;
     default: return QDIS_SIZE_UNKNOWN;
     }
-}
-/* output stream funcs */
-struct OutBuf
-{
-    void *ptr;
-    void *end;
-};
-void *outbufAlloc(struct OutBuf *outbuf, size_t size)
-{
-    size_t alignment = 1;
-    if(size == 0) return NULL;
-    else if(size == 1) alignment = 1;
-    else if(size > 1) alignment = 2;
-    else if(size > 2) alignment = 4;
-    else alignment = 8;
-
-    size_t ptr_aligned = QEMU_ALIGN_UP((size_t)outbuf->ptr, alignment);
-    size_t ptr_end = ptr_aligned + size;
-
-    if(ptr_end > (size_t)outbuf->end)
-        return NULL;
-    outbuf->ptr = (void*)ptr_end;
-    return (void*)ptr_aligned;
 }
 
 /* helper functions for disassembly */
@@ -287,7 +267,7 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
 
     cpu_single_env = dis->impl->env;
     tcg_func_start(ctx); // Resets state of context
-    gen_intermediate_code_pc(dis->impl->env, &tb);
+    gen_intermediate_code(dis->impl->env, &tb);
 
     if(disassembly_get_error())
     {
@@ -305,20 +285,21 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
 
     /* allocation */
     struct OutBuf out = {.ptr = outbuf, .end = outbuf + outsize};
-    QDisResult *result = outbufAlloc(&out, sizeof(QDisResult));
+    QDisResult *result = outbuf_alloc(&out, sizeof(QDisResult));
     if(result == NULL)
         return QDIS_ERR_BUFFER_TOO_SMALL;
+    memset(result, 0, sizeof(QDisResult));
     /*   opcodes */
     result->num_ops = ctx->gen_opc_ptr - ctx->gen_opc_buf;
-    result->ops = outbufAlloc(&out, result->num_ops * sizeof(QDisOp));
+    result->ops = outbuf_alloc(&out, result->num_ops * sizeof(QDisOp));
     memset(result->ops, 0, result->num_ops * sizeof(QDisOp));
     /*   arguments */
     result->num_args = ctx->gen_opparam_ptr - ctx->gen_opparam_buf;
-    result->args = outbufAlloc(&out, result->num_args * sizeof(QDisArg));
+    result->args = outbuf_alloc(&out, result->num_args * sizeof(QDisArg));
     memset(result->args, 0, result->num_args * sizeof(QDisArg));
     /*   symbols */
     result->num_syms = ctx->nb_temps - ctx->nb_globals;
-    result->syms = outbufAlloc(&out, result->num_syms * sizeof(QDisSym));
+    result->syms = outbuf_alloc(&out, result->num_syms * sizeof(QDisSym));
     memset(result->syms, 0, result->num_syms * sizeof(QDisSym));
     /*   labels */
     result->num_labels = ctx->nb_labels;
@@ -330,7 +311,21 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
     fillOpcodes(ctx, result->ops, result->args, &result->num_ops, &result->num_args);
 
     result->inst_type = (QDisInstType)tb.s2e_tb_type;
+
+    if(!(optimize & QDIS_OPTIMIZE_NOTEXT))
+    {
+        result->text = outbuf_printf_start(&out);
+        disassemble_info dis_info;
+        disas_init(&dis_info, &out, inst, pc, size);
+#ifdef TARGET_WORDS_BIGENDIAN
+        dis_info.endian = BFD_ENDIAN_BIG;
+#else
+        dis_info.endian = BFD_ENDIAN_LITTLE;
+#endif
+        target_disassemble_text(&dis_info, pc, inst_flags);
+    }
     //tcg_dump_ops(ctx);
+    result->total_size = (size_t)out.ptr - (size_t)outbuf;
 
     return QDIS_OK;
 }
@@ -469,3 +464,4 @@ QDisassembler *glue(TARGET,_create)(QDisCPUFeature *feat)
     // also add in eip for x86
     return rv;
 }
+

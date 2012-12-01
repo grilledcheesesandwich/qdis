@@ -82,3 +82,26 @@ static size_t target_sp_offset()
 {
     return offsetof(CPUARMState, regs[13]);
 }
+
+static void target_disassemble_text(disassemble_info *info, uint64_t pc, uint64_t flags)
+{
+    if (ARM_TBFLAG_THUMB(flags)) {
+        /* disassembler (like processor) treats odd addresses as Thumb */
+        pc |= 1;
+    }
+    if (ARM_TBFLAG_BSWAP_CODE(flags)) {
+#ifdef TARGET_WORDS_BIGENDIAN
+        info->endian = BFD_ENDIAN_LITTLE;
+#else
+        info->endian = BFD_ENDIAN_BIG;
+#endif
+    } else {
+#ifdef TARGET_WORDS_BIGENDIAN
+        info->endian = BFD_ENDIAN_BIG;
+#else
+        info->endian = BFD_ENDIAN_LITTLE;
+#endif
+    }
+    print_insn_arm(pc, info);
+}
+

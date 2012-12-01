@@ -153,8 +153,21 @@ However, iscall/isreturn cannot
   -> need to symbolically compile this
      so that we can derive modified TB flags from instructions that modify the env
 
+- PC/SP
+  -> can return global as well as offset into state
+  PC_STATE_OFFSET
+  PC_GLOBAL
+  SP_STATE_OFFSET
+  SP_GLOBAL
+  ...
+
+TODO before release:
 - return instruction size (address after parsing instruction)? this is useful for showing the user the instruction in hex
-  LLVM already does this
+  also in the case of call instructions this signifies the return address (how does S2E handle this?)
+  LLVM already does this.
+
+- rename TGT to ARCH. Target is a confusing word within qemu lingo.
+  rename OPTIMIZE to OPT. These are specific options, not only optimizations.
 
 ======================================================================================
 Done:

@@ -1,7 +1,8 @@
 QEMUROOT = ..
 
 SOURCES_LIB = $(QEMUROOT)/cutils.c \
-	  dispatch.c
+	  dispatch.c \
+	  disas-util.c
 SOURCES_TEST =  translate-test.c
 
 OBJECTS_LIB_BASE := $(basename $(SOURCES_LIB))

@@ -19,3 +19,9 @@ static size_t target_sp_offset()
 {
     return offsetof(CPUM68KState, aregs[7]);
 }
+
+static void target_disassemble_text(disassemble_info *info, uint64_t pc, uint64_t flags)
+{
+    print_insn_m68k(pc, info);
+}
+

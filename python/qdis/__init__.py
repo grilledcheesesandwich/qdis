@@ -29,13 +29,16 @@ class Instruction(object):
         self.args = args
 
 class Block(object):
-    def __init__(self, ops, syms, labels):
+    def __init__(self, ops, syms, labels, text):
         # list of all instructions in this block
         self.ops = ops
         # list of symbols (temps/locals)
         self.syms = syms
         # list of indices into ops array for labels
         self.labels = labels
+        # original machine instruction formatted as text
+        # if OPTIMIZE_NOTEXT was not provided
+        self.text = text
 
 class Disassembler(object):
     def __init__(self, tgt, features=None):
@@ -69,7 +72,7 @@ class Disassembler(object):
                 labels[data.args[argptr].value] = len(instructions)
             instructions.append(Instruction(op.opcode, data.args[argptr:argptr+op.args]))
             argptr += op.args
-        return Block(instructions, data.syms[0:data.num_syms], labels)
+        return Block(instructions, data.syms[0:data.num_syms], labels, data.text)
 
     def lookup_name(self, infotype, x):
         '''

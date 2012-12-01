@@ -4,6 +4,7 @@ struct TranslationBlock;
 typedef struct TranslationBlock TranslationBlock;
 #include "cpu.h"
 #include "tcg.h"
+
 uint8_t gen_opc_instr_start[OPC_BUF_SIZE]; /* search_pc */
 target_ulong gen_opc_pc[OPC_BUF_SIZE]; /* search_pc */
 uint16_t gen_opc_icount[OPC_BUF_SIZE]; /* search_pc */
@@ -131,3 +132,4 @@ uint64_t cpu_ldq_code(CPUArchState *arch, target_ulong addr)
     }
     return *((uint64_t*)(dis_memory + addr - dis_offset));
 }
+

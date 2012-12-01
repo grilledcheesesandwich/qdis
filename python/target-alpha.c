@@ -20,3 +20,10 @@ static size_t target_sp_offset()
     // register $30 is used as SP 
     return offsetof(CPUAlphaState, ir[30]);
 }
+
+static void target_disassemble_text(disassemble_info *info, uint64_t pc, uint64_t flags)
+{
+    info->mach = bfd_mach_alpha_ev6;
+    print_insn_alpha(pc, info);
+}
+

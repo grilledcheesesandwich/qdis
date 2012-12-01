@@ -11,26 +11,27 @@ import subprocess
 # TODO do the 32 bit targets make sense where a 64 bit one exists, or are they all just
 #  subsets or special modes?
 TARGETS=[
-('QDIS_TGT_ARM', 'arm', 'target-arm', []),
-#('QDIS_TGT_X86_32', 'x86_32', 'target-i386', []),
-('QDIS_TGT_X86_64', 'x86_64', 'target-i386', ['-DTARGET_X86_64']),
-#('QDIS_TGT_MIPS_32', 'mips_32', 'target-mips', []),
-('QDIS_TGT_MIPS_64', 'mips_64', 'target-mips', ['-DTARGET_MIPS64']),
-#('QDIS_TGT_PPC_32', 'ppc_32', 'target-ppc', []),
-('QDIS_TGT_PPC_64', 'ppc_64', 'target-ppc', ['-DTARGET_PPC64']),
-('QDIS_TGT_ALPHA', 'alpha', 'target-alpha', []),
-#('QDIS_TGT_CRIS', 'cris', 'target-cris', []),
-#('QDIS_TGT_LM32', 'lm32', 'target-lm32', []),
-('QDIS_TGT_M68K', 'm68k', 'target-m68k', []),
-#('QDIS_TGT_MICROBLAZE', 'microblaze', 'target-microblaze', []),
-#('QDIS_TGT_OPENRISC', 'openrisc', 'target-openrisc', []),
-#('QDIS_TGT_S390X', 's390x', 'target-s390x', []),
-#('QDIS_TGT_SH4', 'sh4', 'target-sh4', []),
-#('QDIS_TGT_SPARC_32', 'sparc_32', 'target-sparc', []),
-('QDIS_TGT_SPARC_64', 'sparc_64', 'target-sparc', ['-DTARGET_SPARC64']),
-#('QDIS_TGT_UNICORE32', 'unicore', 'target-unicore', []),
-#('QDIS_TGT_XTENSA', 'xtensa', 'target-xtensa', []),
+('QDIS_TGT_ARM', 'arm', 'arm', []),
+#('QDIS_TGT_X86_32', 'x86_32', 'i386', []),
+('QDIS_TGT_X86_64', 'x86_64', 'i386', ['-DTARGET_X86_64']),
+#('QDIS_TGT_MIPS_32', 'mips_32', 'mips', []),
+('QDIS_TGT_MIPS_64', 'mips_64', 'mips', ['-DTARGET_MIPS64']),
+#('QDIS_TGT_PPC_32', 'ppc_32', 'ppc', []),
+('QDIS_TGT_PPC_64', 'ppc_64', 'ppc', ['-DTARGET_PPC64']),
+('QDIS_TGT_ALPHA', 'alpha', 'alpha', []),
+#('QDIS_TGT_CRIS', 'cris', 'cris', []),
+#('QDIS_TGT_LM32', 'lm32', 'lm32', []),
+('QDIS_TGT_M68K', 'm68k', 'm68k', []),
+#('QDIS_TGT_MICROBLAZE', 'microblaze', 'microblaze', []),
+#('QDIS_TGT_OPENRISC', 'openrisc', 'openrisc', []),
+#('QDIS_TGT_S390X', 's390x', 's390x', []),
+#('QDIS_TGT_SH4', 'sh4', 'sh4', []),
+#('QDIS_TGT_SPARC_32', 'sparc_32', 'sparc', []),
+('QDIS_TGT_SPARC_64', 'sparc_64', 'sparc', ['-DTARGET_SPARC64']),
+#('QDIS_TGT_UNICORE32', 'unicore', 'unicore', []),
+#('QDIS_TGT_XTENSA', 'xtensa', 'xtensa', []),
 ]
+
 #
 # Partial linking
 # ld -r /tmp/a.o  /tmp/b.o /tmp/c.o -o /tmp/d.o
@@ -41,9 +42,9 @@ def join(x):
     return ' '.join(x)
 
 def build_tgt(outfile, objname, basename, cflags):
-    outfile.write('# target: '+basename+'\n')
+    outfile.write('# target: '+objname+' (target-'+basename+')\n')
     TARGET='arm'
-    TARGETDIR = '$(QEMUROOT)/' + basename
+    TARGETDIR = '$(QEMUROOT)/target-' + basename
     TARGETCFLAGS = ['$(CFLAGS)','-I'+TARGETDIR,'-DNEED_CPU_H','-w','-DTARGET='+objname]
     TARGETCFLAGS += cflags
     targetcflags = 'TARGETCFLAGS_'+objname
@@ -73,8 +74,9 @@ def build_tgt(outfile, objname, basename, cflags):
         path.join(TARGETDIR, 'translate.c'),
         path.join('$(QEMUROOT)', 'tcg', 'tcg.c'),
         path.join('$(QEMUROOT)', 'tcg', 'optimize.c'),
-        'qemu-hooks.c',
-        basename + '.c'
+        path.join('$(QEMUROOT)', basename + '-dis.c'),
+        'qemu-stubs.c',
+        'target-' + basename + '.c'
     ]
     TARGETINTERMEDIATES =[]
     for srcname in TARGETSOURCES:
