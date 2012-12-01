@@ -6872,9 +6872,9 @@ static void disas_arm_insn(CPUARMState * env, DisasContext *s)
                 ARCH(4T);
                 if(rm == 14)
                 {
-                    SET_TB_TYPE(TB_RET);
+                    SET_TB_TYPE(TB_RET); // bx lr
                 } else {
-                    SET_TB_TYPE(TB_CALL);
+                    SET_TB_TYPE(TB_JMP_IND);
                 }
                 tmp = load_reg(s, rm);
                 gen_bx(s, tmp);
@@ -7000,6 +7000,11 @@ static void disas_arm_insn(CPUARMState * env, DisasContext *s)
         set_cc = (insn >> 20) & 1;
         logic_cc = table_logic_cc[op1] & set_cc;
 
+        if((insn & 0x03f0f00f) == 0x01a0f00e) {
+            // op1 0xd rm 14 rd 15 from register, set_cc == 0
+            // mov pc, lr  is return instruction
+            SET_TB_TYPE(TB_RET);
+        }
         /* data processing instruction */
         if (insn & (1 << 25)) {
             /* immediate operand */
@@ -7026,6 +7031,7 @@ static void disas_arm_insn(CPUARMState * env, DisasContext *s)
                 tmp = load_reg(s, rs);
                 gen_arm_shift_reg(tmp2, shiftop, tmp, logic_cc);
             }
+
         }
         if (op1 != 0x0f && op1 != 0x0d) {
             rn = (insn >> 16) & 0xf;
@@ -7715,6 +7721,11 @@ static void disas_arm_insn(CPUARMState * env, DisasContext *s)
             if (insn & (1 << 20)) {
                 /* Complete the load.  */
                 store_reg_from_load(env, s, rd, tmp);
+            }
+            if (rn == 13 && rd == 15 && (insn & 0x03900000) == 0x00900000)
+            {
+                // pop {pc} (ldr pc, [sp], #xxx)
+                SET_TB_TYPE(TB_RET);
             }
             break;
         case 0x08:
@@ -8584,6 +8595,7 @@ static int disas_thumb2_insn(CPUARMState *env, DisasContext *s, uint16_t insn_hw
                 offset ^= ((~insn) & (1 << 11)) << 11;
 
                 if (insn & (1 << 14)) {
+                    SET_TB_TYPE(TB_CALL);
                     /* Branch and link.  */
                     tcg_gen_movi_i32(cpu_R[14], s->pc | 1);
                 }
@@ -9186,7 +9198,11 @@ static void disas_thumb_insn(CPUARMState *env, DisasContext *s)
                     tcg_gen_movi_i32(tmp2, val);
                     store_reg(s, 14, tmp2);
                 } else {
-                    SET_TB_TYPE(TB_JMP_IND);
+                    if(rm == 14) {
+                        SET_TB_TYPE(TB_RET); // bx lr
+                    } else {
+                        SET_TB_TYPE(TB_JMP_IND);
+                    }
                 }
                 /* already thumb, no need to check */
                 gen_bx(s, tmp);
