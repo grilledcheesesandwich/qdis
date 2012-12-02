@@ -5,29 +5,26 @@ or jump table interpolation. Just follow jumps and calls from a provided
 entry point, and keep track of what was visited.
 '''
 from __future__ import print_function, unicode_literals, division, absolute_import
-import sys, os
-sys.path.append(os.path.abspath('..'))
 import functools # for partial
 import argparse
+import mmap
 from binascii import b2a_hex
 import qdis
 from qdis.format import format_inst
 
-STYLE_ADDR = '\033[38;5;226m'
-STYLE_COLON = '\033[38;5;244m'
-STYLE_MICRO = '\033[38;5;248m'
-STYLE_INST = '\033[38;5;179m'
-STYLE_WARNING_HEAD = '\033[48;5;196;38;5;232m'
-STYLE_WARNING_MSG = '\033[38;5;167m'
-STYLE_EXPR_TGT = '\033[38;5;93m'
-STYLE_EXPR = '\033[38;5;105m'
-STYLE_RESET = '\033[0m'
 UNDEFINED = None
-
 TRACE_INSTRUCTION = 'inst'
-trace_global_stores = True
-trace_temp_stores = True
-trace_microcode = True
+
+# Show stores to globals
+trace_global_stores = False#True
+# Show stores to temps and locals
+trace_temp_stores = False#True
+# Show all microcode for disassembled instructions
+trace_microcode = False#True
+# Show warnings (non-implemented microcode instructions etc)
+show_warnings = False
+# Show debug information after processing instruction
+show_debug = False
 
 class SavedState(object):
     '''
@@ -40,7 +37,6 @@ class SavedState(object):
 
 # XXX move this inside qdis some way
 #     need platform-independent way to compute instruction flag and pc changes from env change instructions
-#     maybe add a virtual global for the instruction flags?
 ENV_ARM_THUMB_FLAG = 0xd0
 
 class NaiveEval(object):
@@ -87,7 +83,6 @@ class NaiveEval(object):
         self.worklist = []
         self.pcs_out = set()
         self.ptr = 0
-        self.goto_tb_flags = 0 # which goto_tb instructions are present
         self.jump_iflag = iflag # if instruction flags not changed, leave them as now
         while self.ptr is not None:
             i = self.ops[self.ptr]
@@ -193,13 +188,8 @@ class NaiveEval(object):
     def eval_goto_tb(self, inst):
         '''goto_tb''' # ignored
         self.ptr += 1
-        self.goto_tb_flags |= 1<<inst.args[0].value
     def eval_exit_tb(self, inst):
         '''exit_tb t1''' # interpreted as 'br to end'
-        if inst.args[0].value == 0:
-            # 0 argument means that target is non-predictable
-            # consider this an 'other' jump
-            self.goto_tb_flags |= 1
         self.clear_temps()
         # append current value of PC to possible outputs
         self.pcs_out.add((self.globals[self.pc_id], self.jump_iflag))
@@ -210,120 +200,4 @@ class NaiveEval(object):
             self.apply_saved_state(state)
         else:
             self.ptr = None
-
-BOTTOM = '\u22A5' # used as undefined character
-
-def is_valid_pc(pc, iflag):
-    '''
-    Check if pc is a valid instruction location, given instruction flags
-    iflag.
-    XXX ARM specific, move this in to qdis.
-    '''
-    if iflag & qdis.INST_ARM_THUMB_MASK:
-        return not (pc & 1)
-    else:
-        return not (pc & 3)
-
-def main():
-    parser = argparse.ArgumentParser(description='Scan binary for reachable instructions')
-    parser.add_argument('image', metavar='IMAGE')
-    parser.add_argument('pc', metavar='PC')
-    parser.add_argument('iflags', metavar='IFLAGS')
-    args = parser.parse_args()
-
-    def format_value(value):
-        if value is not None:
-            return '%08x' % value
-        else:
-            return BOTTOM
-    def format_pc_iflag(pc, iflag):
-        'Format pc and new instruction flags pair'
-        rv = format_value(pc)
-        if iflag is not None:
-            rv += '(%x)' % iflag
-        else:
-            rv += '('+BOTTOM+')'
-        return rv
-    def expr_trace(addr, value):
-        '''Custom tracing func'''
-        if addr==TRACE_INSTRUCTION:
-            print ('  '+STYLE_MICRO+format_inst(qd,value,result.syms)+STYLE_RESET)
-        else:
-            print('  %s%s%s = %s%s%s' % (STYLE_EXPR_TGT, addr, STYLE_RESET, STYLE_EXPR, format_value(value), STYLE_RESET))
-    def warning(msg):
-        print('  ' + STYLE_WARNING_HEAD + 'Warning' + STYLE_RESET + ' ' + STYLE_WARNING_MSG + msg + STYLE_RESET)
-
-    # Default flags for ARM
-    default_flags = [qdis.IFLAGS_DEFAULT_ARM, qdis.IFLAGS_DEFAULT_THUMB]
-
-    qd = qdis.Disassembler(qdis.TGT_ARM, None)
-
-    f = open(args.image, 'rb')
-    code = f.read()
-    f.close()
-
-    ev = NaiveEval(qd)
-    ev.trace_func = expr_trace
-    ev.warning_func = warning
-
-    pc = int(args.pc,0)
-    flags = qdis.INST_ARM_VFPEN_MASK | default_flags[int(args.iflags)] 
-
-    visited = set()
-    # list of states
-    worklist = []
-    in_worklist = set() # set of pcs in worklist
-    # add first instruction to work list
-    worklist.append((pc,flags))
-    in_worklist.add(pc)
-    while worklist:
-        pc,flags = worklist.pop()
-        in_worklist.remove(pc)
-
-        if not is_valid_pc(pc, flags):
-            print('Warning: PC %08x is invalid with iflags %08x' % (pc,flags))
-            continue
-
-        visited.add(pc)
-
-        instdata = code[pc:pc+qdis.MAX_INST_SIZE]
-        
-        result = qd.disassemble(instdata, pc, flags)
-        
-        print ("%s%08x%s: %s%s %s" % (STYLE_ADDR,pc,STYLE_COLON,STYLE_RESET,
-            STYLE_INST, result.inst_text))
-        #print(result.inst_type, result.inst_size, result.inst_text)
-
-        pcs_out = ev.start_block(result, pc, flags)
-        is_call = result.inst_type in [qdis.ITYPE_CALL, qdis.ITYPE_CALL_IND]
-        is_return = result.inst_type in [qdis.ITYPE_RET]
-        if is_call:
-            # In case of a call, continue after instruction
-            # Assume instruction flags are the same upon return
-            pcs_out.add((pc + result.inst_size, flags))
-
-        print('New PCs: %s' % (' '.join([format_pc_iflag(x, iflag) for x,iflag in pcs_out])))
-        print('is_call %i is_return %i' % (is_call, is_return))
-        # TODO: warn when exception or other strange helper
-        unknown_jump_target = False
-        # First defined PC
-        for cand_pc,cand_iflag in pcs_out:
-            if cand_pc is UNDEFINED:
-                unknown_jump_target = True
-            if cand_pc is not UNDEFINED and not cand_pc in visited and not cand_pc in in_worklist:
-                worklist.append((cand_pc,cand_iflag))
-                in_worklist.add(cand_pc)
-
-        if unknown_jump_target and not is_return:
-            print('One of jump targets is unknown')
-        print()
-
-    print()
-    print('Visited addresses:')
-    for addr in sorted(visited):
-        print('  %08x' % addr)
-
-
-if __name__ == '__main__':
-    main()
 

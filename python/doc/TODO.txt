@@ -16,7 +16,13 @@ we have to work around it
 
   How to parse (target specific) CPUArchState structure into list of offsets/field names?
 
-- Generate normal make file
+  In general: need a way to parse CPU state changes to a useful format
+  Another example is the TB_FLAGS, which is collected from CPU state
+  On ARM this is mainly the thumb flag, stored at offset 0xb0 into the state object.
+  Relying on this offset, however, might be a bad idea.
+
+- Could expose an expression to go from CPU state to new TB flags and PC *as* TCG!
+  This would be useful, both for the ARM thumb flag case and the i386 PC
 
 - Use ELF hwcap flags for CPU features, this is possible for at least
     ARM : ARM_HWCAP_*
