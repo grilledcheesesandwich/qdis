@@ -342,7 +342,6 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
     // use the global one as we don't want to trigger interrupts
     singlestep = 1;
 
-    cpu_single_env = dis->impl->env;
     tcg_func_start(ctx); // Resets state of context
 
     gen_intermediate_code(dis->impl->env, &tb);

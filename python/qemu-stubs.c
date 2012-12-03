@@ -32,9 +32,6 @@ target_ulong gen_opc_pc[OPC_BUF_SIZE]; /* search_pc */
 uint16_t gen_opc_icount[OPC_BUF_SIZE]; /* search_pc */
 TCGContext tcg_ctx;
 
-/* Current CPU */
-DEFINE_TLS(CPUArchState *,cpu_single_env);
-
 /** Debugging **/
 int qemu_loglevel = 0;
 /* loglevel_mask: CPU_LOG_TB_OP_OPT, to make sure that PCs are logged?

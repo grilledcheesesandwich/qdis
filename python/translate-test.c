@@ -37,6 +37,8 @@ void print_dis_result(QDisassembler *dis, QDisResult *rv)
 {
     int i = 0, j = 0, arg = 0;
     printf("Result: %p\n", rv);
+    printf("Text: %s\n", rv->inst_text);
+    printf("Instruction length: %i\n", (int)rv->inst_size);
     printf("Number of args: %i\n", (int)rv->num_args);
     printf("Number of syms: %i\n", (int)rv->num_syms);
     for(i=0; i<rv->num_syms; ++i)

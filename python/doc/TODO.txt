@@ -5,8 +5,6 @@ and not so much understanding the underlying code.
 one concrete example is the handling of conditions / flags
 we have to work around it
 
-- Get rid of cpu_single_env
-
 - Holy shit: on x86, PC is not a global
   EIP is stored as simply mem[env+0x80]
      st_i64 tmp4,env,$0x80
