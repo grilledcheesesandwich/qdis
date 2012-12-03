@@ -30,7 +30,7 @@ import subprocess
 # TODO do the 32 bit targets make sense where a 64 bit one exists, or are they all just
 #  subsets or special modes?
 TARGETS=[
-('QDIS_TGT_ARM', 'arm', 'arm', []),
+('QDIS_TGT_ARM', 'arm', 'arm', ['-DTARGET_ARM']),
 #('QDIS_TGT_X86_32', 'x86_32', 'i386', []),
 ('QDIS_TGT_X86_64', 'x86_64', 'i386', ['-DTARGET_X86_64']),
 #('QDIS_TGT_MIPS_32', 'mips_32', 'mips', []),

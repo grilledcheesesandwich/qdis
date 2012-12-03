@@ -68,6 +68,24 @@ class Disassembler(object):
         self.dis = _qdis.qdis_Create(tgt, features)
         self.outbuffer = OutbufferType()
 
+    def _process_disassembly_result(self, outbuffer, result):
+        if result != OK:
+            if result == ERR_OUT_OF_BOUNDS_ACCESS:
+                raise IndexError('Out of bounds access')
+            raise Exception('Disassembly error %i' % result)
+
+        data = cast(outbuffer, POINTER(_qdis.QDisResult)).contents
+        argptr = 0
+        instructions = []
+        labels = [None] * data.num_labels
+        for idx in xrange(data.num_ops):
+            op = data.ops[idx]
+            if op.opcode == OP_SET_LABEL:
+                labels[data.args[argptr].value] = len(instructions)
+            instructions.append(Instruction(op.opcode, data.args[argptr:argptr+op.args]))
+            argptr += op.args
+        return Block(instructions, data.syms[0:data.num_syms], labels, data.inst_type, data.inst_size, data.inst_text)
+
     def disassemble(self, inst, pc, flags, optimize=OPTIMIZE_FULL):
         '''
         inst: binary instruction
@@ -80,22 +98,15 @@ class Disassembler(object):
         result = _qdis.qdis_Disassemble(self.dis, inst_buf, len(inst_buf), pc, flags, optimize,
                 self.outbuffer, len(self.outbuffer))
 
-        if result != OK:
-            if result == ERR_OUT_OF_BOUNDS_ACCESS:
-                raise IndexError('Out of bounds access')
-            raise Exception('Disassembly error %i' % result)
+        return self._process_disassembly_result(self.outbuffer, result)
 
-        data = cast(self.outbuffer, POINTER(_qdis.QDisResult)).contents
-        argptr = 0
-        instructions = []
-        labels = [None] * data.num_labels
-        for idx in xrange(data.num_ops):
-            op = data.ops[idx]
-            if op.opcode == OP_SET_LABEL:
-                labels[data.args[argptr].value] = len(instructions)
-            instructions.append(Instruction(op.opcode, data.args[argptr:argptr+op.args]))
-            argptr += op.args
-        return Block(instructions, data.syms[0:data.num_syms], labels, data.inst_type, data.inst_size, data.inst_text)
+    def get_helper(self, helper_id):
+        '''
+        Get implementation of helper function.
+        '''
+        result = _qdis.qdis_GetHelper(self.dis, helper_id, self.outbuffer, len(self.outbuffer))
+
+        return self._process_disassembly_result(self.outbuffer, result)
 
     def lookup_name(self, infotype, x):
         '''

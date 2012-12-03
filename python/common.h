@@ -259,32 +259,14 @@ static void fillOpcodes(TCGContext *s, QDisOp *opso, QDisArg *argso, size_t *ops
     *ops_ptr_out = ops_ptr;
     *args_ptr_out = args_ptr;
 }
+#ifdef TARGET_ARM
+extern void gen_get_tb_cpu_state(CPUARMState *env);
+#endif
 
-/* vtable method implementations */
-static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, uint64_t pc, uint64_t inst_flags, uint32_t optimize,
-        void *outbuf, size_t outsize)
+/* Postprocess after generating TCG code */
+static QDisStatus postprocess_tcg(QDisassembler *dis, uint32_t optimize, struct OutBuf *out, QDisResult **result_out)
 {
     TCGContext *ctx = dis->impl->ctx;
-    if(outbuf == NULL)
-        return QDIS_ERR_NULLPOINTER;
-    if(((size_t)outbuf) & 7) // Improperly aligned output buffer
-        return QDIS_ERR_ALIGNMENT;
-    disassembly_set_window(inst, pc, size);
-    TranslationBlock tb = {
-        .pc = pc,
-        .flags = inst_flags,
-        /* set tb type to unknown for translators that don't override it */
-        .s2e_tb_type = TB_UNKNOWN
-    };
-
-    // there are two singlestep flags, one in the environment, and one global
-    // use the global one as we don't want to trigger interrupts
-    singlestep = 1;
-
-    cpu_single_env = dis->impl->env;
-    tcg_func_start(ctx); // Resets state of context
-    gen_intermediate_code(dis->impl->env, &tb);
-
     if(disassembly_get_error())
     {
         return QDIS_ERR_OUT_OF_BOUNDS_ACCESS;
@@ -300,32 +282,78 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
     }
 
     /* allocation */
-    struct OutBuf out = {.ptr = outbuf, .end = outbuf + outsize};
-    QDisResult *result = outbuf_alloc(&out, sizeof(QDisResult));
+    QDisResult *result = outbuf_alloc(out, sizeof(QDisResult));
     if(result == NULL)
         return QDIS_ERR_BUFFER_TOO_SMALL;
     memset(result, 0, sizeof(QDisResult));
     /*   opcodes */
     result->num_ops = ctx->gen_opc_ptr - ctx->gen_opc_buf;
-    result->ops = outbuf_alloc(&out, result->num_ops * sizeof(QDisOp));
-    memset(result->ops, 0, result->num_ops * sizeof(QDisOp));
+    result->ops = outbuf_alloc(out, result->num_ops * sizeof(QDisOp));
+    if(result->ops != NULL)
+        memset(result->ops, 0, result->num_ops * sizeof(QDisOp));
+    else
+        return QDIS_ERR_BUFFER_TOO_SMALL;
     /*   arguments */
     result->num_args = ctx->gen_opparam_ptr - ctx->gen_opparam_buf;
-    result->args = outbuf_alloc(&out, result->num_args * sizeof(QDisArg));
-    memset(result->args, 0, result->num_args * sizeof(QDisArg));
+    result->args = outbuf_alloc(out, result->num_args * sizeof(QDisArg));
+    if(result->args != NULL)
+        memset(result->args, 0, result->num_args * sizeof(QDisArg));
+    else
+        return QDIS_ERR_BUFFER_TOO_SMALL;
     /*   symbols */
     result->num_syms = ctx->nb_temps - ctx->nb_globals;
-    result->syms = outbuf_alloc(&out, result->num_syms * sizeof(QDisSym));
-    memset(result->syms, 0, result->num_syms * sizeof(QDisSym));
+    result->syms = outbuf_alloc(out, result->num_syms * sizeof(QDisSym));
+    if(result->syms != NULL)
+        memset(result->syms, 0, result->num_syms * sizeof(QDisSym));
+    else
+        return QDIS_ERR_BUFFER_TOO_SMALL;
     /*   labels */
     result->num_labels = ctx->nb_labels;
-
-    if(result->ops == NULL || result->args == NULL || result->syms == NULL)
-        return QDIS_ERR_BUFFER_TOO_SMALL;
 
     fillSymbols(ctx, result->syms);
     fillOpcodes(ctx, result->ops, result->args, &result->num_ops, &result->num_args);
 
+    result->total_size = (size_t)out->ptr - (size_t)out->start;
+    *result_out = result;
+    //tcg_dump_ops(ctx);
+
+    return QDIS_OK;
+}
+
+/* vtable method implementations */
+static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, uint64_t pc, uint64_t inst_flags, uint32_t optimize,
+        void *outbuf, size_t outsize)
+{
+    TCGContext *ctx = dis->impl->ctx;
+    if(outbuf == NULL)
+        return QDIS_ERR_NULLPOINTER;
+    if(((size_t)outbuf) & 7) // Improperly aligned output buffer
+        return QDIS_ERR_ALIGNMENT;
+
+    disassembly_set_window(inst, pc, size);
+    TranslationBlock tb = {
+        .pc = pc,
+        .flags = inst_flags,
+        /* set tb type to unknown for translators that don't override it */
+        .s2e_tb_type = TB_UNKNOWN
+    };
+
+    // there are two singlestep flags, one in the environment, and one global
+    // use the global one as we don't want to trigger interrupts
+    singlestep = 1;
+
+    cpu_single_env = dis->impl->env;
+    tcg_func_start(ctx); // Resets state of context
+
+    gen_intermediate_code(dis->impl->env, &tb);
+
+    struct OutBuf out = {.start = outbuf, .ptr = outbuf, .end = outbuf + outsize};
+    QDisResult *result = NULL;
+    QDisStatus pp_result = postprocess_tcg(dis, optimize, &out, &result);
+    if(pp_result != QDIS_OK)
+        return pp_result;
+
+    /* fill in instruction metadata */
     result->inst_type = (QDisInstType)tb.s2e_tb_type;
     result->inst_size = tb.size;
 
@@ -341,10 +369,35 @@ static QDisStatus disassemble(QDisassembler *dis, uint8_t *inst, size_t size, ui
 #endif
         target_disassemble_text(&dis_info, pc, inst_flags);
     }
-    //tcg_dump_ops(ctx);
-    result->total_size = (size_t)out.ptr - (size_t)outbuf;
+    result->total_size = (size_t)out.ptr - (size_t)out.start;
 
     return QDIS_OK;
+}
+
+static QDisStatus getHelper(QDisassembler *dis, QDisVal helper_id, void *outbuf, size_t outsize)
+{
+    TCGContext *ctx = dis->impl->ctx;
+    if(outbuf == NULL)
+        return QDIS_ERR_NULLPOINTER;
+    if(((size_t)outbuf) & 7) // Improperly aligned output buffer
+        return QDIS_ERR_ALIGNMENT;
+
+    tcg_func_start(ctx); // Resets state of context
+    
+    switch(helper_id)
+    {
+#ifdef TARGET_ARM
+    case QDIS_HELPER_GET_TB_CPU_STATE:
+        gen_get_tb_cpu_state(dis->impl->env);
+        break;
+#endif
+    default:
+        return QDIS_ERR_NOT_FOUND;
+    }
+
+    struct OutBuf out = {.start = outbuf, .ptr = outbuf, .end = outbuf + outsize};
+    QDisResult *result = NULL; /* unused */
+    return postprocess_tcg(dis, QDIS_OPTIMIZE_FULL, &out, &result);
 }
 
 static void dump(QDisassembler *dis)
@@ -480,6 +533,7 @@ QDisassembler *glue(TARGET,_create)(QDisCPUFeature *feat)
     rv->destroy = destroy;
     rv->lookupName = lookupName;
     rv->lookupValue = lookupValue;
+    rv->getHelper = getHelper;
     // TODO: Build list of globals / offsets into env
     // "state map" would make it possible to request the name and size of globals by offset, iso by ordinal
     // also add in eip for x86

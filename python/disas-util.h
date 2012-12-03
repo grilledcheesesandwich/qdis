@@ -30,6 +30,7 @@
 /* output stream funcs */
 struct OutBuf
 {
+    void *start;
     void *ptr;
     void *end;
 };

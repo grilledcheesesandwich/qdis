@@ -1,17 +1,24 @@
 qdis
-Instruction decoding library based on qemu
-Python wrapper
+======
+
+Universal instruction decoding library based on `qemu`.
+
+Building the library
+---------------------
 
 Building:
 
-$ python gen_modules.py  (optional)
-$ make
+    $ make
 
-Creates a libqdis.so
+This creates a libqdis.so.
+    
+To edit which modules are generated, modify `gen_modules.py` then run:
 
-To re-generate the Python binding:
+    $ python gen_modules.py  (optional)
 
-$ bash gen_python_binding.sh (optional, needs ctypesgen)
+To re-generate the Python binding (optional, needs ctypesgen):
+
+    $ bash gen_python_binding.sh
 
 What information is returned
 =============================
@@ -25,6 +32,5 @@ CALL/RET/JMP/DEFAULT, information that cannot be (trivially) derived from the re
 
 Credits
 =============================
-SET_TB_TYPE borrowed from S2E
-http://dslab.epfl.ch/proj/s2e
+- `SET_TB_TYPE` borrowed from S2E.  http://dslab.epfl.ch/proj/s2e
 

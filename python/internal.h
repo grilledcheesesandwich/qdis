@@ -31,6 +31,7 @@ typedef void (*DumpFunction)(QDisassembler *dis);
 typedef void (*DestroyFunction)(QDisassembler *dis);
 typedef const char* (*LookupNameFunction)(QDisassembler *dis, QDisInfoType type, size_t id);
 typedef size_t (*LookupValueFunction)(QDisassembler *dis, QDisInfoType type, size_t id);
+typedef QDisStatus (*GetHelperFunction)(QDisassembler *dis, QDisVal helper_id, void *outbuf, size_t outsize);
 
 typedef struct QDisassembler_
 {
@@ -41,6 +42,7 @@ typedef struct QDisassembler_
     DestroyFunction destroy;
     LookupNameFunction lookupName;
     LookupValueFunction lookupValue;
+    GetHelperFunction getHelper;
 } QDisassembler;
 
 #endif

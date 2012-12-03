@@ -59,6 +59,12 @@ size_t qdis_LookupValue(QDisassembler *dis, QDisInfoType type, size_t id)
     return dis->lookupValue(dis, type, id);
 }
 
+QDisStatus qdis_GetHelper(QDisassembler *dis, QDisVal helper_id, void *outbuf, size_t outsize)
+{
+    if(dis == NULL) return QDIS_ERR_NULLPOINTER;
+    return dis->getHelper(dis, helper_id, outbuf, outsize);
+}
+
 void qdis_Destroy(QDisassembler *dis)
 {
     if(dis == NULL) return;

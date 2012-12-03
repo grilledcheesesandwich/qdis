@@ -170,3 +170,19 @@ to bother with the fun process of writing a Python API binding) is that it works
 Data structures / API
 ----------------------
 
+Instruction flags
+------------------
+Selecting an instruction set is not enough to capture all the subtleties of instruction decoding.
+
+Sometimes the interpretation of instructions depends on certain state of the CPU. This is mainly the case when the
+CPU supports multiple instruction sets, for example ARM processors support the 32-bit ARM instruction set as well as the 16-bit
+Thumb instruction set and can switch between them at any time. AMD64 processors can switch between 16-bit, 32-bit and
+64-bit mode, which affects the size and number of registers.
+
+For this reason QDIS accepts instruction flags for each decoded instructions. These instruction flags provide information
+on how to decode the instruction.
+
+As instructions influence the CPU state, and this CPU state can in turn change the instruction interpretation (for example,
+the ARM BLX instruction). To capture this, QDIS provides a special helper function that takes the current CPU
+state and returns the new Program Counter and instruction flags.
+

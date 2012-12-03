@@ -12,6 +12,7 @@ typedef enum
     QDIS_ERR_BUFFER_TOO_SMALL = 2,  /* output buffer too small */
     QDIS_ERR_NULLPOINTER = 3, /* unexpected NULL argument */
     QDIS_ERR_ALIGNMENT = 4, /* output buffer not aligned to 8 bytes */
+    QDIS_ERR_NOT_FOUND = 5  /* key not found */
 } QDisStatus;
 
 typedef enum
@@ -447,6 +448,13 @@ typedef enum
     QDIS_CALL_NO_SIDE_EFFECTS  = 0x0040
 } QDisCallFlags;
 
+/* Special helper functions */
+typedef enum
+{
+    /* CPU state to pc, cs_base and flags */
+    QDIS_HELPER_GET_TB_CPU_STATE  = 0x00000001
+} QDisHelperID;
+
 /* features is a list of features, terminated with QDIS_FEATURE_END.
  * If NULL, enable as many features as possible (without conflicts).
  *
@@ -468,6 +476,10 @@ const char *qdis_LookupName(QDisassembler *dis, QDisInfoType type, size_t id);
 /* Look up integer-valued value.
  * */
 size_t qdis_LookupValue(QDisassembler *dis, QDisInfoType type, size_t id);
+
+/* Get the implementation of a helper function.
+ * */
+QDisStatus qdis_GetHelper(QDisassembler *dis, QDisVal helper_id, void *outbuf, size_t outsize);
 
 /* Dump status for debugging.
  */
