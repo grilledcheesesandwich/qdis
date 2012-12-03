@@ -1222,25 +1222,27 @@ QDIS_CALL_NO_SIDE_EFFECTS = 64 # qdis.h: 449
 
 QDisCallFlags = enum_anon_35 # qdis.h: 449
 
-enum_anon_36 = c_int # qdis.h: 456
+enum_anon_36 = c_int # qdis.h: 457
 
-QDIS_HELPER_GET_TB_CPU_STATE = 1 # qdis.h: 456
+QDIS_HELPER_GET_TB_CPU_STATE = 1 # qdis.h: 457
 
-QDisHelperID = enum_anon_36 # qdis.h: 456
+QDIS_HELPER_GET_CPU_STATE_TB = 2 # qdis.h: 457
 
-# qdis.h: 463
+QDisHelperID = enum_anon_36 # qdis.h: 457
+
+# qdis.h: 464
 if hasattr(_libs['qdis'], 'qdis_Create'):
     qdis_Create = _libs['qdis'].qdis_Create
     qdis_Create.argtypes = [QDisTarget, POINTER(QDisCPUFeature)]
     qdis_Create.restype = POINTER(QDisassembler)
 
-# qdis.h: 468
+# qdis.h: 469
 if hasattr(_libs['qdis'], 'qdis_Disassemble'):
     qdis_Disassemble = _libs['qdis'].qdis_Disassemble
     qdis_Disassemble.argtypes = [POINTER(QDisassembler), POINTER(c_uint8), c_size_t, c_uint64, c_uint64, c_uint32, POINTER(None), c_size_t]
     qdis_Disassemble.restype = QDisStatus
 
-# qdis.h: 474
+# qdis.h: 475
 if hasattr(_libs['qdis'], 'qdis_LookupName'):
     qdis_LookupName = _libs['qdis'].qdis_LookupName
     qdis_LookupName.argtypes = [POINTER(QDisassembler), QDisInfoType, c_size_t]
@@ -1250,25 +1252,25 @@ if hasattr(_libs['qdis'], 'qdis_LookupName'):
         qdis_LookupName.restype = String
         qdis_LookupName.errcheck = ReturnString
 
-# qdis.h: 478
+# qdis.h: 479
 if hasattr(_libs['qdis'], 'qdis_LookupValue'):
     qdis_LookupValue = _libs['qdis'].qdis_LookupValue
     qdis_LookupValue.argtypes = [POINTER(QDisassembler), QDisInfoType, c_size_t]
     qdis_LookupValue.restype = c_size_t
 
-# qdis.h: 482
+# qdis.h: 483
 if hasattr(_libs['qdis'], 'qdis_GetHelper'):
     qdis_GetHelper = _libs['qdis'].qdis_GetHelper
     qdis_GetHelper.argtypes = [POINTER(QDisassembler), QDisVal, POINTER(None), c_size_t]
     qdis_GetHelper.restype = QDisStatus
 
-# qdis.h: 486
+# qdis.h: 487
 if hasattr(_libs['qdis'], 'qdis_Dump'):
     qdis_Dump = _libs['qdis'].qdis_Dump
     qdis_Dump.argtypes = [POINTER(QDisassembler)]
     qdis_Dump.restype = None
 
-# qdis.h: 490
+# qdis.h: 491
 if hasattr(_libs['qdis'], 'qdis_Destroy'):
     qdis_Destroy = _libs['qdis'].qdis_Destroy
     qdis_Destroy.argtypes = [POINTER(QDisassembler)]

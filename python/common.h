@@ -261,6 +261,7 @@ static void fillOpcodes(TCGContext *s, QDisOp *opso, QDisArg *argso, size_t *ops
 }
 #ifdef TARGET_ARM
 extern void gen_get_tb_cpu_state(CPUARMState *env);
+extern void gen_get_cpu_state_tb(CPUARMState *env);
 #endif
 
 /* Postprocess after generating TCG code */
@@ -388,6 +389,9 @@ static QDisStatus getHelper(QDisassembler *dis, QDisVal helper_id, void *outbuf,
 #ifdef TARGET_ARM
     case QDIS_HELPER_GET_TB_CPU_STATE:
         gen_get_tb_cpu_state(dis->impl->env);
+        break;
+    case QDIS_HELPER_GET_CPU_STATE_TB:
+        gen_get_cpu_state_tb(dis->impl->env);
         break;
 #endif
     default:

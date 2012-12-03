@@ -10158,5 +10158,59 @@ void gen_get_tb_cpu_state(CPUARMState *env)
     tcg_temp_free_i32(vfp_fpexc);
     tcg_gen_exit_tb(0);
 }
+/* Generate code to extract consecutive bits from a word.
+ */
+static TCGv _extract_bits(TCGv orig, uint32_t shift, uint32_t mask)
+{
+    TCGv tmp0 = tcg_temp_new_i32();
+    tcg_gen_mov_i32(tmp0, orig);
+    tcg_gen_andi_i32(tmp0, tmp0, mask);
+    tcg_gen_shri_i32(tmp0, tmp0, shift);
+    return tmp0;
+}
+/* The other way around. Take a pc and tb flags and put these
+ * in the TB state. Only call this on initial setup, not every time
+ * between TBs, as it loses information.
+ */
+void gen_get_cpu_state_tb(CPUARMState *env)
+{
+    /* allocate locals for return values */
+    TCGv in_pc = tcg_temp_local_new_i32();
+    TCGv in_cs_base = tcg_temp_local_new_i32();
+    TCGv in_flags = tcg_temp_local_new_i32();
+    
+    tcg_gen_mov_i32(cpu_R[15], in_pc);
+
+    /* compute flags */
+    store_cpu_field(_extract_bits(in_flags, ARM_TBFLAG_THUMB_SHIFT, ARM_TBFLAG_THUMB_MASK), thumb);
+    store_cpu_field(_extract_bits(in_flags, ARM_TBFLAG_VECLEN_SHIFT, ARM_TBFLAG_VECLEN_MASK), vfp.vec_len);
+    store_cpu_field(_extract_bits(in_flags, ARM_TBFLAG_VECSTRIDE_SHIFT, ARM_TBFLAG_VECSTRIDE_MASK), vfp.vec_stride);
+    store_cpu_field(_extract_bits(in_flags, ARM_TBFLAG_CONDEXEC_SHIFT, ARM_TBFLAG_CONDEXEC_MASK), condexec_bits);
+    store_cpu_field(_extract_bits(in_flags, ARM_TBFLAG_BSWAP_CODE_SHIFT, ARM_TBFLAG_BSWAP_CODE_MASK), bswap_code);
+
+    if (arm_feature(env, ARM_FEATURE_M)) {
+        // TODO
+        // privmode = !((env->v7m.exception == 0) && (env->v7m.control & 1));
+    } else {
+        /* Set MODE_USR if !priv, otherwise MODE_SYS
+         * this loses the other bits of uncached_cspr 
+         * */ 
+        TCGv privbit = _extract_bits(in_flags, ARM_TBFLAG_PRIV_SHIFT, ARM_TBFLAG_PRIV_MASK);
+        TCGv newcpsr = tcg_temp_local_new_i32();
+        int l_user = gen_new_label();
+
+        tcg_gen_movi_i32(newcpsr, ARM_CPU_MODE_USR);
+        tcg_gen_brcondi_i32(TCG_COND_EQ, privbit, 0, l_user);
+        tcg_gen_movi_i32(newcpsr, ARM_CPU_MODE_SYS);
+        gen_set_label(l_user);
+        store_cpu_field(newcpsr, uncached_cpsr);
+        tcg_temp_free_i32(privbit);
+    }
+    /* this loses the other bits of vfp.xregs[ARM_VFP_FPEXC] */ 
+    TCGv vfp_fpexc =_extract_bits(in_flags, ARM_TBFLAG_VFPEN_SHIFT, ARM_TBFLAG_VFPEN_MASK);
+    tcg_gen_shli_i32(vfp_fpexc, vfp_fpexc, 30);
+    store_cpu_field(vfp_fpexc, vfp.xregs[ARM_VFP_FPEXC]);
+    tcg_gen_exit_tb(0);
+}
 #endif
 

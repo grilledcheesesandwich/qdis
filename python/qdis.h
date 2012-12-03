@@ -448,11 +448,17 @@ typedef enum
     QDIS_CALL_NO_SIDE_EFFECTS  = 0x0040
 } QDisCallFlags;
 
-/* Special helper functions */
+/* Special helper functions.
+ *
+ * Arguments are passed to the helper function in tcg locals
+ * 0..n-1. Output values are also passed in the tcg locals.
+ */
 typedef enum
 {
-    /* CPU state to pc, cs_base and flags */
-    QDIS_HELPER_GET_TB_CPU_STATE  = 0x00000001
+    /* CPU state to (pc, cs_base, iflags) */
+    QDIS_HELPER_GET_TB_CPU_STATE  = 0x00000001,
+    /* (pc, cs_base, iflags) to CPU state */
+    QDIS_HELPER_GET_CPU_STATE_TB  = 0x00000002
 } QDisHelperID;
 
 /* features is a list of features, terminated with QDIS_FEATURE_END.
