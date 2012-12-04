@@ -20,7 +20,7 @@ arm-module.o: arm-unstripped.o
 	$(OBJCOPY) -G arm_create $(RENAME_SYMBOLS_arm) arm-unstripped.o arm-module.o
 
 # target: x86_64 (target-i386)
-TARGETCFLAGS_x86_64=$(CFLAGS) -I$(QEMUROOT)/target-i386 -DNEED_CPU_H -w -DTARGET=x86_64 -DTARGET_X86_64
+TARGETCFLAGS_x86_64=$(CFLAGS) -I$(QEMUROOT)/target-i386 -DNEED_CPU_H -w -DTARGET=x86_64 -DTARGET_I386 -DTARGET_X86_64
 RENAME_SYMBOLS_x86_64=--redefine-sym dis_size=x86_64_dis_size --redefine-sym gen_opc_instr_start=x86_64_gen_opc_instr_start --redefine-sym gen_opc_pc=x86_64_gen_opc_pc --redefine-sym tcg_ctx=x86_64_tcg_ctx --redefine-sym dis_offset=x86_64_dis_offset --redefine-sym gen_opc_icount=x86_64_gen_opc_icount --redefine-sym dis_memory=x86_64_dis_memory --redefine-sym dis_fault=x86_64_dis_fault
 translate-x86_64.o: $(QEMUROOT)/target-i386/translate.c
 	$(CC) $(TARGETCFLAGS_x86_64) $(QEMUROOT)/target-i386/translate.c -c -o translate-x86_64.o
@@ -40,7 +40,7 @@ x86_64-module.o: x86_64-unstripped.o
 	$(OBJCOPY) -G x86_64_create $(RENAME_SYMBOLS_x86_64) x86_64-unstripped.o x86_64-module.o
 
 # target: mips_64 (target-mips)
-TARGETCFLAGS_mips_64=$(CFLAGS) -I$(QEMUROOT)/target-mips -DNEED_CPU_H -w -DTARGET=mips_64 -DTARGET_MIPS64
+TARGETCFLAGS_mips_64=$(CFLAGS) -I$(QEMUROOT)/target-mips -DNEED_CPU_H -w -DTARGET=mips_64 -DTARGET_MIPS -DTARGET_MIPS64
 RENAME_SYMBOLS_mips_64=--redefine-sym dis_size=mips_64_dis_size --redefine-sym gen_opc_instr_start=mips_64_gen_opc_instr_start --redefine-sym gen_opc_pc=mips_64_gen_opc_pc --redefine-sym tcg_ctx=mips_64_tcg_ctx --redefine-sym dis_offset=mips_64_dis_offset --redefine-sym gen_opc_icount=mips_64_gen_opc_icount --redefine-sym dis_memory=mips_64_dis_memory --redefine-sym dis_fault=mips_64_dis_fault
 translate-mips_64.o: $(QEMUROOT)/target-mips/translate.c
 	$(CC) $(TARGETCFLAGS_mips_64) $(QEMUROOT)/target-mips/translate.c -c -o translate-mips_64.o
@@ -60,7 +60,7 @@ mips_64-module.o: mips_64-unstripped.o
 	$(OBJCOPY) -G mips_64_create $(RENAME_SYMBOLS_mips_64) mips_64-unstripped.o mips_64-module.o
 
 # target: ppc_64 (target-ppc)
-TARGETCFLAGS_ppc_64=$(CFLAGS) -I$(QEMUROOT)/target-ppc -DNEED_CPU_H -w -DTARGET=ppc_64 -DTARGET_PPC64
+TARGETCFLAGS_ppc_64=$(CFLAGS) -I$(QEMUROOT)/target-ppc -DNEED_CPU_H -w -DTARGET=ppc_64 -DTARGET_PPC -DTARGET_PPC64
 RENAME_SYMBOLS_ppc_64=--redefine-sym dis_size=ppc_64_dis_size --redefine-sym gen_opc_instr_start=ppc_64_gen_opc_instr_start --redefine-sym gen_opc_pc=ppc_64_gen_opc_pc --redefine-sym tcg_ctx=ppc_64_tcg_ctx --redefine-sym dis_offset=ppc_64_dis_offset --redefine-sym gen_opc_icount=ppc_64_gen_opc_icount --redefine-sym dis_memory=ppc_64_dis_memory --redefine-sym dis_fault=ppc_64_dis_fault
 translate-ppc_64.o: $(QEMUROOT)/target-ppc/translate.c
 	$(CC) $(TARGETCFLAGS_ppc_64) $(QEMUROOT)/target-ppc/translate.c -c -o translate-ppc_64.o
@@ -80,7 +80,7 @@ ppc_64-module.o: ppc_64-unstripped.o
 	$(OBJCOPY) -G ppc_64_create $(RENAME_SYMBOLS_ppc_64) ppc_64-unstripped.o ppc_64-module.o
 
 # target: alpha (target-alpha)
-TARGETCFLAGS_alpha=$(CFLAGS) -I$(QEMUROOT)/target-alpha -DNEED_CPU_H -w -DTARGET=alpha
+TARGETCFLAGS_alpha=$(CFLAGS) -I$(QEMUROOT)/target-alpha -DNEED_CPU_H -w -DTARGET=alpha -DTARGET_ALPHA
 RENAME_SYMBOLS_alpha=--redefine-sym dis_size=alpha_dis_size --redefine-sym gen_opc_instr_start=alpha_gen_opc_instr_start --redefine-sym gen_opc_pc=alpha_gen_opc_pc --redefine-sym tcg_ctx=alpha_tcg_ctx --redefine-sym dis_offset=alpha_dis_offset --redefine-sym gen_opc_icount=alpha_gen_opc_icount --redefine-sym dis_memory=alpha_dis_memory --redefine-sym dis_fault=alpha_dis_fault
 translate-alpha.o: $(QEMUROOT)/target-alpha/translate.c
 	$(CC) $(TARGETCFLAGS_alpha) $(QEMUROOT)/target-alpha/translate.c -c -o translate-alpha.o
@@ -100,7 +100,7 @@ alpha-module.o: alpha-unstripped.o
 	$(OBJCOPY) -G alpha_create $(RENAME_SYMBOLS_alpha) alpha-unstripped.o alpha-module.o
 
 # target: m68k (target-m68k)
-TARGETCFLAGS_m68k=$(CFLAGS) -I$(QEMUROOT)/target-m68k -DNEED_CPU_H -w -DTARGET=m68k
+TARGETCFLAGS_m68k=$(CFLAGS) -I$(QEMUROOT)/target-m68k -DNEED_CPU_H -w -DTARGET=m68k -DTARGET_M68K
 RENAME_SYMBOLS_m68k=--redefine-sym dis_size=m68k_dis_size --redefine-sym gen_opc_instr_start=m68k_gen_opc_instr_start --redefine-sym gen_opc_pc=m68k_gen_opc_pc --redefine-sym tcg_ctx=m68k_tcg_ctx --redefine-sym dis_offset=m68k_dis_offset --redefine-sym gen_opc_icount=m68k_gen_opc_icount --redefine-sym dis_memory=m68k_dis_memory --redefine-sym dis_fault=m68k_dis_fault
 translate-m68k.o: $(QEMUROOT)/target-m68k/translate.c
 	$(CC) $(TARGETCFLAGS_m68k) $(QEMUROOT)/target-m68k/translate.c -c -o translate-m68k.o
@@ -120,7 +120,7 @@ m68k-module.o: m68k-unstripped.o
 	$(OBJCOPY) -G m68k_create $(RENAME_SYMBOLS_m68k) m68k-unstripped.o m68k-module.o
 
 # target: sparc_64 (target-sparc)
-TARGETCFLAGS_sparc_64=$(CFLAGS) -I$(QEMUROOT)/target-sparc -DNEED_CPU_H -w -DTARGET=sparc_64 -DTARGET_SPARC64
+TARGETCFLAGS_sparc_64=$(CFLAGS) -I$(QEMUROOT)/target-sparc -DNEED_CPU_H -w -DTARGET=sparc_64 -DTARGET_SPARC -DTARGET_SPARC64
 RENAME_SYMBOLS_sparc_64=--redefine-sym dis_size=sparc_64_dis_size --redefine-sym gen_opc_instr_start=sparc_64_gen_opc_instr_start --redefine-sym gen_opc_pc=sparc_64_gen_opc_pc --redefine-sym tcg_ctx=sparc_64_tcg_ctx --redefine-sym dis_offset=sparc_64_dis_offset --redefine-sym gen_opc_icount=sparc_64_gen_opc_icount --redefine-sym dis_memory=sparc_64_dis_memory --redefine-sym dis_fault=sparc_64_dis_fault
 translate-sparc_64.o: $(QEMUROOT)/target-sparc/translate.c
 	$(CC) $(TARGETCFLAGS_sparc_64) $(QEMUROOT)/target-sparc/translate.c -c -o translate-sparc_64.o

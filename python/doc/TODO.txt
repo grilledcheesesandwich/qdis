@@ -6,11 +6,15 @@ one concrete example is the handling of conditions / flags
 we have to work around it
 
 - Remove dependency on files from qemu build process
+
   config-host.h
   qapi-types.h (is this really needed?)
   config.h
 
   Reduce include deps in general 
+
+- Extract helpers from llvm code and convert to tcg?
+  or as we introduce llvm as a dependency anyway, convert everything to LLVM?
 
 - Holy shit: on x86, PC is not a global
   EIP is stored as simply mem[env+0x80]
