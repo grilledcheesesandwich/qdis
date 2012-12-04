@@ -17,7 +17,7 @@
 
 #ifndef DEF_HELPER_H
 #define DEF_HELPER_H 1
-#ifdef TCG_PYTHON
+#if defined(TCG_PYTHON) && !defined(QDIS_BUILDING_HELPERS)
 #define HELPER(name) #name
 #else
 #define HELPER(name) glue(helper_, name)

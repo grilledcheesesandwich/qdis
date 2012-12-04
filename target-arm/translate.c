@@ -10130,7 +10130,7 @@ void gen_get_tb_cpu_state(CPUARMState *env)
     TCGv out_cs_base = tcg_temp_local_new_i32();
     TCGv out_flags = tcg_temp_local_new_i32();
     
-    tcg_gen_movi_i32(out_cs_base, tcg_const_i32(0)); /* always 0 for ARM */
+    tcg_gen_movi_i32(out_cs_base, 0); /* always 0 for ARM */
     tcg_gen_mov_i32(out_pc, cpu_R[15]);
 
     /* compute flags */

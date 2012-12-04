@@ -4,15 +4,13 @@ The qdis library
 Introduction
 ----------------
 
-A sizable part of the human product of the last decades consists of software, most of it in binary form.
+A major part of the human product of the last decades consists of software, most of it in binary form.
 
 A growing jungle of legacy programs, retro games, closed-source driver blobs, computer viruses and exploits, 
 
 And as software and hardware is finding its way into more areas of our lives, 
 there are opaque closed-source binary blobs everywhere; as an example, the firmware of a pacemaker. 
 Wouldn't you like to know what is happening inside? Or are you going by the vendor's word that everything is safe and sound?
-
-Much information is lost in old documents of which we don't know how to interpret them.
 
 Closed-source drivers have their problems as well, blocking interoparability, commonality in software and interfaces,
 and forces the hardware to quick obsolence when the vendor decides to no longer support it. 
@@ -29,7 +27,7 @@ Rationale
 There is just too much binary code to go for the naive approach of reading disassembly.
 Although effective, it is very time consuming and thus inefficient.
 Code is already interpreted by the CPU so a lot of the work traditionally done by a reverse engineer should be possible to automate
-Or at least made easier.
+Or at least made easier with an intelligent pre-processing step.
 
 Here the goal is not decompilation from a jumble of assembly code to a jumble of C-ish
 code, but understanding and exploration, i.e. documenting the underlying hardware in case of a driver, 
@@ -37,13 +35,14 @@ finding out an obscure document format, or finding interesting pecularities in g
 
 Also it should be possible to analyze a large amount of binaries and find common patterns, perform data mining.
 
-For this reason I want to experiment with symbolic evaluation (ref), abstract evaluation (ref), partial dynamic evaluation (ref) etc.
+For this reason I want to make it easier to experiment with symbolic evaluation (ref),
+abstract evaluation (ref), partial dynamic evaluation (ref) etc.
 
 Reuse
 -------------
 Over the years there has been shockingly little reuse, not only of code but also of ideas in software. 
 Every generation of hardware, the fast pace in the sector gives the idea that every little thing has to be invented again.
-Much of the history is simply lost. How can we ever advance if we don't learn from the mistakes in the past, and 
+Much of the history is simply lost. How can we ever advance if we don't learn from the mistakes in the past, and how
 to make software engineering evolve to a stable discipline instead of franctic buzzword bingo?
 
 Even though the problems back then are, mostly, the same ones as we're trying to solve now. Even with all the churn in
@@ -52,16 +51,18 @@ devices and software versions, and graphical shells, the big problems in compute
 Once in a while some old code turns up and solves an immediate problem that there is now (see for example `eqntott` and `espresso`,
 http://code.google.com/p/eqntott/ for minimizing boolean expressions, still very relevant). That code was written in my birth year!
 
+It would be interesting to analyse old software and see how things were done back then.
+
 Software archeology
 -----------------------
 
-Software sports many levels of abstraction, the lowest one is the part that interfaces directly to the hardware, in the
+Software can be regarded at many levels of abstraction, the lowest one is the part that interfaces directly to the hardware, in the
 middle is the overall architecture and design of the system (how everything fits together), and at the top is the API 
 or user interface it exposes to the outside.
 
-The first barrier to understanding binary code is the understanding of the opcodes of the processor.
-Learning the ins and outs of a specific CPU is a large projects in itself. Many different CPUs have been introduced
-over the years, and on those also many variations exist, new ones are designed every year.
+The first barrier to understanding binary code is the understanding of the opcodes of a processor.
+Learning the ins and outs of a specific CPU is a large project in itself. To add insult to injury, many different 
+CPUs have been introduced over the years, and on those also many variations exist, new ones are designed every year.
 
 To add to that, any specific knowledge has a short expiration date of usefulness. There is limited
 utility to learn, for example, 68000 instruction set just to understand some old code for which
@@ -79,13 +80,13 @@ perform operations on registers, write and read from memory and I/O.
 Intermediate Representation (IR)
 ---------------------------------
 Find the commonality between the various instruction sets and write this into an IR.
+A general microcode.
 Internal effects of instructions, such as updating of flags is made explicit.
 Updating of flags and such is explicit.
 
 TCG (Tiny Code Generator)
-Refer to opcodes in README.tcg
+Refer for opcodes to README.tcg
 
-Microcode.
 
 Why not LLVM?
 --------------
@@ -117,9 +118,7 @@ emulator project has seen a lot of real-life code.
 Introducing qdis
 =====================
 
-Universal disassembler of code.
-Not only to the vendor-supplied instruction strings
-But to a general IR that can be processed computationally.
+Universal disassembler of code to a general IR.
 
 It is built upon the great emulator `qemu` originally written by Fabrice Bellard.
 
@@ -147,7 +146,7 @@ Helpers
 --------------
 For complex instructions qemu emits calls to helper functions.
 These complicate the interpretation process as they are target-dependent, unlike the TCG opcodes.
-(ie ARM has XXX i386 has XXX)
+(ie ARM has XXX i386 has `cc_compute_c` to compute condition flags)
 In a future version, it would be useful if qdis provides abstract version of the helper functions in 
 (for example, in LLVM or TCG IR format)
 so that these can be included in analysis without building special cases.
@@ -172,17 +171,18 @@ Data structures / API
 
 Instruction flags
 ------------------
-Selecting an instruction set is not enough to capture all the subtleties of instruction decoding.
+Selecting the instruction set is not enough to completely determine instruction decoding.
 
 Sometimes the interpretation of instructions depends on certain state of the CPU. This is mainly the case when the
 CPU supports multiple instruction sets, for example ARM processors support the 32-bit ARM instruction set as well as the 16-bit
 Thumb instruction set and can switch between them at any time. AMD64 processors can switch between 16-bit, 32-bit and
 64-bit mode, which affects the size and number of registers.
 
-For this reason QDIS accepts instruction flags for each decoded instructions. These instruction flags provide information
-on how to decode the instruction.
+For this reason QDIS accepts instruction flags for each decoded instructions. These instruction flags provide additional
+information on how to decode the instruction.
 
 As instructions influence the CPU state, and this CPU state can in turn change the instruction interpretation (for example,
 the ARM BLX instruction). To capture this, QDIS provides a special helper function that takes the current CPU
-state and returns the new Program Counter and instruction flags.
+state and returns the new Program Counter and instruction flags, and a symmetric function that takes a
+Program Counter and instruction flags and puts these into the CPU state.
 

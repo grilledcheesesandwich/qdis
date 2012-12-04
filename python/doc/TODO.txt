@@ -5,6 +5,13 @@ and not so much understanding the underlying code.
 one concrete example is the handling of conditions / flags
 we have to work around it
 
+- Remove dependency on files from qemu build process
+  config-host.h
+  qapi-types.h (is this really needed?)
+  config.h
+
+  Reduce include deps in general 
+
 - Holy shit: on x86, PC is not a global
   EIP is stored as simply mem[env+0x80]
      st_i64 tmp4,env,$0x80
