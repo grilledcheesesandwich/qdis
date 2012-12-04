@@ -244,7 +244,9 @@ typedef struct
     uint16_t flags; // DisArgFlags
 } QDisArg;
 
-/* Opcodes (from: tcg_opc.h) */
+/* Opcodes, see README.tcg for a complete overview with
+ * descriptions of input and output arguments.
+ */
 typedef enum
 {
     QDIS_OP_END = 0,
@@ -253,59 +255,61 @@ typedef enum
     QDIS_OP_NOP2 = 3,
     QDIS_OP_NOP3 = 4,
     QDIS_OP_NOPN = 5,
-    QDIS_OP_DISCARD = 6,
-    QDIS_OP_SET_LABEL = 7,
-    QDIS_OP_CALL = 8,
-    QDIS_OP_BR = 9,
-    QDIS_OP_MOV_I32 = 10,
-    QDIS_OP_MOVI_I32 = 11,
-    QDIS_OP_SETCOND_I32 = 12,
-    QDIS_OP_MOVCOND_I32 = 13,
-    QDIS_OP_LD8U_I32 = 14,
-    QDIS_OP_LD8S_I32 = 15,
-    QDIS_OP_LD16U_I32 = 16,
-    QDIS_OP_LD16S_I32 = 17,
-    QDIS_OP_LD_I32 = 18,
-    QDIS_OP_ST8_I32 = 19,
-    QDIS_OP_ST16_I32 = 20,
-    QDIS_OP_ST_I32 = 21,
-    QDIS_OP_ADD_I32 = 22,
-    QDIS_OP_SUB_I32 = 23,
-    QDIS_OP_MUL_I32 = 24,
-    QDIS_OP_DIV_I32 = 25,
-    QDIS_OP_DIVU_I32 = 26,
-    QDIS_OP_REM_I32 = 27,
-    QDIS_OP_REMU_I32 = 28,
-    QDIS_OP_DIV2_I32 = 29,
-    QDIS_OP_DIVU2_I32 = 30,
-    QDIS_OP_AND_I32 = 31,
-    QDIS_OP_OR_I32 = 32,
-    QDIS_OP_XOR_I32 = 33,
-    QDIS_OP_SHL_I32 = 34,
-    QDIS_OP_SHR_I32 = 35,
-    QDIS_OP_SAR_I32 = 36,
-    QDIS_OP_ROTL_I32 = 37,
-    QDIS_OP_ROTR_I32 = 38,
-    QDIS_OP_DEPOSIT_I32 = 39,
-    QDIS_OP_BRCOND_I32 = 40,
-    QDIS_OP_ADD2_I32 = 41,
-    QDIS_OP_SUB2_I32 = 42,
-    QDIS_OP_BRCOND2_I32 = 43,
-    QDIS_OP_MULU2_I32 = 44,
-    QDIS_OP_SETCOND2_I32 = 45,
-    QDIS_OP_EXT8S_I32 = 46,
-    QDIS_OP_EXT16S_I32 = 47,
-    QDIS_OP_EXT8U_I32 = 48,
-    QDIS_OP_EXT16U_I32 = 49,
-    QDIS_OP_BSWAP16_I32 = 50,
-    QDIS_OP_BSWAP32_I32 = 51,
-    QDIS_OP_NOT_I32 = 52,
-    QDIS_OP_NEG_I32 = 53,
-    QDIS_OP_ANDC_I32 = 54,
-    QDIS_OP_ORC_I32 = 55,
-    QDIS_OP_EQV_I32 = 56,
-    QDIS_OP_NAND_I32 = 57,
-    QDIS_OP_NOR_I32 = 58,
+    QDIS_OP_DISCARD = 6,     /* Indicate that the value won't be used later */
+    QDIS_OP_SET_LABEL = 7,   /* Define label at the current program point */
+    QDIS_OP_CALL = 8,        /* Call helper function */
+    QDIS_OP_BR = 9,          /* Jump to label */
+    QDIS_OP_MOV_I32 = 10,    /* Move (both operands must have the same type) */
+    QDIS_OP_MOVI_I32 = 11,   /* Move immediate value */
+    QDIS_OP_SETCOND_I32 = 12, /* Set DEST to 1 if (T1 cond T2) is true, otherwise set to 0 */
+    QDIS_OP_MOVCOND_I32 = 13, /* Set DEST to V1 if (C1 cond C2) is true, otherwise set to V2 */
+    QDIS_OP_LD8U_I32 = 14,    /* Load 8 bits without sign extension from host memory */
+    QDIS_OP_LD8S_I32 = 15,    /* Load 8 bits with sign extension from host memory */
+    QDIS_OP_LD16U_I32 = 16,   /* Load 16 bits without sign extension from host memory */
+    QDIS_OP_LD16S_I32 = 17,   /* Load 16 bits with sign extension from host memory */
+    QDIS_OP_LD_I32 = 18,      /* Load 32 bits without sign extension from host memory */
+    QDIS_OP_ST8_I32 = 19,     /* Write 8 bits to host memory */
+    QDIS_OP_ST16_I32 = 20,    /* Write 16 bits to host memory */
+    QDIS_OP_ST_I32 = 21,      /* Write 32 bits to host memory */
+    QDIS_OP_ADD_I32 = 22,     /* t0=t1+t2 */
+    QDIS_OP_SUB_I32 = 23,     /* t0=t1-t2 */
+    QDIS_OP_MUL_I32 = 24,     /* t0=t1*t2 */
+/* Undefined behavior if division by zero or overflow */
+    QDIS_OP_DIV_I32 = 25,     /* t0=t1/t2 (signed) */
+    QDIS_OP_DIVU_I32 = 26,    /* t0=t1/t2 (unsigned) */
+    QDIS_OP_REM_I32 = 27,     /* t0=t1%t2 (signed) */
+    QDIS_OP_REMU_I32 = 28,    /* t0=t1%t2 (unsigned) */
+    QDIS_OP_DIV2_I32 = 29,    /* not generated */
+    QDIS_OP_DIVU2_I32 = 30,   /* not generated */
+    QDIS_OP_AND_I32 = 31,     /* t0=t1&t2 */
+    QDIS_OP_OR_I32 = 32,      /* t0=t1|t2 */
+    QDIS_OP_XOR_I32 = 33,     /* t0=t1^t2 */
+    QDIS_OP_SHL_I32 = 34,     /* t0=t1<<t2 */
+    QDIS_OP_SHR_I32 = 35,     /* t0=t1>>t2 */
+    QDIS_OP_SAR_I32 = 36,     /* t0=t1>>t2 (arithmetic) */
+    QDIS_OP_ROTL_I32 = 37,    /* Rotate left */
+    QDIS_OP_ROTR_I32 = 38,    /* Rotate right */
+    QDIS_OP_DEPOSIT_I32 = 39, /* Deposit T2 as a bitfield into T1, placing the result in DEST */
+    QDIS_OP_BRCOND_I32 = 40,  /* Conditional jump if t0 cond t1 is true */
+    QDIS_OP_ADD2_I32 = 41,    /* not generated */
+    QDIS_OP_SUB2_I32 = 42,    /* not generated */
+    QDIS_OP_BRCOND2_I32 = 43, /* not generated */
+    QDIS_OP_MULU2_I32 = 44,   /* not generated */
+    QDIS_OP_SETCOND2_I32 = 45, /* not generated */
+    QDIS_OP_EXT8S_I32 = 46,   /* 8 bit sign extension (both operands must have the same type) */
+    QDIS_OP_EXT16S_I32 = 47,  /* 16 bit sign extension (both operands must have the same type) */
+    QDIS_OP_EXT8U_I32 = 48,   /* 8 bit zero extension (both operands must have the same type) */
+    QDIS_OP_EXT16U_I32 = 49,  /* 16 bit zero extension (both operands must have the same type) */
+    QDIS_OP_BSWAP16_I32 = 50, /* 16 bit byte swap on a 32 bit value */ 
+    QDIS_OP_BSWAP32_I32 = 51, /* 32 bit byte swap on a 32 bit value */ 
+    QDIS_OP_NOT_I32 = 52,     /* t0=~t1 */ 
+    QDIS_OP_NEG_I32 = 53,     /* t0=-t1 */
+    QDIS_OP_ANDC_I32 = 54,    /* not generated */
+    QDIS_OP_ORC_I32 = 55,     /* not generated */
+    QDIS_OP_EQV_I32 = 56,     /* t0=~(t0^t1) */
+    QDIS_OP_NAND_I32 = 57,    /* t0=~(t0&t1) */
+    QDIS_OP_NOR_I32 = 58,     /* t0=~(t0|t1) */ 
+/* 64-bit instructions, similar to _I32 ops but with 64 bit in and outputs */
     QDIS_OP_MOV_I64 = 59,
     QDIS_OP_MOVI_I64 = 60,
     QDIS_OP_SETCOND_I64 = 61,
@@ -356,21 +360,22 @@ typedef enum
     QDIS_OP_EQV_I64 = 106,
     QDIS_OP_NAND_I64 = 107,
     QDIS_OP_NOR_I64 = 108,
-    QDIS_OP_DEBUG_INSN_START = 109,
-    QDIS_OP_EXIT_TB = 110,
-    QDIS_OP_GOTO_TB = 111,
-    QDIS_OP_QEMU_LD8U = 112,
-    QDIS_OP_QEMU_LD8S = 113,
-    QDIS_OP_QEMU_LD16U = 114,
-    QDIS_OP_QEMU_LD16S = 115,
-    QDIS_OP_QEMU_LD32 = 116,
-    QDIS_OP_QEMU_LD32U = 117,
-    QDIS_OP_QEMU_LD32S = 118,
-    QDIS_OP_QEMU_LD64 = 119,
-    QDIS_OP_QEMU_ST8 = 120,
-    QDIS_OP_QEMU_ST16 = 121,
-    QDIS_OP_QEMU_ST32 = 122,
-    QDIS_OP_QEMU_ST64 = 123,
+/* Misc instructions */
+    QDIS_OP_DEBUG_INSN_START = 109, /* not generated */
+    QDIS_OP_EXIT_TB = 110,    /* Exit block */
+    QDIS_OP_GOTO_TB = 111,    /* Next block */
+    QDIS_OP_QEMU_LD8U = 112,  /* Load 8-bit data at guest address, with zero extension */
+    QDIS_OP_QEMU_LD8S = 113,  /* Load 8-bit data at guest address, with sign extension */
+    QDIS_OP_QEMU_LD16U = 114, /* Load 16-bit data at guest address, with zero extension */
+    QDIS_OP_QEMU_LD16S = 115, /* Load 16-bit data at guest address, with sign extension */
+    QDIS_OP_QEMU_LD32 = 116,  /* Load 32-bit data at guest address */
+    QDIS_OP_QEMU_LD32U = 117, /* Load 32-bit data at guest address, with zero extension */
+    QDIS_OP_QEMU_LD32S = 118, /* Load 32-bit data at guest address, with sign extension */
+    QDIS_OP_QEMU_LD64 = 119,  /* Load 64-bit data at guest address */
+    QDIS_OP_QEMU_ST8 = 120,   /* Store 8-bit data at guest address */
+    QDIS_OP_QEMU_ST16 = 121,  /* Store 16-bit data at guest address */
+    QDIS_OP_QEMU_ST32 = 122,  /* Store 32-bit data at guest address */
+    QDIS_OP_QEMU_ST64 = 123,  /* Store 64-bit data at guest address */
 } QDisOpcode;
 
 /* Instruction types */

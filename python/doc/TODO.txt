@@ -5,40 +5,10 @@ and not so much understanding the underlying code.
 one concrete example is the handling of conditions / flags
 we have to work around it
 
-- Remove dependency on files from qemu build process
-
-  config-host.h
-  qapi-types.h (is this really needed?)
-  config.h
-
-  Reduce include deps in general 
+- Get/set target endian
 
 - Extract helpers from llvm code and convert to tcg?
   or as we introduce llvm as a dependency anyway, convert everything to LLVM?
-
-- Holy shit: on x86, PC is not a global
-  EIP is stored as simply mem[env+0x80]
-     st_i64 tmp4,env,$0x80
-
-  Need to store globals as "offset into env" everywhere?
-
-    movi_i32 pc,$0x1004  ->
-    st_i64 tmp4,env,$0x80
-
-  How to parse (target specific) CPUArchState structure into list of offsets/field names?
-
-  In general: need a way to parse CPU state changes to a useful format
-  Another example is the TB_FLAGS, which is collected from CPU state
-  On ARM this is mainly the thumb flag, stored at offset 0xb0 into the state object.
-  Relying on this offset, however, might be a bad idea.
-
-- Could expose an expression to go from CPU state to new TB flags and PC *as* TCG!
-  This would be useful, both for the ARM thumb flag case and the i386 PC
- 
-  Special helper functions:
-
-  cpu_get_tb_cpu_state (returns pc, iflags, cs_base)
-  cpu_pc_from_tb (takes pc, updates CPU state)
 
 - Use ELF hwcap flags for CPU features, this is possible for at least
     ARM : ARM_HWCAP_*
@@ -189,6 +159,30 @@ TODO before release:
 
 ======================================================================================
 Done:
+- Holy shit: on x86, PC is not a global
+  EIP is stored as simply mem[env+0x80]
+     st_i64 tmp4,env,$0x80
+
+  Need to store globals as "offset into env" everywhere?
+
+    movi_i32 pc,$0x1004  ->
+    st_i64 tmp4,env,$0x80
+
+  How to parse (target specific) CPUArchState structure into list of offsets/field names?
+
+  In general: need a way to parse CPU state changes to a useful format
+  Another example is the TB_FLAGS, which is collected from CPU state
+  On ARM this is mainly the thumb flag, stored at offset 0xb0 into the state object.
+  Relying on this offset, however, might be a bad idea.
+
+- Could expose an expression to go from CPU state to new TB flags and PC *as* TCG!
+  This would be useful, both for the ARM thumb flag case and the i386 PC
+ 
+  Special helper functions:
+
+  cpu_get_tb_cpu_state (returns pc, iflags, cs_base)
+  cpu_pc_from_tb (takes pc, updates CPU state)
+
 - force TCG_TARGET_REG_BITS to 64; for analysis it makes no sense to make anything depend on the host arch register size
   don't generate 32-bit compatibility instructions when disassembling 64 bit code on a 32 bit host 
 

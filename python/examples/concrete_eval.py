@@ -409,7 +409,7 @@ class ConcreteEval(object):
     eval_eqv_i64 = binop(lambda x,y: ~(x^y), 64)
     eval_rotl_i64 = binop(lambda x,y: (x<<y) | (x>>(64-y)), 64)
     eval_rotr_i64 = binop(lambda x,y: (x>>y) | (x<<(64-y)), 64)
-    # TODO: bswap16/32/64, andc, orc
+    # TODO: bswap16/32/64/deposit
     # sign extension
     eval_ext8s_i32 = extop(8, 32, True)
     eval_ext16s_i32 = extop(16, 32, True)

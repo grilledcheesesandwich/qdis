@@ -10196,15 +10196,16 @@ void gen_get_cpu_state_tb(CPUARMState *env)
          * this loses the other bits of uncached_cspr 
          * */ 
         TCGv privbit = _extract_bits(in_flags, ARM_TBFLAG_PRIV_SHIFT, ARM_TBFLAG_PRIV_MASK);
-        TCGv newcpsr = tcg_temp_local_new_i32();
-        int l_user = gen_new_label();
-
-        tcg_gen_movi_i32(newcpsr, ARM_CPU_MODE_USR);
-        tcg_gen_brcondi_i32(TCG_COND_EQ, privbit, 0, l_user);
-        tcg_gen_movi_i32(newcpsr, ARM_CPU_MODE_SYS);
-        gen_set_label(l_user);
+        TCGv newcpsr = tcg_temp_new_i32();
+        TCGv zero = tcg_const_i32(0);
+        TCGv val_usr = tcg_const_i32(ARM_CPU_MODE_USR);
+        TCGv val_sys = tcg_const_i32(ARM_CPU_MODE_SYS);
+        tcg_gen_movcond_i32(TCG_COND_EQ, newcpsr, privbit, zero, val_usr, val_sys);
         store_cpu_field(newcpsr, uncached_cpsr);
         tcg_temp_free_i32(privbit);
+        tcg_temp_free_i32(zero);
+        tcg_temp_free_i32(val_usr);
+        tcg_temp_free_i32(val_sys);
     }
     /* this loses the other bits of vfp.xregs[ARM_VFP_FPEXC] */ 
     TCGv vfp_fpexc =_extract_bits(in_flags, ARM_TBFLAG_VFPEN_SHIFT, ARM_TBFLAG_VFPEN_MASK);
