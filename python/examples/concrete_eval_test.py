@@ -42,12 +42,6 @@ def is_valid_pc(pc, iflag):
     else:
         return not (pc & 3)
 
-def hex_or_bottom(x):
-    if x is None:
-        return BOTTOM
-    else:
-        return '%x' % x
-
 def main():
     # Show stores to globals (registers)
     concrete_eval.trace_global_stores = False
@@ -59,6 +53,8 @@ def main():
     concrete_eval.trace_microcode = True#False
     # Show warnings (non-implemented microcode instructions etc)
     concrete_eval.show_warnings = True#False
+    # Misc debug output
+    show_debug = False
 
     def format_value(value):
         if value is not None:
@@ -116,7 +112,12 @@ def main():
         })
 
     pc = 0x714 # starting PC
-    flags = qdis.IFLAGS_DEFAULT_ARM # qdis.IFLAGS_DEFAULT_THUMB
+    flags = qdis.IFLAGS_DEFAULT_ARM
+    if show_debug:
+        print('New PC: %s New iflags: %s' % (format_value(pc), format_value(flags)))
+        
+    result = qd.get_helper(qdis.HELPER_GET_CPU_STATE_TB)
+    ev.start_block(result, [pc,0,flags])
 
     visited = set()
     while pc is not None and pc != RETURN_ADDRESS:
@@ -133,7 +134,14 @@ def main():
         print ("%s%08x%s: %s%s %s%s" % (STYLE_ADDR,pc,STYLE_COLON,STYLE_RESET,
             STYLE_INST, result.inst_text, STYLE_RESET))
 
-        (pc, flags) = ev.start_block(result, pc, flags)
+        ev.start_block(result)
+        result = qd.get_helper(qdis.HELPER_GET_TB_CPU_STATE)
+        if show_debug:
+            print("Retrieving PC and flags")
+        rv = ev.start_block(result)
+        (pc,pc_base,flags) = (rv[0],rv[1],rv[2])
+        if show_debug:
+            print('New PC: %s New iflags: %s' % (format_value(pc), format_value(flags)))
 
     print()
     print('Visited addresses:')

@@ -10134,6 +10134,7 @@ void gen_get_tb_cpu_state(CPUARMState *env)
     tcg_gen_mov_i32(out_pc, cpu_R[15]);
 
     /* compute flags */
+    tcg_gen_movi_i32(out_flags, 0);
     _or_with_flag(out_flags, load_cpu_field(thumb), ARM_TBFLAG_THUMB_SHIFT);
     _or_with_flag(out_flags, load_cpu_field(vfp.vec_len), ARM_TBFLAG_VECLEN_SHIFT);
     _or_with_flag(out_flags, load_cpu_field(vfp.vec_stride), ARM_TBFLAG_VECSTRIDE_SHIFT);
@@ -10148,14 +10149,12 @@ void gen_get_tb_cpu_state(CPUARMState *env)
         tcg_gen_andi_i32(uncached_cpsr, uncached_cpsr, CPSR_M);
         tcg_gen_setcondi_i32(TCG_COND_NE, uncached_cpsr, uncached_cpsr, ARM_CPU_MODE_USR); 
         _or_with_flag(out_flags, uncached_cpsr, ARM_TBFLAG_PRIV_SHIFT);
-        tcg_temp_free_i32(uncached_cpsr);
     }
     
     TCGv vfp_fpexc = load_cpu_field(vfp.xregs[ARM_VFP_FPEXC]);
     tcg_gen_shri_i32(vfp_fpexc, vfp_fpexc, 30);
     tcg_gen_andi_i32(vfp_fpexc, vfp_fpexc, 1);
     _or_with_flag(out_flags, vfp_fpexc, ARM_TBFLAG_VFPEN_SHIFT);
-    tcg_temp_free_i32(vfp_fpexc);
     tcg_gen_exit_tb(0);
 }
 /* Generate code to extract consecutive bits from a word.

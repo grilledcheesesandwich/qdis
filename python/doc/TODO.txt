@@ -10,6 +10,10 @@ we have to work around it
 - Extract helpers from llvm code and convert to tcg?
   or as we introduce llvm as a dependency anyway, convert everything to LLVM?
 
+  helpers, in LLVM?   s2e has these somewhere
+  built in s2e/tools/lib/X86Translator/X86BitcodeLibrary
+
+
 - Use ELF hwcap flags for CPU features, this is possible for at least
     ARM : ARM_HWCAP_*
     SPARC : HWCAP_SPARC_*
@@ -18,9 +22,7 @@ we have to work around it
   (see elfload.c)
   where can I find all these?
 
-- Thread safety: add global lock?
-
-- Try to combine changes for TCG_PYTHON into one include file as much as possible
+- Thread safety: add global lock
 
 - Keep the interface platform independent
 - Allow getting some info about the target cpu from the interface:
@@ -38,10 +40,7 @@ we have to work around it
   list of token, value pairs -> CPU feature flags
   list of token, value pairs -> TB flags / options
 
-- helpers, in LLVM?   s2e has these somewhere
-  built in s2e/tools/lib/X86Translator/X86BitcodeLibrary
-
-  lazy evaluation of flags in x86
+- lazy evaluation of flags in x86
     // this cc_op stuff is pretty crazy for x86
     // in that evaluation of flags is "lazy"
     // this makes sense for emulation, but makes our life harder
@@ -62,13 +61,6 @@ we have to work around it
 
   Does this mean we have to build tcg twice? one for 32 bits, once for 64 bits. Or just keep it with
   the target-specific objects, this may be easier; but how to prevent symbol collisions?
-
-- merge target-specific sources into one object with controlled interface
-  - internal global state
-  - make one global TCG context and CPU state and keep it at that
-  - thread safety: need a lock
-  - access to the produced data (context, generated tcg code) is not dependent on the target word size
-  - each target has its own TCG context and Arch state
 
 - tcg: there is no way to free the context again, even though memory is allocated for it
    labels and temps are limited, though (TCG_MAX_TEMPS / TCG_MAX_LABELS)
@@ -144,14 +136,12 @@ However, iscall/isreturn cannot
   gets state from cpu environment, produces TB flags and PC
   -> need to symbolically compile this
      so that we can derive modified TB flags from instructions that modify the env
+  
+  TODO for other archs
 
-- PC/SP
-  -> can return global as well as offset into state
-  PC_STATE_OFFSET
-  PC_GLOBAL
-  SP_STATE_OFFSET
-  SP_GLOBAL
-  ...
+- Python interface: There are problems with storing the result of a disassembly/get_helper.
+  As the same buffer is overwritten every time.
+  Need a way to store the helpers.
 
 TODO before release:
 - rename TGT to ARCH. Target is a confusing word within qemu lingo.
@@ -209,3 +199,12 @@ Done:
   TCGTemp structure
     has a name and many other properties
 - dump ops (tcg_op_defs)
+
+
+- merge target-specific sources into one object with controlled interface
+  - internal global state
+  - make one global TCG context and CPU state and keep it at that
+  - thread safety: need a lock
+  - access to the produced data (context, generated tcg code) is not dependent on the target word size
+  - each target has its own TCG context and Arch state
+

@@ -150,6 +150,7 @@ class CPUState(object):
     def __init__(self):
         self.globals = [] # list of registers
         self.memory = []  # list of (base, [buffer...])
+        self.env = {}
         self.endian = LITTLE_ENDIAN
 
     def memld(self, addr, width):
@@ -222,8 +223,6 @@ class ConcreteEval(object):
         self.trace_func = lambda key,value: None # dummy
         # globals
         self.env_id = self.global_by_name['env']
-        self.pc_id = d.lookup_value(qdis.INFO_PC_GLOBAL, 0)
-        assert(self.pc_id != qdis.INVALID)
 
     def set_globals(self, values):
         '''
@@ -232,22 +231,21 @@ class ConcreteEval(object):
         for k,v in values.iteritems():
             self.state.globals[self.global_by_name[k]] = v
 
-    def start_block(self, block, pc, iflag):
+    def start_block(self, block, args=None):
         # All locals and temps are undefined at the start of every block
         self.temps = [UNDEFINED]*len(block.syms)
+        if args is not None:
+            self.temps[0:len(args)] = args
 
         self.ops = block.ops
         self.labels = block.labels
-        self.state.globals[self.pc_id] = pc
         self.ptr = 0
-        self.jump_iflag = iflag # if instruction flags not changed, leave them as now
         while self.ptr is not None:
             i = self.ops[self.ptr]
             if trace_microcode:
                 self.trace_func(TRACE_INSTRUCTION, i)
             self.eval_inst(i)
-
-        return (self.state.globals[self.pc_id], self.jump_iflag)
+        return self.temps
     
     def eval_inst(self, inst):
         '''Evaluate an instruction'''
@@ -331,14 +329,29 @@ class ConcreteEval(object):
         self.store(inst.args[0], CONDITIONS[cond](val0, val1, (1<<width)-1))
         self.ptr += 1
 
+    def movcond(self, inst, width):
+        '''movcond_iXX ret,c1,c2,v1,v2,cond''' # ITE
+        c1 = self.load(inst.args[1])
+        c2 = self.load(inst.args[2])
+        v1 = self.load(inst.args[3])
+        v2 = self.load(inst.args[4])
+        cond = inst.args[5].value
+        cond_res = CONDITIONS[cond](c1, c2, (1<<width)-1)
+        self.store(inst.args[0], v1 if cond_res else v2)
+        self.ptr += 1
+
     def eval_brcond_i32(self, inst):
         self.brcond(inst, 32)
     def eval_setcond_i32(self, inst):
         self.setcond(inst, 32)
+    def eval_movcond_i32(self, inst):
+        self.movcond(inst, 32)
     def eval_brcond_i64(self, inst):
         self.brcond(inst, 64)
     def eval_setcond_i64(self, inst):
         self.setcond(inst, 64)
+    def eval_movcond_i64(self, inst):
+        self.movcond(inst, 64)
 
     def eval_set_label(self, inst):
         '''set_label $label'''
@@ -347,14 +360,15 @@ class ConcreteEval(object):
 
     def eval_st_i32(self, inst):
         '''st_i32 t0,basereg,offset'''
-        # Check for thumb flag
-        if inst.args[1].value == self.env_id and inst.args[2].value == ENV_ARM_THUMB_FLAG:
-            val = self.load(inst.args[0])
-            if val is not UNDEFINED:
-                self.jump_iflag = self.jump_iflag & (~qdis.INST_ARM_THUMB_MASK)
-                self.jump_iflag |= val << qdis.INST_ARM_THUMB_SHIFT
-            else:
-                self.jump_iflag = None # ouch
+        expr = self.load(inst.args[0])
+        self.state.env[inst.args[2].value] = expr
+        if trace_global_stores:
+            self.trace_func('[env+0x%x]' % inst.args[2].value, expr)
+        self.ptr += 1
+    
+    def eval_ld_i32(self, inst):
+        '''ld_i32 t0,basereg,offset'''
+        self.store(inst.args[0], self.state.env.get(inst.args[2].value, 0))
         self.ptr += 1
 
     #def eval_qemu_ld32(self, inst):
