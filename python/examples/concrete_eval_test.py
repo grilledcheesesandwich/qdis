@@ -35,7 +35,7 @@ def is_valid_pc(pc, iflag):
     '''
     Check if pc is a valid instruction location, given instruction flags
     iflag.
-    XXX ARM specific, move this in to qdis.
+    XXX ARM specific, move this into qdis.
     '''
     if iflag & qdis.INST_ARM_THUMB_MASK:
         return not (pc & 1)
@@ -116,7 +116,10 @@ def main():
     if show_debug:
         print('New PC: %s New iflags: %s' % (format_value(pc), format_value(flags)))
         
-    result = qd.get_helper(qdis.HELPER_GET_CPU_STATE_TB)
+    helper_get_cpu_state_tb = qd.get_helper(qdis.HELPER_GET_CPU_STATE_TB)
+    helper_get_tb_cpu_state = qd.get_helper(qdis.HELPER_GET_TB_CPU_STATE)
+
+    result = helper_get_cpu_state_tb
     ev.start_block(result, [pc,0,flags])
 
     visited = set()
@@ -135,9 +138,10 @@ def main():
             STYLE_INST, result.inst_text, STYLE_RESET))
 
         ev.start_block(result)
-        result = qd.get_helper(qdis.HELPER_GET_TB_CPU_STATE)
+
         if show_debug:
             print("Retrieving PC and flags")
+        result = helper_get_tb_cpu_state
         rv = ev.start_block(result)
         (pc,pc_base,flags) = (rv[0],rv[1],rv[2])
         if show_debug:

@@ -26,7 +26,7 @@ show_warnings = False
 # Show debug information after processing instruction
 show_debug = False
 
-class SavedState(object):
+class CPUState(object):
     '''
     Saved state object for evaluator.
     '''
@@ -34,6 +34,7 @@ class SavedState(object):
         self.globals = globals_[:]
         self.temps = temps_[:]
         self.jump_iflag = jump_iflag
+        self.env = {}
 
 # XXX move this inside qdis some way
 #     need platform-independent way to compute instruction flag and pc changes from env change instructions
@@ -94,7 +95,7 @@ class NaiveEval(object):
     
     # Save/store state, for forked paths
     def clone_state(self):
-        return SavedState(self.globals, self.temps, self.jump_iflag)
+        return CPUState(self.globals, self.temps, self.jump_iflag)
     def apply_saved_state(self, state):
         self.globals = state.globals
         self.temps = state.temps

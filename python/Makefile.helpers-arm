@@ -1,0 +1,15 @@
+
+# Generate cpu_get_tb_cpu_state function and other helpers as LLVM bitcode (proof of concept)
+# XXX ARM only, and the files used differ per architecture
+helper.bc: ../target-arm/helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-arm -c -o $@ $^ 
+iwmmxt_helper.bc: ../target-arm/iwmmxt_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-arm -c -o $@ $^ 
+op_helper.bc: ../target-arm/op_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-arm -c -o $@ $^ 
+neon_helper.bc: ../target-arm/neon_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-arm -c -o $@ $^ 
+generic_helpers.bc: generic_helpers.c
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-arm -c -o $@ $^ 
+helpers_arm.bc: helper.bc iwmmxt_helper.bc op_helper.bc neon_helper.bc generic_helpers.bc
+	$(LLVM_LINK) -o=$@ $^

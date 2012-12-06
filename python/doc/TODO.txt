@@ -3,16 +3,24 @@ this means that the microcode instructions are aimed at fast and efficient emula
 and not so much understanding the underlying code.
 (on the other hand, "understanding" for a CPU means being able to emulate in the first place)
 one concrete example is the handling of conditions / flags
-we have to work around it
 
 - Get/set target endian
 
 - Extract helpers from llvm code and convert to tcg?
-  or as we introduce llvm as a dependency anyway, convert everything to LLVM?
+  Should be pretty doable, at least for helpers that rely only on LLVM instructions and flow control
+  If intrinsics or external functions are used, it is more difficult.
 
-  helpers, in LLVM?   s2e has these somewhere
-  built in s2e/tools/lib/X86Translator/X86BitcodeLibrary
+  Could convert and store the tcg code object as-is.
 
+  Generate makefile to build helpers? Or is this possible with simply a glob $(wildcard ...) patsubst.
+  Build helpers to separate directories?
+
+  Helpers do have some external dependencies, but we simply ignore this for now and only generate the helpers
+  that we can completely resolve.
+
+  A remaining problem is that some helpers are too complex to convert to TCG, at least with the current limit
+  on number of labels, temporaries and such.
+  See for example helper_cc_compute_c, which has a switch statement of 36 cases with all different operations
 
 - Use ELF hwcap flags for CPU features, this is possible for at least
     ARM : ARM_HWCAP_*
@@ -23,13 +31,6 @@ we have to work around it
   where can I find all these?
 
 - Thread safety: add global lock
-
-- Keep the interface platform independent
-- Allow getting some info about the target cpu from the interface:
-  register names
-  PC register
-  SP register
-  calling convention? (probably not available within qemu)
 
 - Use the official way of instantiating CPUs?
   Might bring a lot of unneeded code, but on the other hand automates feature setting for a model
@@ -70,13 +71,44 @@ we have to work around it
  helpers is also dynamically allocated
  best to make one context and keep it at that
 
-- iargs input args   register / global / local
-  oargs output args  register / global / local
-  what are cargs?  constant args (implicit)
-
 - test on 32 bit Python/host
   especially with 64 bit target
   make sure output is still in single 64 bit words
+
+- disable CONFIG_USER_ONLY?
+   could be useful to support privileged instructions
+
+- move is_valid_pc(pc, iflags) into qdis
+    Check if pc is a valid instruction location, given instruction flags
+    iflag.
+    Checks alignment etc...
+
+- cpu_get_tb_cpu_state
+  gets state from cpu environment, produces TB flags and PC
+  -> need to symbolically compile this
+     so that we can derive modified TB flags from instructions that modify the env
+  
+- TODO for other archs:
+  instruction type
+  get_tb_cpu_state / get_cpu_state_tb
+
+- Integrate new helpers into naive_eval and symbolic evaluation
+
+TODO before release:
+- rename TGT to ARCH. Target is a confusing word within qemu lingo, as it is used for the guest as as well as the host.
+  rename OPTIMIZE to OPT. These are specific options, not only optimizations.
+
+======================================================================================
+Done:
+- Python interface: There are problems with storing the result of a disassembly/get_helper.
+  As the same buffer is overwritten every time.
+  Need a way to store the helpers.
+
+- Allow getting some info about the target cpu from the interface:
+  register names
+  PC register
+  SP register
+  calling convention? (probably not available within qemu)
 
 - default instruction flags
   INITIAL_IFLAGS (mode/llvm subtarget)
@@ -94,12 +126,6 @@ we have to work around it
     BSWAP_CODE -> is simply the endian (as compared to current endian), general flag (this should be normalized so it's the same on little endian archs)
     VFPEN -> always enable, makes no sense to disable
     USER -> not sure
-
-- disable CONFIG_USER_ONLY?
-   could be useful to support privileged instructions
-
-    need platform-independent way to compute instruction flag and pc changes from env change instructions
-    maybe add a virtual global for the instruction flags?
 
 - output is_call / is_return flags
 
@@ -126,29 +152,10 @@ These can be determined from the generated code:
   goto_tb 0, dest -> DISAS_TB_JUMP
 
 However, iscall/isreturn cannot
+- iargs input args   register / global / local
+  oargs output args  register / global / local
+  what are cargs?  constant args (implicit)
 
-- move is_valid_pc(pc, iflags) into qdis
-    Check if pc is a valid instruction location, given instruction flags
-    iflag.
-    Checks alignment etc...
-
-- cpu_get_tb_cpu_state
-  gets state from cpu environment, produces TB flags and PC
-  -> need to symbolically compile this
-     so that we can derive modified TB flags from instructions that modify the env
-  
-  TODO for other archs
-
-- Python interface: There are problems with storing the result of a disassembly/get_helper.
-  As the same buffer is overwritten every time.
-  Need a way to store the helpers.
-
-TODO before release:
-- rename TGT to ARCH. Target is a confusing word within qemu lingo.
-  rename OPTIMIZE to OPT. These are specific options, not only optimizations.
-
-======================================================================================
-Done:
 - Holy shit: on x86, PC is not a global
   EIP is stored as simply mem[env+0x80]
      st_i64 tmp4,env,$0x80

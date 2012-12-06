@@ -1,0 +1,27 @@
+
+# Generate cpu_get_tb_cpu_state function and other helpers as LLVM bitcode (proof of concept)
+
+helper.bc: ../target-i386/helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-i386 -c -o $@ $^ 
+cc_helper.bc: ../target-i386/cc_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-i386 -c -o $@ $^ 
+excp_helper.bc: ../target-i386/excp_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-i386 -c -o $@ $^ 
+fpu_helper.bc: ../target-i386/fpu_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-i386 -c -o $@ $^ 
+int_helper.bc: ../target-i386/int_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-i386 -c -o $@ $^ 
+mem_helper.bc: ../target-i386/mem_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-i386 -c -o $@ $^ 
+misc_helper.bc: ../target-i386/misc_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-i386 -c -o $@ $^ 
+seg_helper.bc: ../target-i386/seg_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-i386 -c -o $@ $^ 
+smm_helper.bc: ../target-i386/smm_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-i386 -c -o $@ $^ 
+svm_helper.bc: ../target-i386/svm_helper.c 
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-i386 -c -o $@ $^ 
+generic_helpers.bc: generic_helpers.c
+	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-i386 -c -o $@ $^ 
+helpers_i386.bc: helper.bc cc_helper.bc excp_helper.bc fpu_helper.bc int_helper.bc mem_helper.bc misc_helper.bc seg_helper.bc smm_helper.bc svm_helper.bc generic_helpers.bc 
+	$(LLVM_LINK) -o=$@ $^

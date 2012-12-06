@@ -66,7 +66,6 @@ class Block(object):
 class Disassembler(object):
     def __init__(self, tgt, features=None):
         self.dis = _qdis.qdis_Create(tgt, features)
-        self.outbuffer = OutbufferType()
 
     def _process_disassembly_result(self, outbuffer, result):
         if result != OK:
@@ -94,19 +93,21 @@ class Disassembler(object):
         optimize: microcode optimization flags
         '''
         inst_buf = create_string_buffer(inst, len(inst))
+        outbuffer = OutbufferType()
 
         result = _qdis.qdis_Disassemble(self.dis, inst_buf, len(inst_buf), pc, flags, optimize,
-                self.outbuffer, len(self.outbuffer))
+                outbuffer, len(outbuffer))
 
-        return self._process_disassembly_result(self.outbuffer, result)
+        return self._process_disassembly_result(outbuffer, result)
 
     def get_helper(self, helper_id):
         '''
         Get implementation of helper function.
         '''
-        result = _qdis.qdis_GetHelper(self.dis, helper_id, self.outbuffer, len(self.outbuffer))
+        outbuffer = OutbufferType()
+        result = _qdis.qdis_GetHelper(self.dis, helper_id, outbuffer, len(outbuffer))
 
-        return self._process_disassembly_result(self.outbuffer, result)
+        return self._process_disassembly_result(outbuffer, result)
 
     def lookup_name(self, infotype, x):
         '''

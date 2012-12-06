@@ -93,3 +93,6 @@ cscope.*
 tags
 TAGS
 *~
+*.bc
+*.ll
+

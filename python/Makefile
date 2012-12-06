@@ -43,17 +43,6 @@ libqdis.so: $(OBJECTS_LIB) $(MODULES)
 CLANG=/opt/clang/bin/clang
 LLVM_LINK=/opt/clang/bin/llvm-link
 
-helper.bc: ../target-arm/helper.c 
-	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-arm -c -o $@ $^ 
-iwmmxt_helper.bc: ../target-arm/iwmmxt_helper.c 
-	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-arm -c -o $@ $^ 
-op_helper.bc: ../target-arm/op_helper.c 
-	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-arm -c -o $@ $^ 
-neon_helper.bc: ../target-arm/neon_helper.c 
-	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-arm -c -o $@ $^ 
-misc_helper.bc: misc_helper.c
-	$(CLANG) -emit-llvm $(CFLAGS) -DQDIS_BUILDING_HELPERS -DNEED_CPU_H -I$(QEMUROOT)/target-arm -c -o $@ $^ 
-helpers.bc: helper.bc iwmmxt_helper.bc op_helper.bc neon_helper.bc misc_helper.bc
-	$(LLVM_LINK) -o=$@ $^
-
+#include Makefile.helpers-i386
+#include Makefile.helpers-arm
 
