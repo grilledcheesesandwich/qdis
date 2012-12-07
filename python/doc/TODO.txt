@@ -94,6 +94,13 @@ one concrete example is the handling of conditions / flags
 
 - Integrate new helpers into naive_eval and symbolic evaluation
 
+- Small memory leak in qdis python binding (result of _qdis.qdis_Create is never freed)
+
+- Catalogue fields of CPUXXXState, and return from qdis, to be able to show names instead of offsets
+  Possible to extract from LLVM compilation metadata of cpu_get_tb_cpu_state (generic_helpers)
+  metadata of argument
+  nest into metadata, extract: fieldname, offset, type   .. where type is uint8/16/32/64/ptr etc
+
 TODO before release:
 - rename TGT to ARCH. Target is a confusing word within qemu lingo, as it is used for the guest as as well as the host.
   rename OPTIMIZE to OPT. These are specific options, not only optimizations.

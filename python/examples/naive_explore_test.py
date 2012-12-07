@@ -18,7 +18,7 @@ from binascii import b2a_hex
 import qdis
 from qdis.format import format_inst
 import naive_explore
-from naive_explore import UNDEFINED
+from naive_explore import UNDEFINED,TRACE_INSTRUCTION
 
 STYLE_ADDR = '\033[38;5;226m'
 STYLE_COLON = '\033[38;5;244m'
@@ -31,6 +31,9 @@ STYLE_EXPR = '\033[38;5;105m'
 STYLE_RESET = '\033[0m'
 
 BOTTOM = '\u22A5' # used as undefined character
+
+# Show debug information after processing instruction
+show_debug = False
 
 def is_valid_pc(pc, iflag):
     '''
@@ -80,7 +83,6 @@ def main():
     }
 
     qd = qdis.Disassembler(default_flags[args.iflags][0], None)
-
     f = open(args.image, 'rb')
     code = mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)
 
@@ -124,9 +126,10 @@ def main():
             # Assume instruction flags are the same upon return
             pcs_out.add((pc + result.inst_size, flags))
 
-        if naive_explore.show_debug:
+        if show_debug:
             print('New PCs: %s' % (' '.join([format_pc_iflag(x, iflag) for x,iflag in pcs_out])))
             print('is_call %i is_return %i' % (is_call, is_return))
+        
         # TODO: warn when exception or other strange helper
         unknown_jump_target = False
         # First defined PC
@@ -139,7 +142,7 @@ def main():
 
         if unknown_jump_target and not is_return:
             print('One of jump targets is unknown')
-        if naive_explore.show_debug:
+        if show_debug:
             print()
 
     print()

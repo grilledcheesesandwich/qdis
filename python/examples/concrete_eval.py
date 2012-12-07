@@ -124,10 +124,6 @@ CONDITIONS = {
     qdis.COND_GTU: lambda x0,x1,mask: x0>x1, 
 }
 
-# XXX move this inside qdis some way
-#     need platform-independent way to compute instruction flag and pc changes from env change instructions
-ENV_ARM_THUMB_FLAG = 0xd0
-
 # Memory handling
 import struct
 LITTLE_ENDIAN={
@@ -207,10 +203,7 @@ class ConcreteEval(object):
                     # print("Warning: unhandled instruction " + op_str)
                     handler = functools.partial(self._unhandled, op_str)
                 self.handlers.append(handler)
-        num_globals = d.lookup_value(qdis.INFO_NUM_GLOBALS, 0)
-
-        self.state = CPUState()
-        self.state.globals = [UNDEFINED] * num_globals 
+        self.num_globals = num_globals = d.lookup_value(qdis.INFO_NUM_GLOBALS, 0)
 
         self.global_by_id = [None] * num_globals
         self.global_by_name = {}
@@ -223,6 +216,12 @@ class ConcreteEval(object):
         self.trace_func = lambda key,value: None # dummy
         # globals
         self.env_id = self.global_by_name['env']
+
+        self.reset_state()
+
+    def reset_state(self):
+        self.state = CPUState()
+        self.state.globals = [UNDEFINED] * self.num_globals 
 
     def set_globals(self, values):
         '''

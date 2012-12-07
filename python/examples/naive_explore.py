@@ -11,35 +11,68 @@ import mmap
 from binascii import b2a_hex
 import qdis
 from qdis.format import format_inst
+from concrete_eval import ConcreteEval # used by NewPCIflagsExtractor
 
 UNDEFINED = None
 TRACE_INSTRUCTION = 'inst'
 
 # Show stores to globals
-trace_global_stores = False#True
+trace_global_stores = True
 # Show stores to temps and locals
 trace_temp_stores = False#True
 # Show all microcode for disassembled instructions
 trace_microcode = False#True
 # Show warnings (non-implemented microcode instructions etc)
 show_warnings = False
-# Show debug information after processing instruction
-show_debug = False
 
 class CPUState(object):
     '''
     Saved state object for evaluator.
     '''
-    def __init__(self, globals_, temps_, jump_iflag):
-        self.globals = globals_[:]
-        self.temps = temps_[:]
-        self.jump_iflag = jump_iflag
+    def __init__(self):
+        self.globals = []
+        self.temps = []
         self.env = {}
 
-# XXX move this inside qdis some way
-#     need platform-independent way to compute instruction flag and pc changes from env change instructions
-ENV_ARM_THUMB_FLAG = 0xd0
+    def clone(self):
+        rv = CPUState()
+        rv.globals = self.globals[:]
+        rv.temps = self.temps[:]
+        rv.env = self.env.copy()
+        return rv
 
+class PCIflagsExtractor(object):
+    '''
+    Manage VM state that influences instruction decoding.
+    This class has two uses
+    1) Inject the current pc and iflags into the virtual machine state
+    2) Take the current state of the virtual machine and compute new pc and iflags
+    for continuation of execution.
+    '''
+    def __init__(self, qd):
+        # concrete interpreter used to extract new pc and iflags from CPUState
+        self.interp = ConcreteEval(qd)
+        self.helper_get_tb_cpu_state = qd.get_helper(qdis.HELPER_GET_TB_CPU_STATE)
+        self.helper_get_cpu_state_tb = qd.get_helper(qdis.HELPER_GET_CPU_STATE_TB)
+    
+    def inject(self, state, pc, pc_base, flags):
+        # Transfer globals and env
+        self.interp.reset_state() 
+        rv = self.interp.start_block(self.helper_get_cpu_state_tb, 
+                args=[pc, pc_base, flags])
+        
+        state.globals = self.interp.state.globals
+        state.env = self.interp.state.env
+
+    def extract(self, state):
+        # Transfer globals and env
+        self.interp.state.globals = state.globals
+        self.interp.state.env = state.env
+        
+        rv = self.interp.start_block(self.helper_get_tb_cpu_state)
+        (pc,pc_base,flags) = (rv[0],rv[1],rv[2])
+        return (pc,pc_base,flags) 
+    
 class NaiveEval(object):
     '''
     Naive evaluator, to determine what PCs to search next from an instruction.
@@ -57,8 +90,9 @@ class NaiveEval(object):
                     handler = functools.partial(self._unhandled, op_str)
                 self.handlers.append(handler)
         num_globals = d.lookup_value(qdis.INFO_NUM_GLOBALS, 0)
-
-        self.globals = [UNDEFINED] * num_globals 
+       
+        self.state = CPUState()
+        self.state.globals = [UNDEFINED] * num_globals 
         self.global_by_id = [None] * num_globals
         self.global_by_name = {}
         for globid in xrange(num_globals):
@@ -69,22 +103,25 @@ class NaiveEval(object):
         self.warning_func = lambda val: None
         self.trace_func = lambda key,value: None # dummy
         self.env_id = self.global_by_name['env']
+
+        self.pc_extractor = PCIflagsExtractor(d)
         # globals
         self.pc_id = d.lookup_value(qdis.INFO_PC_GLOBAL, 0)
         assert(self.pc_id != qdis.INVALID)
 
     def start_block(self, block, pc, iflag):
         # All globals and locals are undefined at the start of every block
-        self.globals[:] = [UNDEFINED] * len(self.globals)
-        self.temps = [UNDEFINED]*len(block.syms)
+        self.state.globals[:] = [UNDEFINED] * len(self.state.globals)
+        self.state.temps = [UNDEFINED]*len(block.syms)
+        self.state.env = {}
+        self.pc_extractor.inject(self.state, pc, 0, iflag)
 
         self.ops = block.ops
         self.labels = block.labels
-        self.globals[self.pc_id] = pc
+        self.state.globals[self.pc_id] = pc
         self.worklist = []
         self.pcs_out = set()
         self.ptr = 0
-        self.jump_iflag = iflag # if instruction flags not changed, leave them as now
         while self.ptr is not None:
             i = self.ops[self.ptr]
             if trace_microcode:
@@ -95,11 +132,9 @@ class NaiveEval(object):
     
     # Save/store state, for forked paths
     def clone_state(self):
-        return CPUState(self.globals, self.temps, self.jump_iflag)
+        return self.state.clone()
     def apply_saved_state(self, state):
-        self.globals = state.globals
-        self.temps = state.temps
-        self.jump_iflag = state.jump_iflag
+        self.state = state
 
     def eval_inst(self, inst):
         '''Symbolically evaluate an instruction'''
@@ -121,11 +156,11 @@ class NaiveEval(object):
         if dest.flags & qdis.ARG_GLOBAL:
             if trace_global_stores:
                 self.trace_func(self.global_by_id[dest.value], expr)
-            self.globals[dest.value] = expr
+            self.state.globals[dest.value] = expr
         elif dest.flags & qdis.ARG_TEMP:
             if trace_temp_stores:
                 self.trace_func('tmp%i' % dest.value, expr)
-            self.temps[dest.value] = expr
+            self.state.temps[dest.value] = expr
         else:
             raise AssertionError('Invalid argument')
     def load(self, dest):
@@ -133,9 +168,9 @@ class NaiveEval(object):
         Load symbolic value from global or temp.
         '''
         if dest.flags & qdis.ARG_GLOBAL:
-            return self.globals[dest.value]
+            return self.state.globals[dest.value]
         elif dest.flags & qdis.ARG_TEMP:
-            return self.temps[dest.value]
+            return self.state.temps[dest.value]
         else:
             raise AssertionError('Invalid argument')
 
@@ -173,14 +208,10 @@ class NaiveEval(object):
 
     def eval_st_i32(self, inst):
         '''st_i32 t0,basereg,offset'''
-        # Check for thumb flag
-        if inst.args[1].value == self.env_id and inst.args[2].value == ENV_ARM_THUMB_FLAG:
-            val = self.load(inst.args[0])
-            if val is not UNDEFINED:
-                self.jump_iflag = self.jump_iflag & (~qdis.INST_ARM_THUMB_MASK)
-                self.jump_iflag |= val << qdis.INST_ARM_THUMB_SHIFT
-            else:
-                self.jump_iflag = None # ouch
+        expr = self.load(inst.args[0])
+        self.state.env[inst.args[2].value] = expr
+        if trace_global_stores:
+            self.trace_func('[env+0x%x]' % inst.args[2].value, expr)
         self.ptr += 1
 
     def eval_qemu_ld32(self, inst):
@@ -192,8 +223,11 @@ class NaiveEval(object):
     def eval_exit_tb(self, inst):
         '''exit_tb t1''' # interpreted as 'br to end'
         self.clear_temps()
+        
         # append current value of PC to possible outputs
-        self.pcs_out.add((self.globals[self.pc_id], self.jump_iflag))
+        (newpc, _, newflags) = self.pc_extractor.extract(self.state)
+        self.pcs_out.add((newpc, newflags))
+
         if self.worklist:
             # Still another path to follow?
             (label, state) = self.worklist.pop()
