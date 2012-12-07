@@ -15,10 +15,10 @@ sys.path.append(os.path.abspath('..'))
 
 import qdis
 from qdis.format import format_inst
+from qdis import concrete_eval
 import mmap
 from binascii import a2b_hex, b2a_hex
 
-import concrete_eval
 
 STYLE_ADDR = '\033[38;5;226m'
 STYLE_COLON = '\033[38;5;244m'

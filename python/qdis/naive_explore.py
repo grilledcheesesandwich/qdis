@@ -11,13 +11,13 @@ import mmap
 from binascii import b2a_hex
 import qdis
 from qdis.format import format_inst
-from concrete_eval import ConcreteEval # used by NewPCIflagsExtractor
+from qdis.concrete_eval import ConcreteEval # used by NewPCIflagsExtractor
 
 UNDEFINED = None
 TRACE_INSTRUCTION = 'inst'
 
 # Show stores to globals
-trace_global_stores = True
+trace_global_stores = False#True
 # Show stores to temps and locals
 trace_temp_stores = False#True
 # Show all microcode for disassembled instructions

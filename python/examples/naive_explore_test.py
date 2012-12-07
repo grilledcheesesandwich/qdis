@@ -17,8 +17,8 @@ import mmap
 from binascii import b2a_hex
 import qdis
 from qdis.format import format_inst
-import naive_explore
-from naive_explore import UNDEFINED,TRACE_INSTRUCTION
+from qdis import naive_explore
+from qdis.naive_explore import UNDEFINED,TRACE_INSTRUCTION
 
 STYLE_ADDR = '\033[38;5;226m'
 STYLE_COLON = '\033[38;5;244m'
