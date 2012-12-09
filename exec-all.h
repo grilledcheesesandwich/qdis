@@ -72,10 +72,6 @@ typedef struct TranslationBlock TranslationBlock;
 
 #define OPPARAM_BUF_SIZE (OPC_BUF_SIZE * MAX_OPC_PARAM)
 
-extern target_ulong gen_opc_pc[OPC_BUF_SIZE];
-extern uint8_t gen_opc_instr_start[OPC_BUF_SIZE];
-extern uint16_t gen_opc_icount[OPC_BUF_SIZE];
-
 #include "qemu-log.h"
 
 void gen_intermediate_code(CPUArchState *env, struct TranslationBlock *tb);
@@ -306,10 +302,11 @@ extern int tb_invalidated_flag;
 /* The return address may point to the start of the next instruction.
    Subtracting one gets us the call instruction itself.  */
 #if defined(CONFIG_TCG_INTERPRETER)
-/* Alpha and SH4 user mode emulations and Softmmu call GETPC().
+/* Softmmu, Alpha, MIPS, SH4 and SPARC user mode emulations call GETPC().
    For all others, GETPC remains undefined (which makes TCI a little faster. */
-# if defined(CONFIG_SOFTMMU) || defined(TARGET_ALPHA) || defined(TARGET_SH4) \
-     || defined(TARGET_SPARC)
+# if defined(CONFIG_SOFTMMU) || \
+    defined(TARGET_ALPHA) || defined(TARGET_MIPS) || \
+    defined(TARGET_SH4) || defined(TARGET_SPARC)
 extern uintptr_t tci_tb_ptr;
 #  define GETPC() tci_tb_ptr
 # endif

@@ -143,6 +143,9 @@ GENERATED_HEADERS += hmp-commands.h qmp-commands-old.h
 
 endif # CONFIG_SOFTMMU
 
+# Workaround for http://gcc.gnu.org/PR55489, see configure.
+%/translate.o: QEMU_CFLAGS += $(TRANSLATE_OPT_CFLAGS)
+
 nested-vars += obj-y
 
 # This resolves all nested paths, so it must come last
@@ -162,12 +165,12 @@ endif #CONFIG_LINUX_USER
 
 ifdef QEMU_PROGW
 # The linker builds a windows executable. Make also a console executable.
-$(QEMU_PROGW): $(all-obj-y)
+$(QEMU_PROGW): $(all-obj-y) ../libqemustub.a
 	$(call LINK,$^)
 $(QEMU_PROG): $(QEMU_PROGW)
 	$(call quiet-command,$(OBJCOPY) --subsystem console $(QEMU_PROGW) $(QEMU_PROG),"  GEN   $(TARGET_DIR)$(QEMU_PROG)")
 else
-$(QEMU_PROG): $(all-obj-y)
+$(QEMU_PROG): $(all-obj-y) ../libqemustub.a
 	$(call LINK,$^)
 endif
 
