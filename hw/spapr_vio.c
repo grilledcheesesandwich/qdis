@@ -20,14 +20,14 @@
  */
 
 #include "hw.h"
-#include "sysemu.h"
+#include "sysemu/sysemu.h"
 #include "boards.h"
-#include "monitor.h"
+#include "monitor/monitor.h"
 #include "loader.h"
 #include "elf.h"
 #include "hw/sysbus.h"
-#include "kvm.h"
-#include "device_tree.h"
+#include "sysemu/kvm.h"
+#include "sysemu/device_tree.h"
 #include "kvm_ppc.h"
 
 #include "hw/spapr.h"
@@ -536,7 +536,7 @@ static void spapr_vio_bridge_class_init(ObjectClass *klass, void *data)
     dc->no_user = 1;
 }
 
-static TypeInfo spapr_vio_bridge_info = {
+static const TypeInfo spapr_vio_bridge_info = {
     .name          = "spapr-vio-bridge",
     .parent        = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof(SysBusDevice),
@@ -552,7 +552,7 @@ static void vio_spapr_device_class_init(ObjectClass *klass, void *data)
     k->props = spapr_vio_props;
 }
 
-static TypeInfo spapr_vio_type_info = {
+static const TypeInfo spapr_vio_type_info = {
     .name = TYPE_VIO_SPAPR_DEVICE,
     .parent = TYPE_DEVICE,
     .instance_size = sizeof(VIOsPAPRDevice),

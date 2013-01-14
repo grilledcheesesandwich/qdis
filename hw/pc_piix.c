@@ -27,22 +27,22 @@
 #include "hw.h"
 #include "pc.h"
 #include "apic.h"
-#include "pci.h"
-#include "pci_ids.h"
+#include "pci/pci.h"
+#include "pci/pci_ids.h"
 #include "usb.h"
-#include "net.h"
+#include "net/net.h"
 #include "boards.h"
 #include "ide.h"
-#include "kvm.h"
+#include "sysemu/kvm.h"
 #include "kvm/clock.h"
-#include "sysemu.h"
+#include "sysemu/sysemu.h"
 #include "sysbus.h"
-#include "arch_init.h"
-#include "blockdev.h"
+#include "sysemu/arch_init.h"
+#include "sysemu/blockdev.h"
 #include "smbus.h"
 #include "xen.h"
-#include "memory.h"
-#include "exec-memory.h"
+#include "exec/memory.h"
+#include "exec/address-spaces.h"
 #include "cpu.h"
 #ifdef CONFIG_XEN
 #  include <xen/hvm/hvm_info_table.h>
@@ -87,6 +87,7 @@ static void pc_init1(MemoryRegion *system_memory,
     void *fw_cfg = NULL;
 
     pc_cpus_init(cpu_model);
+    pc_acpi_init("acpi-dsdt.aml");
 
     if (kvmclock_enabled) {
         kvmclock_create();
@@ -281,16 +282,35 @@ static void pc_xen_hvm_init(QEMUMachineInitArgs *args)
 }
 #endif
 
-static QEMUMachine pc_machine_v1_3 = {
-    .name = "pc-1.3",
+static QEMUMachine pc_i440fx_machine_v1_4 = {
+    .name = "pc-i440fx-1.4",
     .alias = "pc",
-    .desc = "Standard PC",
+    .desc = "Standard PC (i440FX + PIIX, 1996)",
     .init = pc_init_pci_1_3,
     .max_cpus = 255,
     .is_default = 1,
 };
 
+#define PC_COMPAT_1_3 \
+        {\
+            .driver   = "usb-tablet",\
+            .property = "usb_version",\
+            .value    = stringify(1),\
+        }
+
+static QEMUMachine pc_machine_v1_3 = {
+    .name = "pc-1.3",
+    .desc = "Standard PC",
+    .init = pc_init_pci_1_3,
+    .max_cpus = 255,
+    .compat_props = (GlobalProperty[]) {
+        PC_COMPAT_1_3,
+        { /* end of list */ }
+    },
+};
+
 #define PC_COMPAT_1_2 \
+        PC_COMPAT_1_3,\
         {\
             .driver   = "nec-usb-xhci",\
             .property = "msi",\
@@ -626,6 +646,7 @@ static QEMUMachine xenfv_machine = {
 
 static void pc_machine_init(void)
 {
+    qemu_register_machine(&pc_i440fx_machine_v1_4);
     qemu_register_machine(&pc_machine_v1_3);
     qemu_register_machine(&pc_machine_v1_2);
     qemu_register_machine(&pc_machine_v1_1);

@@ -20,7 +20,7 @@
  */
 
 #include "sysbus.h"
-#include "qemu-timer.h"
+#include "qemu/timer.h"
 
 /* This device implements the per-cpu private timer and watchdog block
  * which is used in both the ARM11MPCore and Cortex-A9MP.
@@ -329,7 +329,7 @@ static void arm_mptimer_class_init(ObjectClass *klass, void *data)
     dc->props = arm_mptimer_properties;
 }
 
-static TypeInfo arm_mptimer_info = {
+static const TypeInfo arm_mptimer_info = {
     .name          = "arm_mptimer",
     .parent        = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof(arm_mptimer_state),

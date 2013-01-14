@@ -13,21 +13,21 @@
 #include "hw.h"
 #include "pxa.h"
 #include "arm-misc.h"
-#include "sysemu.h"
+#include "sysemu/sysemu.h"
 #include "pcmcia.h"
 #include "i2c.h"
 #include "ssi.h"
 #include "flash.h"
-#include "qemu-timer.h"
+#include "qemu/timer.h"
 #include "devices.h"
 #include "sharpsl.h"
-#include "console.h"
-#include "block.h"
+#include "ui/console.h"
+#include "block/block.h"
 #include "audio/audio.h"
 #include "boards.h"
-#include "blockdev.h"
+#include "sysemu/blockdev.h"
 #include "sysbus.h"
-#include "exec-memory.h"
+#include "exec/address-spaces.h"
 
 #undef REG_FMT
 #define REG_FMT			"0x%02lx"
@@ -1022,7 +1022,7 @@ static void sl_nand_class_init(ObjectClass *klass, void *data)
     dc->props = sl_nand_properties;
 }
 
-static TypeInfo sl_nand_info = {
+static const TypeInfo sl_nand_info = {
     .name          = "sl-nand",
     .parent        = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof(SLNANDState),
@@ -1057,7 +1057,7 @@ static void spitz_keyboard_class_init(ObjectClass *klass, void *data)
     dc->props = spitz_keyboard_properties;
 }
 
-static TypeInfo spitz_keyboard_info = {
+static const TypeInfo spitz_keyboard_info = {
     .name          = "spitz-keyboard",
     .parent        = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof(SpitzKeyboardState),
@@ -1086,7 +1086,7 @@ static void corgi_ssp_class_init(ObjectClass *klass, void *data)
     dc->vmsd = &vmstate_corgi_ssp_regs;
 }
 
-static TypeInfo corgi_ssp_info = {
+static const TypeInfo corgi_ssp_info = {
     .name          = "corgi-ssp",
     .parent        = TYPE_SSI_SLAVE,
     .instance_size = sizeof(CorgiSSPState),
@@ -1116,7 +1116,7 @@ static void spitz_lcdtg_class_init(ObjectClass *klass, void *data)
     dc->vmsd = &vmstate_spitz_lcdtg_regs;
 }
 
-static TypeInfo spitz_lcdtg_info = {
+static const TypeInfo spitz_lcdtg_info = {
     .name          = "spitz-lcdtg",
     .parent        = TYPE_SSI_SLAVE,
     .instance_size = sizeof(SpitzLCDTG),

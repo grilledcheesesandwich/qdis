@@ -1,21 +1,12 @@
 #ifndef QDEV_CORE_H
 #define QDEV_CORE_H
 
-#include "qemu-queue.h"
-#include "qemu-option.h"
-#include "qemu/object.h"
+#include "qemu/queue.h"
+#include "qemu/option.h"
+#include "qemu/typedefs.h"
+#include "qom/object.h"
 #include "hw/irq.h"
-#include "error.h"
-
-typedef struct Property Property;
-
-typedef struct PropertyInfo PropertyInfo;
-
-typedef struct CompatProperty CompatProperty;
-
-typedef struct BusState BusState;
-
-typedef struct BusClass BusClass;
+#include "qapi/error.h"
 
 enum DevState {
     DEV_STATE_CREATED = 1,
@@ -191,6 +182,18 @@ int qbus_walk_children(BusState *bus, qdev_walkerfn *devfn,
 int qdev_walk_children(DeviceState *dev, qdev_walkerfn *devfn,
                        qbus_walkerfn *busfn, void *opaque);
 void qdev_reset_all(DeviceState *dev);
+
+/**
+ * @qbus_reset_all:
+ * @bus: Bus to be reset.
+ *
+ * Reset @bus and perform a bus-level ("hard") reset of all devices connected
+ * to it, including recursive processing of all buses below @bus itself.  A
+ * hard reset means that qbus_reset_all will reset all state of the device.
+ * For PCI devices, for example, this will include the base address registers
+ * or configuration space.
+ */
+void qbus_reset_all(BusState *bus);
 void qbus_reset_all_fn(void *opaque);
 
 void qbus_free(BusState *bus);

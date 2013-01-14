@@ -22,14 +22,13 @@
  * THE SOFTWARE.
  */
 #include "qemu-common.h"
-#include "qemu-timer.h"
-#include "qemu-char.h"
-#include "qemu-log.h"
-#include "block_int.h"
-#include "module.h"
+#include "qemu/timer.h"
+#include "qemu/log.h"
+#include "block/block_int.h"
+#include "qemu/module.h"
 #include "trace.h"
-#include "thread-pool.h"
-#include "iov.h"
+#include "block/thread-pool.h"
+#include "qemu/iov.h"
 #include "raw-aio.h"
 
 #if defined(__APPLE__) && (__MACH__)
@@ -708,22 +707,6 @@ static BlockDriverAIOCB *paio_submit(BlockDriverState *bs, int fd,
     return thread_pool_submit_aio(aio_worker, acb, cb, opaque);
 }
 
-static BlockDriverAIOCB *paio_ioctl(BlockDriverState *bs, int fd,
-        unsigned long int req, void *buf,
-        BlockDriverCompletionFunc *cb, void *opaque)
-{
-    RawPosixAIOData *acb = g_slice_new(RawPosixAIOData);
-
-    acb->bs = bs;
-    acb->aio_type = QEMU_AIO_IOCTL;
-    acb->aio_fildes = fd;
-    acb->aio_offset = 0;
-    acb->aio_ioctl_buf = buf;
-    acb->aio_ioctl_cmd = req;
-
-    return thread_pool_submit_aio(aio_worker, acb, cb, opaque);
-}
-
 static BlockDriverAIOCB *raw_aio_submit(BlockDriverState *bs,
         int64_t sector_num, QEMUIOVector *qiov, int nb_sectors,
         BlockDriverCompletionFunc *cb, void *opaque, int type)
@@ -1346,10 +1329,19 @@ static BlockDriverAIOCB *hdev_aio_ioctl(BlockDriverState *bs,
         BlockDriverCompletionFunc *cb, void *opaque)
 {
     BDRVRawState *s = bs->opaque;
+    RawPosixAIOData *acb;
 
     if (fd_open(bs) < 0)
         return NULL;
-    return paio_ioctl(bs, s->fd, req, buf, cb, opaque);
+
+    acb = g_slice_new(RawPosixAIOData);
+    acb->bs = bs;
+    acb->aio_type = QEMU_AIO_IOCTL;
+    acb->aio_fildes = s->fd;
+    acb->aio_offset = 0;
+    acb->aio_ioctl_buf = buf;
+    acb->aio_ioctl_cmd = req;
+    return thread_pool_submit_aio(aio_worker, acb, cb, opaque);
 }
 
 #elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
@@ -1783,6 +1775,40 @@ static BlockDriver bdrv_host_cdrom = {
     .bdrv_lock_medium   = cdrom_lock_medium,
 };
 #endif /* __FreeBSD__ */
+
+#ifdef CONFIG_LINUX_AIO
+/**
+ * Return the file descriptor for Linux AIO
+ *
+ * This function is a layering violation and should be removed when it becomes
+ * possible to call the block layer outside the global mutex.  It allows the
+ * caller to hijack the file descriptor so I/O can be performed outside the
+ * block layer.
+ */
+int raw_get_aio_fd(BlockDriverState *bs)
+{
+    BDRVRawState *s;
+
+    if (!bs->drv) {
+        return -ENOMEDIUM;
+    }
+
+    if (bs->drv == bdrv_find_format("raw")) {
+        bs = bs->file;
+    }
+
+    /* raw-posix has several protocols so just check for raw_aio_readv */
+    if (bs->drv->bdrv_aio_readv != raw_aio_readv) {
+        return -ENOTSUP;
+    }
+
+    s = bs->opaque;
+    if (!s->use_aio) {
+        return -ENOTSUP;
+    }
+    return s->fd;
+}
+#endif /* CONFIG_LINUX_AIO */
 
 static void bdrv_file_init(void)
 {

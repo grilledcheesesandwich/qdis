@@ -22,12 +22,11 @@
  * THE SOFTWARE.
  */
 #include "qemu-common.h"
-#include "net.h"
-#include "monitor.h"
-#include "console.h"
-#include "sysemu.h"
-#include "qemu-timer.h"
-#include "qemu-char.h"
+#include "monitor/monitor.h"
+#include "ui/console.h"
+#include "sysemu/sysemu.h"
+#include "qemu/timer.h"
+#include "char/char.h"
 #include "hw/usb.h"
 #include "hw/baum.h"
 #include "hw/msmouse.h"
@@ -95,7 +94,7 @@
 #endif
 #endif
 
-#include "qemu_socket.h"
+#include "qemu/sockets.h"
 #include "ui/qemu-spice.h"
 
 #define READ_BUF_LEN 4096
@@ -773,6 +772,10 @@ static CharDriverState *qemu_chr_open_stdio(QemuOpts *opts)
     if (stdio_nb_clients >= STDIO_MAX_CLIENTS) {
         return NULL;
     }
+    if (is_daemonized()) {
+        error_report("cannot use stdio with -daemonize");
+        return NULL;
+    }
     if (stdio_nb_clients == 0) {
         old_fd0_flags = fcntl(0, F_GETFL);
         tcgetattr (0, &oldtty);
@@ -981,6 +984,7 @@ static CharDriverState *qemu_chr_open_pty(QemuOpts *opts)
     CharDriverState *chr;
     PtyCharDriver *s;
     struct termios tty;
+    const char *label;
     int master_fd, slave_fd, len;
 #if defined(__OpenBSD__) || defined(__DragonFly__)
     char pty_name[PATH_MAX];
@@ -1006,7 +1010,13 @@ static CharDriverState *qemu_chr_open_pty(QemuOpts *opts)
     chr->filename = g_malloc(len);
     snprintf(chr->filename, len, "pty:%s", q_ptsname(master_fd));
     qemu_opt_set(opts, "path", q_ptsname(master_fd));
-    fprintf(stderr, "char device redirected to %s\n", q_ptsname(master_fd));
+
+    label = qemu_opts_id(opts);
+    fprintf(stderr, "char device redirected to %s%s%s%s\n",
+            q_ptsname(master_fd),
+            label ? " (label " : "",
+            label ? label      : "",
+            label ? ")"        : "");
 
     s = g_malloc0(sizeof(PtyCharDriver));
     chr->opaque = s;
@@ -2762,6 +2772,9 @@ static const struct {
 #endif
 #ifdef CONFIG_SPICE
     { .name = "spicevmc",     .open = qemu_chr_open_spice },
+#if SPICE_SERVER_VERSION >= 0x000c02
+    { .name = "spiceport",    .open = qemu_chr_open_spice_port },
+#endif
 #endif
 };
 

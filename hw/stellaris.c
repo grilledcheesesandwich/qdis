@@ -11,11 +11,11 @@
 #include "ssi.h"
 #include "arm-misc.h"
 #include "devices.h"
-#include "qemu-timer.h"
+#include "qemu/timer.h"
 #include "i2c.h"
-#include "net.h"
+#include "net/net.h"
 #include "boards.h"
-#include "exec-memory.h"
+#include "exec/address-spaces.h"
 
 #define GPIO_A 0
 #define GPIO_B 1
@@ -1354,7 +1354,7 @@ static void stellaris_i2c_class_init(ObjectClass *klass, void *data)
     sdc->init = stellaris_i2c_init;
 }
 
-static TypeInfo stellaris_i2c_info = {
+static const TypeInfo stellaris_i2c_info = {
     .name          = "stellaris-i2c",
     .parent        = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof(stellaris_i2c_state),
@@ -1368,7 +1368,7 @@ static void stellaris_gptm_class_init(ObjectClass *klass, void *data)
     sdc->init = stellaris_gptm_init;
 }
 
-static TypeInfo stellaris_gptm_info = {
+static const TypeInfo stellaris_gptm_info = {
     .name          = "stellaris-gptm",
     .parent        = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof(gptm_state),
@@ -1382,7 +1382,7 @@ static void stellaris_adc_class_init(ObjectClass *klass, void *data)
     sdc->init = stellaris_adc_init;
 }
 
-static TypeInfo stellaris_adc_info = {
+static const TypeInfo stellaris_adc_info = {
     .name          = "stellaris-adc",
     .parent        = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof(stellaris_adc_state),

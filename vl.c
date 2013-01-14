@@ -28,7 +28,7 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <zlib.h>
-#include "bitmap.h"
+#include "qemu/bitmap.h"
 
 /* Needed early for CONFIG_BSD etc. */
 #include "config-host.h"
@@ -65,7 +65,7 @@
 #endif
 
 #ifdef CONFIG_SECCOMP
-#include "qemu-seccomp.h"
+#include "sysemu/seccomp.h"
 #endif
 
 #ifdef __sun__
@@ -126,46 +126,46 @@ int main(int argc, char **argv)
 #include "hw/xen.h"
 #include "hw/qdev.h"
 #include "hw/loader.h"
-#include "bt-host.h"
-#include "net.h"
+#include "bt/bt.h"
+#include "net/net.h"
 #include "net/slirp.h"
-#include "monitor.h"
-#include "console.h"
-#include "sysemu.h"
-#include "gdbstub.h"
-#include "qemu-timer.h"
-#include "qemu-char.h"
-#include "cache-utils.h"
-#include "blockdev.h"
+#include "monitor/monitor.h"
+#include "ui/console.h"
+#include "sysemu/sysemu.h"
+#include "exec/gdbstub.h"
+#include "qemu/timer.h"
+#include "char/char.h"
+#include "qemu/cache-utils.h"
+#include "sysemu/blockdev.h"
 #include "hw/block-common.h"
-#include "block-migration.h"
-#include "dma.h"
+#include "migration/block.h"
+#include "sysemu/dma.h"
 #include "audio/audio.h"
-#include "migration.h"
-#include "kvm.h"
-#include "qjson.h"
-#include "qemu-option.h"
-#include "qemu-config.h"
+#include "migration/migration.h"
+#include "sysemu/kvm.h"
+#include "qapi/qmp/qjson.h"
+#include "qemu/option.h"
+#include "qemu/config-file.h"
 #include "qemu-options.h"
 #include "qmp-commands.h"
-#include "main-loop.h"
+#include "qemu/main-loop.h"
 #ifdef CONFIG_VIRTFS
 #include "fsdev/qemu-fsdev.h"
 #endif
-#include "qtest.h"
+#include "sysemu/qtest.h"
 
-#include "disas.h"
+#include "disas/disas.h"
 
-#include "qemu_socket.h"
+#include "qemu/sockets.h"
 
 #include "slirp/libslirp.h"
 
 #include "trace.h"
 #include "trace/control.h"
-#include "qemu-queue.h"
-#include "cpus.h"
-#include "arch_init.h"
-#include "osdep.h"
+#include "qemu/queue.h"
+#include "sysemu/cpus.h"
+#include "sysemu/arch_init.h"
+#include "qemu/osdep.h"
 
 #include "ui/qemu-spice.h"
 #include "qapi/string-input-visitor.h"
@@ -448,21 +448,18 @@ StatusInfo *qmp_query_status(Error **errp)
 void qemu_get_timedate(struct tm *tm, int offset)
 {
     time_t ti;
-    struct tm *ret;
 
     time(&ti);
     ti += offset;
     if (rtc_date_offset == -1) {
         if (rtc_utc)
-            ret = gmtime(&ti);
+            gmtime_r(&ti, tm);
         else
-            ret = localtime(&ti);
+            localtime_r(&ti, tm);
     } else {
         ti -= rtc_date_offset;
-        ret = gmtime(&ti);
+        gmtime_r(&ti, tm);
     }
-
-    memcpy(tm, ret, sizeof(struct tm));
 }
 
 int qemu_timedate_diff(struct tm *tm)
@@ -886,9 +883,9 @@ static int cleanup_add_fd(QemuOpts *opts, void *opaque)
 
 static int drive_init_func(QemuOpts *opts, void *opaque)
 {
-    int *use_scsi = opaque;
+    BlockInterfaceType *block_default_type = opaque;
 
-    return drive_init(opts, *use_scsi) == NULL;
+    return drive_init(opts, *block_default_type) == NULL;
 }
 
 static int drive_enable_snapshot(QemuOpts *opts, void *opaque)
@@ -899,15 +896,10 @@ static int drive_enable_snapshot(QemuOpts *opts, void *opaque)
     return 0;
 }
 
-static void default_drive(int enable, int snapshot, int use_scsi,
-                          BlockInterfaceType type, int index,
-                          const char *optstr)
+static void default_drive(int enable, int snapshot, BlockInterfaceType type,
+                          int index, const char *optstr)
 {
     QemuOpts *opts;
-
-    if (type == IF_DEFAULT) {
-        type = use_scsi ? IF_SCSI : IF_IDE;
-    }
 
     if (!enable || drive_get_by_index(type, index)) {
         return;
@@ -917,7 +909,7 @@ static void default_drive(int enable, int snapshot, int use_scsi,
     if (snapshot) {
         drive_enable_snapshot(opts, NULL);
     }
-    if (!drive_init(opts, use_scsi)) {
+    if (!drive_init(opts, type)) {
         exit(1);
     }
 }
@@ -2001,7 +1993,7 @@ static int balloon_parse(const char *arg)
                 return  -1;
         } else {
             /* create empty opts */
-            opts = qemu_opts_create(qemu_find_opts("device"), NULL, 0, NULL);
+            opts = qemu_opts_create_nofail(qemu_find_opts("device"));
         }
         qemu_opt_set(opts, "driver", "virtio-balloon");
         return 0;
@@ -2251,14 +2243,14 @@ static int virtcon_parse(const char *devname)
         exit(1);
     }
 
-    bus_opts = qemu_opts_create(device, NULL, 0, NULL);
+    bus_opts = qemu_opts_create_nofail(device);
     if (arch_type == QEMU_ARCH_S390X) {
         qemu_opt_set(bus_opts, "driver", "virtio-serial-s390");
     } else {
         qemu_opt_set(bus_opts, "driver", "virtio-serial-pci");
     } 
 
-    dev_opts = qemu_opts_create(device, NULL, 0, NULL);
+    dev_opts = qemu_opts_create_nofail(device);
     qemu_opt_set(dev_opts, "driver", "virtconsole");
 
     snprintf(label, sizeof(label), "virtcon%d", index);
@@ -3110,8 +3102,7 @@ int main(int argc, char **argv, char **envp)
 
                 qemu_opt_set_bool(fsdev, "readonly",
                                 qemu_opt_get_bool(opts, "readonly", 0));
-                device = qemu_opts_create(qemu_find_opts("device"), NULL, 0,
-                                          NULL);
+                device = qemu_opts_create_nofail(qemu_find_opts("device"));
                 qemu_opt_set(device, "driver", "virtio-9p-pci");
                 qemu_opt_set(device, "fsdev",
                              qemu_opt_get(opts, "mount_tag"));
@@ -3131,8 +3122,7 @@ int main(int argc, char **argv, char **envp)
                 }
                 qemu_opt_set(fsdev, "fsdriver", "synth");
 
-                device = qemu_opts_create(qemu_find_opts("device"), NULL, 0,
-                                          NULL);
+                device = qemu_opts_create_nofail(qemu_find_opts("device"));
                 qemu_opt_set(device, "driver", "virtio-9p-pci");
                 qemu_opt_set(device, "fsdev", "v_synth");
                 qemu_opt_set(device, "mount_tag", "v_synth");
@@ -3644,6 +3634,30 @@ int main(int argc, char **argv, char **envp)
         default_sdcard = 0;
     }
 
+    if (is_daemonized()) {
+        /* According to documentation and historically, -nographic redirects
+         * serial port, parallel port and monitor to stdio, which does not work
+         * with -daemonize.  We can redirect these to null instead, but since
+         * -nographic is legacy, let's just error out.
+         * We disallow -nographic only if all other ports are not redirected
+         * explicitly, to not break existing legacy setups which uses
+         * -nographic _and_ redirects all ports explicitly - this is valid
+         * usage, -nographic is just a no-op in this case.
+         */
+        if (display_type == DT_NOGRAPHIC
+            && (default_parallel || default_serial
+                || default_monitor || default_virtcon)) {
+            fprintf(stderr, "-nographic can not be used with -daemonize\n");
+            exit(1);
+        }
+#ifdef CONFIG_CURSES
+        if (display_type == DT_CURSES) {
+            fprintf(stderr, "curses display can not be used with -daemonize\n");
+            exit(1);
+        }
+#endif
+    }
+
     if (display_type == DT_NOGRAPHIC) {
         if (default_parallel)
             add_device_config(DEV_PARALLEL, "null");
@@ -3745,6 +3759,9 @@ int main(int argc, char **argv, char **envp)
     }
     configure_icount(icount_option);
 
+    /* clean up network at qemu process termination */
+    atexit(&net_cleanup);
+
     if (net_init_clients() < 0) {
         exit(1);
     }
@@ -3770,15 +3787,15 @@ int main(int argc, char **argv, char **envp)
     /* open the virtual block devices */
     if (snapshot)
         qemu_opts_foreach(qemu_find_opts("drive"), drive_enable_snapshot, NULL, 0);
-    if (qemu_opts_foreach(qemu_find_opts("drive"), drive_init_func, &machine->use_scsi, 1) != 0)
+    if (qemu_opts_foreach(qemu_find_opts("drive"), drive_init_func,
+                          &machine->block_default_type, 1) != 0) {
         exit(1);
+    }
 
-    default_drive(default_cdrom, snapshot, machine->use_scsi,
-                  IF_DEFAULT, 2, CDROM_OPTS);
-    default_drive(default_floppy, snapshot, machine->use_scsi,
-                  IF_FLOPPY, 0, FD_OPTS);
-    default_drive(default_sdcard, snapshot, machine->use_scsi,
-                  IF_SD, 0, SD_OPTS);
+    default_drive(default_cdrom, snapshot, machine->block_default_type, 2,
+                  CDROM_OPTS);
+    default_drive(default_floppy, snapshot, IF_FLOPPY, 0, FD_OPTS);
+    default_drive(default_sdcard, snapshot, IF_SD, 0, SD_OPTS);
 
     register_savevm_live(NULL, "ram", 0, 4, &savevm_ram_handlers, NULL);
 
@@ -3910,9 +3927,7 @@ int main(int argc, char **argv, char **envp)
         break;
 #if defined(CONFIG_CURSES)
     case DT_CURSES:
-        if (!is_daemonized()) {
-            curses_display_init(ds, full_screen);
-        }
+        curses_display_init(ds, full_screen);
         break;
 #endif
 #if defined(CONFIG_SDL)
@@ -3999,7 +4014,6 @@ int main(int argc, char **argv, char **envp)
     main_loop();
     bdrv_close_all();
     pause_all_vcpus();
-    net_cleanup();
     res_free();
 
     return 0;

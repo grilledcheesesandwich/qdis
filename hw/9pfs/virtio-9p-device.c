@@ -13,7 +13,7 @@
 
 #include "hw/virtio.h"
 #include "hw/pc.h"
-#include "qemu_socket.h"
+#include "qemu/sockets.h"
 #include "hw/virtio-pci.h"
 #include "virtio-9p.h"
 #include "fsdev/qemu-fsdev.h"
@@ -177,7 +177,7 @@ static void virtio_9p_class_init(ObjectClass *klass, void *data)
     dc->reset = virtio_pci_reset;
 }
 
-static TypeInfo virtio_9p_info = {
+static const TypeInfo virtio_9p_info = {
     .name          = "virtio-9p-pci",
     .parent        = TYPE_PCI_DEVICE,
     .instance_size = sizeof(VirtIOPCIProxy),

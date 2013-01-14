@@ -25,7 +25,8 @@
  */
 #ifndef H_DISAS_UTIL
 #define H_DISAS_UTIL
-#include "dis-asm.h"
+#include "qemu-common.h"
+#include "disas/bfd.h"
 
 /* output stream funcs */
 struct OutBuf

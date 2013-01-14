@@ -13,10 +13,10 @@
  */
 
 #include "qemu-common.h"
-#include "qemu-error.h"
-#include "qemu_socket.h"
-#include "block_int.h"
-#include "bitops.h"
+#include "qemu/error-report.h"
+#include "qemu/sockets.h"
+#include "block/block_int.h"
+#include "qemu/bitops.h"
 
 #define SD_PROTO_VER 0x01
 
@@ -714,16 +714,17 @@ static void coroutine_fn aio_read_response(void *opaque)
              * and max_dirty_data_idx are changed to include updated
              * index between them.
              */
-            s->inode.data_vdi_id[idx] = s->inode.vdi_id;
-            s->max_dirty_data_idx = MAX(idx, s->max_dirty_data_idx);
-            s->min_dirty_data_idx = MIN(idx, s->min_dirty_data_idx);
-
+            if (rsp.result == SD_RES_SUCCESS) {
+                s->inode.data_vdi_id[idx] = s->inode.vdi_id;
+                s->max_dirty_data_idx = MAX(idx, s->max_dirty_data_idx);
+                s->min_dirty_data_idx = MIN(idx, s->min_dirty_data_idx);
+            }
             /*
              * Some requests may be blocked because simultaneous
              * create requests are not allowed, so we search the
              * pending requests here.
              */
-            send_pending_req(s, vid_to_data_oid(s->inode.vdi_id, idx));
+            send_pending_req(s, aio_req->oid);
         }
         break;
     case AIOCB_READ_UDATA:

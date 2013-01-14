@@ -25,11 +25,10 @@
    inherit from a particular bus (e.g. PCI or I2C) rather than
    this API directly.  */
 
-#include "net.h"
 #include "qdev.h"
-#include "sysemu.h"
-#include "error.h"
-#include "qapi/qapi-visit-core.h"
+#include "sysemu/sysemu.h"
+#include "qapi/error.h"
+#include "qapi/visitor.h"
 
 int qdev_hotplug = 0;
 static bool qdev_hot_added = false;
@@ -109,10 +108,12 @@ DeviceState *qdev_create(BusState *bus, const char *name)
     dev = qdev_try_create(bus, name);
     if (!dev) {
         if (bus) {
-            hw_error("Unknown device '%s' for bus '%s'\n", name,
-                     object_get_typename(OBJECT(bus)));
+            error_report("Unknown device '%s' for bus '%s'\n", name,
+                         object_get_typename(OBJECT(bus)));
+            abort();
         } else {
-            hw_error("Unknown device '%s' for default sysbus\n", name);
+            error_report("Unknown device '%s' for default sysbus\n", name);
+            abort();
         }
     }
 
@@ -227,10 +228,15 @@ void qdev_reset_all(DeviceState *dev)
     qdev_walk_children(dev, qdev_reset_one, qbus_reset_one, NULL);
 }
 
+void qbus_reset_all(BusState *bus)
+{
+    qbus_walk_children(bus, qdev_reset_one, qbus_reset_one, NULL);
+}
+
 void qbus_reset_all_fn(void *opaque)
 {
     BusState *bus = opaque;
-    qbus_walk_children(bus, qdev_reset_one, qbus_reset_one, NULL);
+    qbus_reset_all(bus);
 }
 
 /* can be used as ->unplug() callback for the simple cases */
@@ -308,18 +314,6 @@ void qdev_connect_gpio_out(DeviceState * dev, int n, qemu_irq pin)
 {
     assert(n >= 0 && n < dev->num_gpio_out);
     dev->gpio_out[n] = pin;
-}
-
-void qdev_set_nic_properties(DeviceState *dev, NICInfo *nd)
-{
-    qdev_prop_set_macaddr(dev, "mac", nd->macaddr.a);
-    if (nd->netdev)
-        qdev_prop_set_netdev(dev, "netdev", nd->netdev);
-    if (nd->nvectors != DEV_NVECTORS_UNSPECIFIED &&
-        object_property_find(OBJECT(dev), "vectors", NULL)) {
-        qdev_prop_set_uint32(dev, "vectors", nd->nvectors);
-    }
-    nd->instantiated = 1;
 }
 
 BusState *qdev_get_child_bus(DeviceState *dev, const char *name)
@@ -709,16 +703,18 @@ static void device_class_base_init(ObjectClass *class, void *data)
     klass->props = NULL;
 }
 
-static void qdev_remove_from_bus(Object *obj)
+static void device_unparent(Object *obj)
 {
     DeviceState *dev = DEVICE(obj);
 
-    bus_remove_child(dev->parent_bus, dev);
+    if (dev->parent_bus != NULL) {
+        bus_remove_child(dev->parent_bus, dev);
+    }
 }
 
 static void device_class_init(ObjectClass *class, void *data)
 {
-    class->unparent = qdev_remove_from_bus;
+    class->unparent = device_unparent;
 }
 
 void device_reset(DeviceState *dev)
@@ -741,7 +737,7 @@ Object *qdev_get_machine(void)
     return dev;
 }
 
-static TypeInfo device_type_info = {
+static const TypeInfo device_type_info = {
     .name = TYPE_DEVICE,
     .parent = TYPE_OBJECT,
     .instance_size = sizeof(DeviceState),

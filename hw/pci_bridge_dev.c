@@ -19,13 +19,13 @@
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "pci_bridge.h"
-#include "pci_ids.h"
-#include "msi.h"
-#include "shpc.h"
-#include "slotid_cap.h"
-#include "memory.h"
-#include "pci_internals.h"
+#include "pci/pci_bridge.h"
+#include "pci/pci_ids.h"
+#include "pci/msi.h"
+#include "pci/shpc.h"
+#include "pci/slotid_cap.h"
+#include "exec/memory.h"
+#include "pci/pci_bus.h"
 
 #define REDHAT_PCI_VENDOR_ID 0x1b36
 #define PCI_BRIDGE_DEV_VENDOR_ID REDHAT_PCI_VENDOR_ID
@@ -156,7 +156,7 @@ static void pci_bridge_dev_class_init(ObjectClass *klass, void *data)
     dc->vmsd = &pci_bridge_dev_vmstate;
 }
 
-static TypeInfo pci_bridge_dev_info = {
+static const TypeInfo pci_bridge_dev_info = {
     .name = "pci-bridge",
     .parent        = TYPE_PCI_DEVICE,
     .instance_size = sizeof(PCIBridgeDev),

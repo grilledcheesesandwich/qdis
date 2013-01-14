@@ -44,9 +44,9 @@
 
 #define CPUArchState struct CPUX86State
 
-#include "cpu-defs.h"
+#include "exec/cpu-defs.h"
 
-#include "softfloat.h"
+#include "fpu/softfloat.h"
 
 #define R_EAX 0
 #define R_ECX 1
@@ -295,6 +295,7 @@
 #define MSR_IA32_APICBASE_BSP           (1<<8)
 #define MSR_IA32_APICBASE_ENABLE        (1<<11)
 #define MSR_IA32_APICBASE_BASE          (0xfffff<<12)
+#define MSR_TSC_ADJUST                  0x0000003b
 #define MSR_IA32_TSCDEADLINE            0x6e0
 
 #define MSR_MTRRcap			0xfe
@@ -509,6 +510,8 @@
 #define CPUID_7_0_EBX_RDSEED   (1 << 18)
 #define CPUID_7_0_EBX_ADX      (1 << 19)
 #define CPUID_7_0_EBX_SMAP     (1 << 20)
+
+#define CPUID_VENDOR_SZ      12
 
 #define CPUID_VENDOR_INTEL_1 0x756e6547 /* "Genu" */
 #define CPUID_VENDOR_INTEL_2 0x49656e69 /* "ineI" */
@@ -772,6 +775,7 @@ typedef struct CPUX86State {
     uint64_t pv_eoi_en_msr;
 
     uint64_t tsc;
+    uint64_t tsc_adjust;
     uint64_t tsc_deadline;
 
     uint64_t mcg_status;
@@ -1115,7 +1119,7 @@ static inline void cpu_clone_regs(CPUX86State *env, target_ulong newsp)
 }
 #endif
 
-#include "cpu-all.h"
+#include "exec/cpu-all.h"
 #include "svm.h"
 
 #if !defined(CONFIG_USER_ONLY)
@@ -1135,7 +1139,7 @@ static inline bool cpu_has_work(CPUState *cpu)
                                       CPU_INTERRUPT_MCE));
 }
 
-#include "exec-all.h"
+#include "exec/exec-all.h"
 
 static inline void cpu_pc_from_tb(CPUX86State *env, TranslationBlock *tb)
 {
@@ -1215,5 +1219,8 @@ void do_smm_enter(CPUX86State *env1);
 void cpu_report_tpr_access(CPUX86State *env, TPRAccess access);
 
 void enable_kvm_pv_eoi(void);
+
+/* Return name of 32-bit register, from a R_* constant */
+const char *get_register_name_32(unsigned int reg);
 
 #endif /* CPU_I386_H */

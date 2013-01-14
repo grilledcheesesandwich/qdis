@@ -26,9 +26,9 @@
  */
 
 #include "cpu.h"
-#include "exec-all.h"
-#include "gdbstub.h"
-#include "host-utils.h"
+#include "exec/exec-all.h"
+#include "exec/gdbstub.h"
+#include "qemu/host-utils.h"
 #if !defined(CONFIG_USER_ONLY)
 #include "hw/loader.h"
 #endif
@@ -522,7 +522,8 @@ static int get_physical_addr_mmu(CPUXtensaState *env, bool update_tlb,
             INST_FETCH_PRIVILEGE_CAUSE;
     }
 
-    *access = mmu_attr_to_access(entry->attr);
+    *access = mmu_attr_to_access(entry->attr) &
+        ~(dtlb ? PAGE_EXEC : PAGE_READ | PAGE_WRITE);
     if (!is_access_granted(*access, is_write)) {
         return dtlb ?
             (is_write ?

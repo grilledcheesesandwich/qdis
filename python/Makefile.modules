@@ -8,14 +8,14 @@ tcg-arm.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_arm) $(QEMUROOT)/tcg/tcg.c -c -o tcg-arm.o
 optimize-arm.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_arm) $(QEMUROOT)/tcg/optimize.c -c -o optimize-arm.o
-arm-dis-arm.o: $(QEMUROOT)/arm-dis.c
-	$(CC) $(TARGETCFLAGS_arm) $(QEMUROOT)/arm-dis.c -c -o arm-dis-arm.o
+arm-arm.o: $(QEMUROOT)/disas/arm.c
+	$(CC) $(TARGETCFLAGS_arm) $(QEMUROOT)/disas/arm.c -c -o arm-arm.o
 qemu-stubs-arm.o: qemu-stubs.c
 	$(CC) $(TARGETCFLAGS_arm) qemu-stubs.c -c -o qemu-stubs-arm.o
 target-arm-arm.o: target-arm.c
 	$(CC) $(TARGETCFLAGS_arm) target-arm.c -c -o target-arm-arm.o
-arm-unstripped.o: translate-arm.o tcg-arm.o optimize-arm.o arm-dis-arm.o qemu-stubs-arm.o target-arm-arm.o
-	$(LD) -r translate-arm.o tcg-arm.o optimize-arm.o arm-dis-arm.o qemu-stubs-arm.o target-arm-arm.o -o arm-unstripped.o
+arm-unstripped.o: translate-arm.o tcg-arm.o optimize-arm.o arm-arm.o qemu-stubs-arm.o target-arm-arm.o
+	$(LD) -r translate-arm.o tcg-arm.o optimize-arm.o arm-arm.o qemu-stubs-arm.o target-arm-arm.o -o arm-unstripped.o
 arm-module.o: arm-unstripped.o
 	$(OBJCOPY) -G arm_create $(RENAME_SYMBOLS_arm) arm-unstripped.o arm-module.o
 
@@ -28,14 +28,14 @@ tcg-x86_32.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_x86_32) $(QEMUROOT)/tcg/tcg.c -c -o tcg-x86_32.o
 optimize-x86_32.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_x86_32) $(QEMUROOT)/tcg/optimize.c -c -o optimize-x86_32.o
-i386-dis-x86_32.o: $(QEMUROOT)/i386-dis.c
-	$(CC) $(TARGETCFLAGS_x86_32) $(QEMUROOT)/i386-dis.c -c -o i386-dis-x86_32.o
+i386-x86_32.o: $(QEMUROOT)/disas/i386.c
+	$(CC) $(TARGETCFLAGS_x86_32) $(QEMUROOT)/disas/i386.c -c -o i386-x86_32.o
 qemu-stubs-x86_32.o: qemu-stubs.c
 	$(CC) $(TARGETCFLAGS_x86_32) qemu-stubs.c -c -o qemu-stubs-x86_32.o
 target-i386-x86_32.o: target-i386.c
 	$(CC) $(TARGETCFLAGS_x86_32) target-i386.c -c -o target-i386-x86_32.o
-x86_32-unstripped.o: translate-x86_32.o tcg-x86_32.o optimize-x86_32.o i386-dis-x86_32.o qemu-stubs-x86_32.o target-i386-x86_32.o
-	$(LD) -r translate-x86_32.o tcg-x86_32.o optimize-x86_32.o i386-dis-x86_32.o qemu-stubs-x86_32.o target-i386-x86_32.o -o x86_32-unstripped.o
+x86_32-unstripped.o: translate-x86_32.o tcg-x86_32.o optimize-x86_32.o i386-x86_32.o qemu-stubs-x86_32.o target-i386-x86_32.o
+	$(LD) -r translate-x86_32.o tcg-x86_32.o optimize-x86_32.o i386-x86_32.o qemu-stubs-x86_32.o target-i386-x86_32.o -o x86_32-unstripped.o
 x86_32-module.o: x86_32-unstripped.o
 	$(OBJCOPY) -G x86_32_create $(RENAME_SYMBOLS_x86_32) x86_32-unstripped.o x86_32-module.o
 
@@ -48,14 +48,14 @@ tcg-x86_64.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_x86_64) $(QEMUROOT)/tcg/tcg.c -c -o tcg-x86_64.o
 optimize-x86_64.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_x86_64) $(QEMUROOT)/tcg/optimize.c -c -o optimize-x86_64.o
-i386-dis-x86_64.o: $(QEMUROOT)/i386-dis.c
-	$(CC) $(TARGETCFLAGS_x86_64) $(QEMUROOT)/i386-dis.c -c -o i386-dis-x86_64.o
+i386-x86_64.o: $(QEMUROOT)/disas/i386.c
+	$(CC) $(TARGETCFLAGS_x86_64) $(QEMUROOT)/disas/i386.c -c -o i386-x86_64.o
 qemu-stubs-x86_64.o: qemu-stubs.c
 	$(CC) $(TARGETCFLAGS_x86_64) qemu-stubs.c -c -o qemu-stubs-x86_64.o
 target-i386-x86_64.o: target-i386.c
 	$(CC) $(TARGETCFLAGS_x86_64) target-i386.c -c -o target-i386-x86_64.o
-x86_64-unstripped.o: translate-x86_64.o tcg-x86_64.o optimize-x86_64.o i386-dis-x86_64.o qemu-stubs-x86_64.o target-i386-x86_64.o
-	$(LD) -r translate-x86_64.o tcg-x86_64.o optimize-x86_64.o i386-dis-x86_64.o qemu-stubs-x86_64.o target-i386-x86_64.o -o x86_64-unstripped.o
+x86_64-unstripped.o: translate-x86_64.o tcg-x86_64.o optimize-x86_64.o i386-x86_64.o qemu-stubs-x86_64.o target-i386-x86_64.o
+	$(LD) -r translate-x86_64.o tcg-x86_64.o optimize-x86_64.o i386-x86_64.o qemu-stubs-x86_64.o target-i386-x86_64.o -o x86_64-unstripped.o
 x86_64-module.o: x86_64-unstripped.o
 	$(OBJCOPY) -G x86_64_create $(RENAME_SYMBOLS_x86_64) x86_64-unstripped.o x86_64-module.o
 
@@ -68,14 +68,14 @@ tcg-mips_64.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_mips_64) $(QEMUROOT)/tcg/tcg.c -c -o tcg-mips_64.o
 optimize-mips_64.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_mips_64) $(QEMUROOT)/tcg/optimize.c -c -o optimize-mips_64.o
-mips-dis-mips_64.o: $(QEMUROOT)/mips-dis.c
-	$(CC) $(TARGETCFLAGS_mips_64) $(QEMUROOT)/mips-dis.c -c -o mips-dis-mips_64.o
+mips-mips_64.o: $(QEMUROOT)/disas/mips.c
+	$(CC) $(TARGETCFLAGS_mips_64) $(QEMUROOT)/disas/mips.c -c -o mips-mips_64.o
 qemu-stubs-mips_64.o: qemu-stubs.c
 	$(CC) $(TARGETCFLAGS_mips_64) qemu-stubs.c -c -o qemu-stubs-mips_64.o
 target-mips-mips_64.o: target-mips.c
 	$(CC) $(TARGETCFLAGS_mips_64) target-mips.c -c -o target-mips-mips_64.o
-mips_64-unstripped.o: translate-mips_64.o tcg-mips_64.o optimize-mips_64.o mips-dis-mips_64.o qemu-stubs-mips_64.o target-mips-mips_64.o
-	$(LD) -r translate-mips_64.o tcg-mips_64.o optimize-mips_64.o mips-dis-mips_64.o qemu-stubs-mips_64.o target-mips-mips_64.o -o mips_64-unstripped.o
+mips_64-unstripped.o: translate-mips_64.o tcg-mips_64.o optimize-mips_64.o mips-mips_64.o qemu-stubs-mips_64.o target-mips-mips_64.o
+	$(LD) -r translate-mips_64.o tcg-mips_64.o optimize-mips_64.o mips-mips_64.o qemu-stubs-mips_64.o target-mips-mips_64.o -o mips_64-unstripped.o
 mips_64-module.o: mips_64-unstripped.o
 	$(OBJCOPY) -G mips_64_create $(RENAME_SYMBOLS_mips_64) mips_64-unstripped.o mips_64-module.o
 
@@ -88,14 +88,14 @@ tcg-ppc_32.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_ppc_32) $(QEMUROOT)/tcg/tcg.c -c -o tcg-ppc_32.o
 optimize-ppc_32.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_ppc_32) $(QEMUROOT)/tcg/optimize.c -c -o optimize-ppc_32.o
-ppc-dis-ppc_32.o: $(QEMUROOT)/ppc-dis.c
-	$(CC) $(TARGETCFLAGS_ppc_32) $(QEMUROOT)/ppc-dis.c -c -o ppc-dis-ppc_32.o
+ppc-ppc_32.o: $(QEMUROOT)/disas/ppc.c
+	$(CC) $(TARGETCFLAGS_ppc_32) $(QEMUROOT)/disas/ppc.c -c -o ppc-ppc_32.o
 qemu-stubs-ppc_32.o: qemu-stubs.c
 	$(CC) $(TARGETCFLAGS_ppc_32) qemu-stubs.c -c -o qemu-stubs-ppc_32.o
 target-ppc-ppc_32.o: target-ppc.c
 	$(CC) $(TARGETCFLAGS_ppc_32) target-ppc.c -c -o target-ppc-ppc_32.o
-ppc_32-unstripped.o: translate-ppc_32.o tcg-ppc_32.o optimize-ppc_32.o ppc-dis-ppc_32.o qemu-stubs-ppc_32.o target-ppc-ppc_32.o
-	$(LD) -r translate-ppc_32.o tcg-ppc_32.o optimize-ppc_32.o ppc-dis-ppc_32.o qemu-stubs-ppc_32.o target-ppc-ppc_32.o -o ppc_32-unstripped.o
+ppc_32-unstripped.o: translate-ppc_32.o tcg-ppc_32.o optimize-ppc_32.o ppc-ppc_32.o qemu-stubs-ppc_32.o target-ppc-ppc_32.o
+	$(LD) -r translate-ppc_32.o tcg-ppc_32.o optimize-ppc_32.o ppc-ppc_32.o qemu-stubs-ppc_32.o target-ppc-ppc_32.o -o ppc_32-unstripped.o
 ppc_32-module.o: ppc_32-unstripped.o
 	$(OBJCOPY) -G ppc_32_create $(RENAME_SYMBOLS_ppc_32) ppc_32-unstripped.o ppc_32-module.o
 
@@ -108,14 +108,14 @@ tcg-ppc_64.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_ppc_64) $(QEMUROOT)/tcg/tcg.c -c -o tcg-ppc_64.o
 optimize-ppc_64.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_ppc_64) $(QEMUROOT)/tcg/optimize.c -c -o optimize-ppc_64.o
-ppc-dis-ppc_64.o: $(QEMUROOT)/ppc-dis.c
-	$(CC) $(TARGETCFLAGS_ppc_64) $(QEMUROOT)/ppc-dis.c -c -o ppc-dis-ppc_64.o
+ppc-ppc_64.o: $(QEMUROOT)/disas/ppc.c
+	$(CC) $(TARGETCFLAGS_ppc_64) $(QEMUROOT)/disas/ppc.c -c -o ppc-ppc_64.o
 qemu-stubs-ppc_64.o: qemu-stubs.c
 	$(CC) $(TARGETCFLAGS_ppc_64) qemu-stubs.c -c -o qemu-stubs-ppc_64.o
 target-ppc-ppc_64.o: target-ppc.c
 	$(CC) $(TARGETCFLAGS_ppc_64) target-ppc.c -c -o target-ppc-ppc_64.o
-ppc_64-unstripped.o: translate-ppc_64.o tcg-ppc_64.o optimize-ppc_64.o ppc-dis-ppc_64.o qemu-stubs-ppc_64.o target-ppc-ppc_64.o
-	$(LD) -r translate-ppc_64.o tcg-ppc_64.o optimize-ppc_64.o ppc-dis-ppc_64.o qemu-stubs-ppc_64.o target-ppc-ppc_64.o -o ppc_64-unstripped.o
+ppc_64-unstripped.o: translate-ppc_64.o tcg-ppc_64.o optimize-ppc_64.o ppc-ppc_64.o qemu-stubs-ppc_64.o target-ppc-ppc_64.o
+	$(LD) -r translate-ppc_64.o tcg-ppc_64.o optimize-ppc_64.o ppc-ppc_64.o qemu-stubs-ppc_64.o target-ppc-ppc_64.o -o ppc_64-unstripped.o
 ppc_64-module.o: ppc_64-unstripped.o
 	$(OBJCOPY) -G ppc_64_create $(RENAME_SYMBOLS_ppc_64) ppc_64-unstripped.o ppc_64-module.o
 
@@ -128,14 +128,14 @@ tcg-alpha.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_alpha) $(QEMUROOT)/tcg/tcg.c -c -o tcg-alpha.o
 optimize-alpha.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_alpha) $(QEMUROOT)/tcg/optimize.c -c -o optimize-alpha.o
-alpha-dis-alpha.o: $(QEMUROOT)/alpha-dis.c
-	$(CC) $(TARGETCFLAGS_alpha) $(QEMUROOT)/alpha-dis.c -c -o alpha-dis-alpha.o
+alpha-alpha.o: $(QEMUROOT)/disas/alpha.c
+	$(CC) $(TARGETCFLAGS_alpha) $(QEMUROOT)/disas/alpha.c -c -o alpha-alpha.o
 qemu-stubs-alpha.o: qemu-stubs.c
 	$(CC) $(TARGETCFLAGS_alpha) qemu-stubs.c -c -o qemu-stubs-alpha.o
 target-alpha-alpha.o: target-alpha.c
 	$(CC) $(TARGETCFLAGS_alpha) target-alpha.c -c -o target-alpha-alpha.o
-alpha-unstripped.o: translate-alpha.o tcg-alpha.o optimize-alpha.o alpha-dis-alpha.o qemu-stubs-alpha.o target-alpha-alpha.o
-	$(LD) -r translate-alpha.o tcg-alpha.o optimize-alpha.o alpha-dis-alpha.o qemu-stubs-alpha.o target-alpha-alpha.o -o alpha-unstripped.o
+alpha-unstripped.o: translate-alpha.o tcg-alpha.o optimize-alpha.o alpha-alpha.o qemu-stubs-alpha.o target-alpha-alpha.o
+	$(LD) -r translate-alpha.o tcg-alpha.o optimize-alpha.o alpha-alpha.o qemu-stubs-alpha.o target-alpha-alpha.o -o alpha-unstripped.o
 alpha-module.o: alpha-unstripped.o
 	$(OBJCOPY) -G alpha_create $(RENAME_SYMBOLS_alpha) alpha-unstripped.o alpha-module.o
 
@@ -148,14 +148,14 @@ tcg-m68k.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_m68k) $(QEMUROOT)/tcg/tcg.c -c -o tcg-m68k.o
 optimize-m68k.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_m68k) $(QEMUROOT)/tcg/optimize.c -c -o optimize-m68k.o
-m68k-dis-m68k.o: $(QEMUROOT)/m68k-dis.c
-	$(CC) $(TARGETCFLAGS_m68k) $(QEMUROOT)/m68k-dis.c -c -o m68k-dis-m68k.o
+m68k-m68k.o: $(QEMUROOT)/disas/m68k.c
+	$(CC) $(TARGETCFLAGS_m68k) $(QEMUROOT)/disas/m68k.c -c -o m68k-m68k.o
 qemu-stubs-m68k.o: qemu-stubs.c
 	$(CC) $(TARGETCFLAGS_m68k) qemu-stubs.c -c -o qemu-stubs-m68k.o
 target-m68k-m68k.o: target-m68k.c
 	$(CC) $(TARGETCFLAGS_m68k) target-m68k.c -c -o target-m68k-m68k.o
-m68k-unstripped.o: translate-m68k.o tcg-m68k.o optimize-m68k.o m68k-dis-m68k.o qemu-stubs-m68k.o target-m68k-m68k.o
-	$(LD) -r translate-m68k.o tcg-m68k.o optimize-m68k.o m68k-dis-m68k.o qemu-stubs-m68k.o target-m68k-m68k.o -o m68k-unstripped.o
+m68k-unstripped.o: translate-m68k.o tcg-m68k.o optimize-m68k.o m68k-m68k.o qemu-stubs-m68k.o target-m68k-m68k.o
+	$(LD) -r translate-m68k.o tcg-m68k.o optimize-m68k.o m68k-m68k.o qemu-stubs-m68k.o target-m68k-m68k.o -o m68k-unstripped.o
 m68k-module.o: m68k-unstripped.o
 	$(OBJCOPY) -G m68k_create $(RENAME_SYMBOLS_m68k) m68k-unstripped.o m68k-module.o
 
@@ -168,14 +168,14 @@ tcg-sparc_32.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_sparc_32) $(QEMUROOT)/tcg/tcg.c -c -o tcg-sparc_32.o
 optimize-sparc_32.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_sparc_32) $(QEMUROOT)/tcg/optimize.c -c -o optimize-sparc_32.o
-sparc-dis-sparc_32.o: $(QEMUROOT)/sparc-dis.c
-	$(CC) $(TARGETCFLAGS_sparc_32) $(QEMUROOT)/sparc-dis.c -c -o sparc-dis-sparc_32.o
+sparc-sparc_32.o: $(QEMUROOT)/disas/sparc.c
+	$(CC) $(TARGETCFLAGS_sparc_32) $(QEMUROOT)/disas/sparc.c -c -o sparc-sparc_32.o
 qemu-stubs-sparc_32.o: qemu-stubs.c
 	$(CC) $(TARGETCFLAGS_sparc_32) qemu-stubs.c -c -o qemu-stubs-sparc_32.o
 target-sparc-sparc_32.o: target-sparc.c
 	$(CC) $(TARGETCFLAGS_sparc_32) target-sparc.c -c -o target-sparc-sparc_32.o
-sparc_32-unstripped.o: translate-sparc_32.o tcg-sparc_32.o optimize-sparc_32.o sparc-dis-sparc_32.o qemu-stubs-sparc_32.o target-sparc-sparc_32.o
-	$(LD) -r translate-sparc_32.o tcg-sparc_32.o optimize-sparc_32.o sparc-dis-sparc_32.o qemu-stubs-sparc_32.o target-sparc-sparc_32.o -o sparc_32-unstripped.o
+sparc_32-unstripped.o: translate-sparc_32.o tcg-sparc_32.o optimize-sparc_32.o sparc-sparc_32.o qemu-stubs-sparc_32.o target-sparc-sparc_32.o
+	$(LD) -r translate-sparc_32.o tcg-sparc_32.o optimize-sparc_32.o sparc-sparc_32.o qemu-stubs-sparc_32.o target-sparc-sparc_32.o -o sparc_32-unstripped.o
 sparc_32-module.o: sparc_32-unstripped.o
 	$(OBJCOPY) -G sparc_32_create $(RENAME_SYMBOLS_sparc_32) sparc_32-unstripped.o sparc_32-module.o
 
@@ -188,14 +188,14 @@ tcg-sparc_64.o: $(QEMUROOT)/tcg/tcg.c
 	$(CC) $(TARGETCFLAGS_sparc_64) $(QEMUROOT)/tcg/tcg.c -c -o tcg-sparc_64.o
 optimize-sparc_64.o: $(QEMUROOT)/tcg/optimize.c
 	$(CC) $(TARGETCFLAGS_sparc_64) $(QEMUROOT)/tcg/optimize.c -c -o optimize-sparc_64.o
-sparc-dis-sparc_64.o: $(QEMUROOT)/sparc-dis.c
-	$(CC) $(TARGETCFLAGS_sparc_64) $(QEMUROOT)/sparc-dis.c -c -o sparc-dis-sparc_64.o
+sparc-sparc_64.o: $(QEMUROOT)/disas/sparc.c
+	$(CC) $(TARGETCFLAGS_sparc_64) $(QEMUROOT)/disas/sparc.c -c -o sparc-sparc_64.o
 qemu-stubs-sparc_64.o: qemu-stubs.c
 	$(CC) $(TARGETCFLAGS_sparc_64) qemu-stubs.c -c -o qemu-stubs-sparc_64.o
 target-sparc-sparc_64.o: target-sparc.c
 	$(CC) $(TARGETCFLAGS_sparc_64) target-sparc.c -c -o target-sparc-sparc_64.o
-sparc_64-unstripped.o: translate-sparc_64.o tcg-sparc_64.o optimize-sparc_64.o sparc-dis-sparc_64.o qemu-stubs-sparc_64.o target-sparc-sparc_64.o
-	$(LD) -r translate-sparc_64.o tcg-sparc_64.o optimize-sparc_64.o sparc-dis-sparc_64.o qemu-stubs-sparc_64.o target-sparc-sparc_64.o -o sparc_64-unstripped.o
+sparc_64-unstripped.o: translate-sparc_64.o tcg-sparc_64.o optimize-sparc_64.o sparc-sparc_64.o qemu-stubs-sparc_64.o target-sparc-sparc_64.o
+	$(LD) -r translate-sparc_64.o tcg-sparc_64.o optimize-sparc_64.o sparc-sparc_64.o qemu-stubs-sparc_64.o target-sparc-sparc_64.o -o sparc_64-unstripped.o
 sparc_64-module.o: sparc_64-unstripped.o
 	$(OBJCOPY) -G sparc_64_create $(RENAME_SYMBOLS_sparc_64) sparc_64-unstripped.o sparc_64-module.o
 

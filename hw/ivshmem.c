@@ -18,12 +18,13 @@
  */
 #include "hw.h"
 #include "pc.h"
-#include "pci.h"
-#include "msix.h"
-#include "kvm.h"
-#include "migration.h"
-#include "qerror.h"
-#include "event_notifier.h"
+#include "pci/pci.h"
+#include "pci/msix.h"
+#include "sysemu/kvm.h"
+#include "migration/migration.h"
+#include "qapi/qmp/qerror.h"
+#include "qemu/event_notifier.h"
+#include "char/char.h"
 
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -806,7 +807,7 @@ static void ivshmem_class_init(ObjectClass *klass, void *data)
     dc->props = ivshmem_properties;
 }
 
-static TypeInfo ivshmem_info = {
+static const TypeInfo ivshmem_info = {
     .name          = "ivshmem",
     .parent        = TYPE_PCI_DEVICE,
     .instance_size = sizeof(IVShmemState),

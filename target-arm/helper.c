@@ -1,9 +1,9 @@
 #include "cpu.h"
-#include "gdbstub.h"
+#include "exec/gdbstub.h"
 #include "helper.h"
-#include "host-utils.h"
-#include "sysemu.h"
-#include "bitops.h"
+#include "qemu/host-utils.h"
+#include "sysemu/sysemu.h"
+#include "qemu/bitops.h"
 
 #ifndef CONFIG_USER_ONLY
 static inline int get_phys_addr(CPUARMState *env, uint32_t address,
@@ -1293,11 +1293,6 @@ ARMCPU *cpu_arm_init(const char *cpu_model)
     return cpu;
 }
 
-typedef struct ARMCPUListState {
-    fprintf_function cpu_fprintf;
-    FILE *file;
-} ARMCPUListState;
-
 /* Sort alphabetically by type name, except for "any". */
 static gint arm_cpu_list_compare(gconstpointer a, gconstpointer b)
 {
@@ -1319,7 +1314,7 @@ static gint arm_cpu_list_compare(gconstpointer a, gconstpointer b)
 static void arm_cpu_list_entry(gpointer data, gpointer user_data)
 {
     ObjectClass *oc = data;
-    ARMCPUListState *s = user_data;
+    CPUListState *s = user_data;
 
     (*s->cpu_fprintf)(s->file, "  %s\n",
                       object_class_get_name(oc));
@@ -1327,7 +1322,7 @@ static void arm_cpu_list_entry(gpointer data, gpointer user_data)
 
 void arm_cpu_list(FILE *f, fprintf_function cpu_fprintf)
 {
-    ARMCPUListState s = {
+    CPUListState s = {
         .file = f,
         .cpu_fprintf = cpu_fprintf,
     };
@@ -1743,7 +1738,7 @@ static void do_interrupt_v7m(CPUARMState *env)
         armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_USAGE);
         return;
     case EXCP_SWI:
-        env->regs[15] += 2;
+        /* The PC already points to the next instruction.  */
         armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_SVC);
         return;
     case EXCP_PREFETCH_ABORT:

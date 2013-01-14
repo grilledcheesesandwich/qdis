@@ -176,6 +176,8 @@ strip_opt="yes"
 tcg_interpreter="no"
 bigendian="no"
 mingw32="no"
+gcov="no"
+gcov_tool="gcov"
 EXESUF=""
 prefix="/usr/local"
 mandir="\${prefix}/share/man"
@@ -223,6 +225,7 @@ libiscsi=""
 coroutine=""
 seccomp=""
 glusterfs=""
+virtio_blk_data_plane=""
 
 # parse CC options first
 for opt do
@@ -261,6 +264,8 @@ else
 fi
 
 ar="${AR-${cross_prefix}ar}"
+as="${AS-${cross_prefix}as}"
+cpp="${CPP-$cc -E}"
 objcopy="${OBJCOPY-${cross_prefix}objcopy}"
 ld="${LD-${cross_prefix}ld}"
 libtool="${LIBTOOL-${cross_prefix}libtool}"
@@ -278,7 +283,7 @@ QEMU_CFLAGS="-fno-strict-aliasing $QEMU_CFLAGS"
 QEMU_CFLAGS="-Wall -Wundef -Wwrite-strings -Wmissing-prototypes $QEMU_CFLAGS"
 QEMU_CFLAGS="-Wstrict-prototypes -Wredundant-decls $QEMU_CFLAGS"
 QEMU_CFLAGS="-D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $QEMU_CFLAGS"
-QEMU_INCLUDES="-I. -I\$(SRC_PATH) -I\$(SRC_PATH)/fpu"
+QEMU_INCLUDES="-I. -I\$(SRC_PATH) -I\$(SRC_PATH)/include"
 if test "$debug_info" = "yes"; then
     CFLAGS="-g $CFLAGS"
     LDFLAGS="-g $LDFLAGS"
@@ -599,6 +604,8 @@ for opt do
   ;;
   --python=*) python="$optarg"
   ;;
+  --gcov=*) gcov_tool="$optarg"
+  ;;
   --smbd=*) smbd="$optarg"
   ;;
   --extra-cflags=*)
@@ -618,6 +625,8 @@ for opt do
   --with-trace-file=*) trace_file="$optarg"
   ;;
   --enable-gprof) gprof="yes"
+  ;;
+  --enable-gcov) gcov="yes"
   ;;
   --static)
     static="yes"
@@ -655,6 +664,8 @@ for opt do
   --with-system-pixman) pixman="system"
   ;;
   --without-system-pixman) pixman="internal"
+  ;;
+  --without-pixman) pixman="none"
   ;;
   --disable-sdl) sdl="no"
   ;;
@@ -880,6 +891,10 @@ for opt do
   ;;
   --enable-glusterfs) glusterfs="yes"
   ;;
+  --disable-virtio-blk-data-plane) virtio_blk_data_plane="no"
+  ;;
+  --enable-virtio-blk-data-plane) virtio_blk_data_plane="yes"
+  ;;
   *) echo "ERROR: unknown option $opt"; show_help="yes"
   ;;
   esac
@@ -1089,7 +1104,6 @@ echo "  --fmod-inc               path to FMOD includes"
 echo "  --oss-lib                path to OSS library"
 echo "  --enable-uname-release=R Return R for uname -r in usermode emulation"
 echo "  --cpu=CPU                Build for host CPU [$cpu]"
-echo "  --sparc_cpu=V            Build qemu for Sparc architecture v7, v8, v8plus, v8plusa, v9"
 echo "  --disable-uuid           disable uuid support"
 echo "  --enable-uuid            enable uuid support"
 echo "  --disable-vde            disable support for vde network"
@@ -1128,6 +1142,8 @@ echo "  --with-coroutine=BACKEND coroutine backend. Supported options:"
 echo "                           gthread, ucontext, sigaltstack, windows"
 echo "  --enable-glusterfs       enable GlusterFS backend"
 echo "  --disable-glusterfs      disable GlusterFS backend"
+echo "  --enable-gcov            enable test coverage analysis with gcov"
+echo "  --gcov=GCOV              use specified gcov [$gcov_tool]"
 echo ""
 echo "NOTE: The object files are built at the place where configure is launched"
 exit 1
@@ -1357,6 +1373,14 @@ case "$cpu" in
   ;;
 esac
 
+fi
+
+##########################################
+# pkg-config probe
+
+if ! has "$pkg_config_exe"; then
+  echo "Error: pkg-config binary '$pkg_config_exe' not found"
+  exit 1
 fi
 
 ##########################################
@@ -1590,14 +1614,6 @@ if test "$xen_pci_passthrough" != "no"; then
 fi
 
 ##########################################
-# pkg-config probe
-
-if ! has "$pkg_config_exe"; then
-  echo "Error: pkg-config binary '$pkg_config_exe' not found"
-  exit 1
-fi
-
-##########################################
 # libtool probe
 
 if ! has $libtool; then
@@ -1712,6 +1728,7 @@ EOF
   if compile_prog "$vnc_tls_cflags" "$vnc_tls_libs" ; then
     vnc_tls=yes
     libs_softmmu="$vnc_tls_libs $libs_softmmu"
+    QEMU_CFLAGS="$QEMU_CFLAGS $vnc_tls_cflags"
   else
     if test "$vnc_tls" = "yes" ; then
       feature_not_found "vnc-tls"
@@ -1734,6 +1751,7 @@ EOF
   if compile_prog "$vnc_sasl_cflags" "$vnc_sasl_libs" ; then
     vnc_sasl=yes
     libs_softmmu="$vnc_sasl_libs $libs_softmmu"
+    QEMU_CFLAGS="$QEMU_CFLAGS $vnc_sasl_cflags"
   else
     if test "$vnc_sasl" = "yes" ; then
       feature_not_found "vnc-sasl"
@@ -1755,6 +1773,7 @@ EOF
   if compile_prog "$vnc_jpeg_cflags" "$vnc_jpeg_libs" ; then
     vnc_jpeg=yes
     libs_softmmu="$vnc_jpeg_libs $libs_softmmu"
+    QEMU_CFLAGS="$QEMU_CFLAGS $vnc_jpeg_cflags"
   else
     if test "$vnc_jpeg" = "yes" ; then
       feature_not_found "vnc-jpeg"
@@ -2127,19 +2146,31 @@ fi
 # pixman support probe
 
 if test "$pixman" = ""; then
-  if $pkg_config --atleast-version=0.18.4 pixman-1 > /dev/null 2>&1; then
+  if test "$want_tools" = "no" -a "$softmmu" = "no"; then
+    pixman="none"
+  elif $pkg_config pixman-1 > /dev/null 2>&1; then
     pixman="system"
   else
     pixman="internal"
   fi
 fi
-if test "$pixman" = "system"; then
+if test "$pixman" = "none"; then
+  if test "$want_tools" != "no" -o "$softmmu" != "no"; then
+    echo "ERROR: pixman disabled but system emulation or tools build"
+    echo "       enabled.  You can turn off pixman only if you also"
+    echo "       disable all system emulation targets and the tools"
+    echo "       build with '--disable-tools --disable-system'."
+    exit 1
+  fi
+  pixman_cflags=
+  pixman_libs=
+elif test "$pixman" = "system"; then
   pixman_cflags=`$pkg_config --cflags pixman-1 2>/dev/null`
   pixman_libs=`$pkg_config --libs pixman-1 2>/dev/null`
 else
   if test ! -d ${source_path}/pixman/pixman; then
-    echo "ERROR: pixman not present (or older than 0.18.4). Your options:"
-    echo "  (1) Prefered: Install the pixman devel package (any recent"
+    echo "ERROR: pixman not present. Your options:"
+    echo "  (1) Preferred: Install the pixman devel package (any recent"
     echo "      distro should have packages as Xorg needs pixman too)."
     echo "  (2) Fetch the pixman submodule, using:"
     echo "      git submodule update --init pixman"
@@ -2254,6 +2285,17 @@ EOF
     fi
     linux_aio=no
   fi
+fi
+
+##########################################
+# adjust virtio-blk-data-plane based on linux-aio
+
+if test "$virtio_blk_data_plane" = "yes" -a \
+	"$linux_aio" != "yes" ; then
+  echo "Error: virtio-blk-data-plane requires Linux AIO, please try --enable-linux-aio"
+  exit 1
+elif test -z "$virtio_blk_data_plane" ; then
+  virtio_blk_data_plane=$linux_aio
 fi
 
 ##########################################
@@ -2665,7 +2707,7 @@ if compile_prog "" "" ; then
   byteswap_h=yes
 fi
 
-# Search for bswap_32 function
+# Search for bswap32 function
 bswap_h=no
 cat > $TMPC << EOF
 #include <sys/endian.h>
@@ -2811,7 +2853,7 @@ fi
 
 # check for usbredirparser for usb network redirection support
 if test "$usb_redir" != "no" ; then
-    if $pkg_config --atleast-version=0.5.3 libusbredirparser-0.5 >/dev/null 2>&1 ; then
+    if $pkg_config --atleast-version=0.6 libusbredirparser-0.5 >/dev/null 2>&1 ; then
         usb_redir="yes"
         usb_redir_cflags=$($pkg_config --cflags libusbredirparser-0.5 2>/dev/null)
         usb_redir_libs=$($pkg_config --libs libusbredirparser-0.5 2>/dev/null)
@@ -2978,8 +3020,6 @@ EOF
     else
 	coroutine_backend=gthread
     fi
-  else
-    echo "Silently falling back into gthread backend under darwin"
   fi
 elif test "$coroutine" = "gthread" ; then
   coroutine_backend=gthread
@@ -3038,7 +3078,7 @@ int main(void) {
 }
 EOF
 if compile_prog "-Werror" "" ; then
-    pragma_disable_unused_but_set=yes
+    pragma_diagnostic_available=yes
 fi
 
 ########################################
@@ -3071,13 +3111,32 @@ if compile_prog "" "" ; then
     has_environ=yes
 fi
 
+########################################
+# check if cpuid.h is usable.
+
+cpuid_h=no
+cat > $TMPC << EOF
+#include <cpuid.h>
+int main(void) {
+  return 0;
+}
+EOF
+if compile_prog "" "" ; then
+    cpuid_h=yes
+fi
+
+
 ##########################################
 # End of CC checks
 # After here, no more $cc or $ld runs
 
-if test "$debug" = "no" ; then
+if test "$gcov" = "yes" ; then
+  CFLAGS="-fprofile-arcs -ftest-coverage -g $CFLAGS"
+  LDFLAGS="-fprofile-arcs -ftest-coverage $LDFLAGS"
+elif test "$debug" = "no" ; then
   CFLAGS="-O2 -D_FORTIFY_SOURCE=2 $CFLAGS"
 fi
+
 
 # Disable zero malloc errors for official releases unless explicitly told to
 # enable/disable
@@ -3259,6 +3318,9 @@ echo "build guest agent $guest_agent"
 echo "seccomp support   $seccomp"
 echo "coroutine backend $coroutine_backend"
 echo "GlusterFS support $glusterfs"
+echo "virtio-blk-data-plane $virtio_blk_data_plane"
+echo "gcov              $gcov_tool"
+echo "gcov enabled      $gcov"
 
 if test "$sdl_too_old" = "yes"; then
 echo "-> Your SDL version is too old - please upgrade to have SDL support"
@@ -3266,6 +3328,8 @@ fi
 
 config_host_mak="config-host.mak"
 config_host_ld="config-host.ld"
+
+echo "# Automatically generated by configure - do not modify" >config-all-disas.mak
 
 echo "# Automatically generated by configure - do not modify" > $config_host_mak
 printf "# Configured with:" >> $config_host_mak
@@ -3345,7 +3409,6 @@ fi
 if test "$slirp" = "yes" ; then
   echo "CONFIG_SLIRP=y" >> $config_host_mak
   echo "CONFIG_SMBD_COMMAND=\"$smbd\"" >> $config_host_mak
-  QEMU_INCLUDES="-I\$(SRC_PATH)/slirp $QEMU_INCLUDES"
 fi
 if test "$vde" = "yes" ; then
   echo "CONFIG_VDE=y" >> $config_host_mak
@@ -3380,19 +3443,15 @@ if test "$vnc" = "yes" ; then
 fi
 if test "$vnc_tls" = "yes" ; then
   echo "CONFIG_VNC_TLS=y" >> $config_host_mak
-  echo "VNC_TLS_CFLAGS=$vnc_tls_cflags" >> $config_host_mak
 fi
 if test "$vnc_sasl" = "yes" ; then
   echo "CONFIG_VNC_SASL=y" >> $config_host_mak
-  echo "VNC_SASL_CFLAGS=$vnc_sasl_cflags" >> $config_host_mak
 fi
 if test "$vnc_jpeg" = "yes" ; then
   echo "CONFIG_VNC_JPEG=y" >> $config_host_mak
-  echo "VNC_JPEG_CFLAGS=$vnc_jpeg_cflags" >> $config_host_mak
 fi
 if test "$vnc_png" = "yes" ; then
   echo "CONFIG_VNC_PNG=y" >> $config_host_mak
-  echo "VNC_PNG_CFLAGS=$vnc_png_cflags" >> $config_host_mak
 fi
 if test "$fnmatch" = "yes" ; then
   echo "CONFIG_FNMATCH=y" >> $config_host_mak
@@ -3589,8 +3648,8 @@ if test "$linux_magic_h" = "yes" ; then
   echo "CONFIG_LINUX_MAGIC_H=y" >> $config_host_mak
 fi
 
-if test "$pragma_disable_unused_but_set" = "yes" ; then
-  echo "CONFIG_PRAGMA_DISABLE_UNUSED_BUT_SET=y" >> $config_host_mak
+if test "$pragma_diagnostic_available" = "yes" ; then
+  echo "CONFIG_PRAGMA_DIAGNOSTIC_AVAILABLE=y" >> $config_host_mak
 fi
 
 if test "$valgrind_h" = "yes" ; then
@@ -3601,8 +3660,16 @@ if test "$has_environ" = "yes" ; then
   echo "CONFIG_HAS_ENVIRON=y" >> $config_host_mak
 fi
 
+if test "$cpuid_h" = "yes" ; then
+  echo "CONFIG_CPUID_H=y" >> $config_host_mak
+fi
+
 if test "$glusterfs" = "yes" ; then
   echo "CONFIG_GLUSTERFS=y" >> $config_host_mak
+fi
+
+if test "$virtio_blk_data_plane" = "yes" ; then
+  echo "CONFIG_VIRTIO_BLK_DATA_PLANE=y" >> $config_host_mak
 fi
 
 # USB host support
@@ -3661,6 +3728,8 @@ echo "CC_I386=$cc_i386" >> $config_host_mak
 echo "HOST_CC=$host_cc" >> $config_host_mak
 echo "OBJCC=$objcc" >> $config_host_mak
 echo "AR=$ar" >> $config_host_mak
+echo "AS=$as" >> $config_host_mak
+echo "CPP=$cpp" >> $config_host_mak
 echo "OBJCOPY=$objcopy" >> $config_host_mak
 echo "LD=$ld" >> $config_host_mak
 echo "WINDRES=$windres" >> $config_host_mak
@@ -3687,6 +3756,10 @@ echo "EXESUF=$EXESUF" >> $config_host_mak
 echo "LIBS_QGA+=$libs_qga" >> $config_host_mak
 echo "POD2MAN=$POD2MAN" >> $config_host_mak
 echo "TRANSLATE_OPT_CFLAGS=$TRANSLATE_OPT_CFLAGS" >> $config_host_mak
+if test "$gcov" = "yes" ; then
+  echo "CONFIG_GCOV=y" >> $config_host_mak
+  echo "GCOV=$gcov_tool" >> $config_host_mak
+fi
 
 # generate list of library paths for linker script
 
@@ -3699,11 +3772,6 @@ if test -f ${config_host_ld}~ ; then
     rm ${config_host_ld}~
   fi
 fi
-
-for d in libdis libdis-user; do
-    symlink "$source_path/Makefile.dis" "$d/Makefile"
-    echo > $d/config.mak
-done
 
 # use included Linux headers
 if test "$linux" = "yes" ; then
@@ -4046,83 +4114,77 @@ if test "$linux" = "yes" ; then
   includes="-I\$(SRC_PATH)/linux-headers $includes"
 fi
 
-if test "$target_user_only" = "yes" ; then
-    libdis_config_mak=libdis-user/config.mak
-else
-    libdis_config_mak=libdis/config.mak
-fi
-
 for i in $ARCH $TARGET_BASE_ARCH ; do
   case "$i" in
   alpha)
     echo "CONFIG_ALPHA_DIS=y"  >> $config_target_mak
-    echo "CONFIG_ALPHA_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_ALPHA_DIS=y"  >> config-all-disas.mak
   ;;
   arm)
     echo "CONFIG_ARM_DIS=y"  >> $config_target_mak
-    echo "CONFIG_ARM_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_ARM_DIS=y"  >> config-all-disas.mak
   ;;
   cris)
     echo "CONFIG_CRIS_DIS=y"  >> $config_target_mak
-    echo "CONFIG_CRIS_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_CRIS_DIS=y"  >> config-all-disas.mak
   ;;
   hppa)
     echo "CONFIG_HPPA_DIS=y"  >> $config_target_mak
-    echo "CONFIG_HPPA_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_HPPA_DIS=y"  >> config-all-disas.mak
   ;;
   i386|x86_64)
     echo "CONFIG_I386_DIS=y"  >> $config_target_mak
-    echo "CONFIG_I386_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_I386_DIS=y"  >> config-all-disas.mak
   ;;
   ia64*)
     echo "CONFIG_IA64_DIS=y"  >> $config_target_mak
-    echo "CONFIG_IA64_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_IA64_DIS=y"  >> config-all-disas.mak
   ;;
   lm32)
     echo "CONFIG_LM32_DIS=y"  >> $config_target_mak
-    echo "CONFIG_LM32_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_LM32_DIS=y"  >> config-all-disas.mak
   ;;
   m68k)
     echo "CONFIG_M68K_DIS=y"  >> $config_target_mak
-    echo "CONFIG_M68K_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_M68K_DIS=y"  >> config-all-disas.mak
   ;;
   microblaze*)
     echo "CONFIG_MICROBLAZE_DIS=y"  >> $config_target_mak
-    echo "CONFIG_MICROBLAZE_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_MICROBLAZE_DIS=y"  >> config-all-disas.mak
   ;;
   mips*)
     echo "CONFIG_MIPS_DIS=y"  >> $config_target_mak
-    echo "CONFIG_MIPS_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_MIPS_DIS=y"  >> config-all-disas.mak
   ;;
   or32)
     echo "CONFIG_OPENRISC_DIS=y"  >> $config_target_mak
-    echo "CONFIG_OPENRISC_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_OPENRISC_DIS=y"  >> config-all-disas.mak
   ;;
   ppc*)
     echo "CONFIG_PPC_DIS=y"  >> $config_target_mak
-    echo "CONFIG_PPC_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_PPC_DIS=y"  >> config-all-disas.mak
   ;;
   s390*)
     echo "CONFIG_S390_DIS=y"  >> $config_target_mak
-    echo "CONFIG_S390_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_S390_DIS=y"  >> config-all-disas.mak
   ;;
   sh4)
     echo "CONFIG_SH4_DIS=y"  >> $config_target_mak
-    echo "CONFIG_SH4_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_SH4_DIS=y"  >> config-all-disas.mak
   ;;
   sparc*)
     echo "CONFIG_SPARC_DIS=y"  >> $config_target_mak
-    echo "CONFIG_SPARC_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_SPARC_DIS=y"  >> config-all-disas.mak
   ;;
   xtensa*)
     echo "CONFIG_XTENSA_DIS=y"  >> $config_target_mak
-    echo "CONFIG_XTENSA_DIS=y"  >> $libdis_config_mak
+    echo "CONFIG_XTENSA_DIS=y"  >> config-all-disas.mak
   ;;
   esac
 done
 if test "$tcg_interpreter" = "yes" ; then
   echo "CONFIG_TCI_DIS=y"  >> $config_target_mak
-  echo "CONFIG_TCI_DIS=y"  >> $libdis_config_mak
+  echo "CONFIG_TCI_DIS=y"  >> config-all-disas.mak
 fi
 
 case "$ARCH" in
@@ -4161,7 +4223,7 @@ fi
 if test "$ARCH" = "tci"; then
   linker_script=""
 else
-  linker_script="-Wl,-T../config-host.ld -Wl,-T,\$(SRC_PATH)/\$(ARCH).ld"
+  linker_script="-Wl,-T../config-host.ld -Wl,-T,\$(SRC_PATH)/ldscripts/\$(ARCH).ld"
 fi
 
 if test "$target_linux_user" = "yes" -o "$target_bsd_user" = "yes" ; then
@@ -4199,6 +4261,7 @@ FILES="$FILES pc-bios/spapr-rtas/Makefile"
 FILES="$FILES roms/seabios/Makefile roms/vgabios/Makefile"
 for bios_file in \
     $source_path/pc-bios/*.bin \
+    $source_path/pc-bios/*.aml \
     $source_path/pc-bios/*.rom \
     $source_path/pc-bios/*.dtb \
     $source_path/pc-bios/openbios-* \
@@ -4218,16 +4281,14 @@ for rom in seabios vgabios ; do
     config_mak=roms/$rom/config.mak
     echo "# Automatically generated by configure - do not modify" > $config_mak
     echo "SRC_PATH=$source_path/roms/$rom" >> $config_mak
+    echo "AS=$as" >> $config_mak
     echo "CC=$cc" >> $config_mak
     echo "BCC=bcc" >> $config_mak
-    echo "CPP=${cross_prefix}cpp" >> $config_mak
+    echo "CPP=$cpp" >> $config_mak
     echo "OBJCOPY=objcopy" >> $config_mak
     echo "IASL=iasl" >> $config_mak
     echo "LD=$ld" >> $config_mak
 done
-
-d=libuser
-symlink "$source_path/Makefile.user" "$d/Makefile"
 
 if test "$docs" = "yes" ; then
   mkdir -p QMP

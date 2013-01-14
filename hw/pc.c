@@ -27,8 +27,8 @@
 #include "apic.h"
 #include "fdc.h"
 #include "ide.h"
-#include "pci.h"
-#include "monitor.h"
+#include "pci/pci.h"
+#include "monitor/monitor.h"
 #include "fw_cfg.h"
 #include "hpet_emul.h"
 #include "smbios.h"
@@ -38,19 +38,19 @@
 #include "mc146818rtc.h"
 #include "i8254.h"
 #include "pcspk.h"
-#include "msi.h"
+#include "pci/msi.h"
 #include "sysbus.h"
-#include "sysemu.h"
-#include "kvm.h"
+#include "sysemu/sysemu.h"
+#include "sysemu/kvm.h"
 #include "kvm_i386.h"
 #include "xen.h"
-#include "blockdev.h"
+#include "sysemu/blockdev.h"
 #include "hw/block-common.h"
 #include "ui/qemu-spice.h"
-#include "memory.h"
-#include "exec-memory.h"
-#include "arch_init.h"
-#include "bitmap.h"
+#include "exec/memory.h"
+#include "exec/address-spaces.h"
+#include "sysemu/arch_init.h"
+#include "qemu/bitmap.h"
 
 /* debug PC/ISA interrupts */
 //#define DEBUG_IRQ
@@ -103,6 +103,11 @@ static void ioport80_write(void *opaque, hwaddr addr, uint64_t data,
 {
 }
 
+static uint64_t ioport80_read(void *opaque, hwaddr addr, unsigned size)
+{
+    return 0xffffffffffffffffULL;
+}
+
 /* MSDOS compatibility mode FPU exception support */
 static qemu_irq ferr_irq;
 
@@ -121,6 +126,11 @@ static void ioportF0_write(void *opaque, hwaddr addr, uint64_t data,
                            unsigned size)
 {
     qemu_irq_lower(ferr_irq);
+}
+
+static uint64_t ioportF0_read(void *opaque, hwaddr addr, unsigned size)
+{
+    return 0xffffffffffffffffULL;
 }
 
 /* TSC handling */
@@ -501,7 +511,7 @@ static void port92_class_initfn(ObjectClass *klass, void *data)
     dc->vmsd = &vmstate_port92_isa;
 }
 
-static TypeInfo port92_info = {
+static const TypeInfo port92_info = {
     .name          = "port92",
     .parent        = TYPE_ISA_DEVICE,
     .instance_size = sizeof(Port92State),
@@ -524,34 +534,6 @@ static void handle_a20_line_change(void *opaque, int irq, int level)
     cpu_x86_set_a20(cpu, level);
 }
 
-/***********************************************************/
-/* Bochs BIOS debug ports */
-
-static void bochs_bios_write(void *opaque, uint32_t addr, uint32_t val)
-{
-    static const char shutdown_str[8] = "Shutdown";
-    static int shutdown_index = 0;
-
-    switch(addr) {
-    case 0x8900:
-        /* same as Bochs power off */
-        if (val == shutdown_str[shutdown_index]) {
-            shutdown_index++;
-            if (shutdown_index == 8) {
-                shutdown_index = 0;
-                qemu_system_shutdown_request();
-            }
-        } else {
-            shutdown_index = 0;
-        }
-        break;
-
-    case 0x501:
-    case 0x502:
-        exit((val << 1) | 1);
-    }
-}
-
 int e820_add_entry(uint64_t address, uint64_t length, uint32_t type)
 {
     int index = le32_to_cpu(e820_table.count);
@@ -569,14 +551,6 @@ int e820_add_entry(uint64_t address, uint64_t length, uint32_t type)
     return index;
 }
 
-static const MemoryRegionPortio bochs_bios_portio_list[] = {
-    { 0x500, 1, 1, .write = bochs_bios_write, }, /* 0x500 */
-    { 0x501, 1, 1, .write = bochs_bios_write, }, /* 0x501 */
-    { 0x501, 2, 2, .write = bochs_bios_write, }, /* 0x501 */
-    { 0x8900, 1, 1, .write = bochs_bios_write, }, /* 0x8900 */
-    PORTIO_END_OF_LIST(),
-};
-
 static void *bochs_bios_init(void)
 {
     void *fw_cfg;
@@ -584,11 +558,6 @@ static void *bochs_bios_init(void)
     size_t smbios_len;
     uint64_t *numa_fw_cfg;
     int i, j;
-    PortioList *bochs_bios_port_list = g_new(PortioList, 1);
-
-    portio_list_init(bochs_bios_port_list, bochs_bios_portio_list,
-                     NULL, "bochs-bios");
-    portio_list_add(bochs_bios_port_list, get_system_io(), 0x0);
 
     fw_cfg = fw_cfg_init(BIOS_CFG_IOPORT, BIOS_CFG_IOPORT + 1, 0, 0);
 
@@ -886,6 +855,29 @@ void pc_cpus_init(const char *cpu_model)
     }
 }
 
+void pc_acpi_init(const char *default_dsdt)
+{
+    char *filename = NULL, *arg = NULL;
+
+    if (acpi_tables != NULL) {
+        /* manually set via -acpitable, leave it alone */
+        return;
+    }
+
+    filename = qemu_find_file(QEMU_FILE_TYPE_BIOS, default_dsdt);
+    if (filename == NULL) {
+        fprintf(stderr, "WARNING: failed to find %s\n", default_dsdt);
+        return;
+    }
+
+    arg = g_strdup_printf("file=%s", filename);
+    if (acpi_table_add(arg) != 0) {
+        fprintf(stderr, "WARNING: failed to load %s\n", filename);
+    }
+    g_free(arg);
+    g_free(filename);
+}
+
 void *pc_memory_init(MemoryRegion *system_memory,
                     const char *kernel_filename,
                     const char *kernel_cmdline,
@@ -978,6 +970,7 @@ static void cpu_request_exit(void *opaque, int irq, int level)
 
 static const MemoryRegionOps ioport80_io_ops = {
     .write = ioport80_write,
+    .read = ioport80_read,
     .endianness = DEVICE_NATIVE_ENDIAN,
     .impl = {
         .min_access_size = 1,
@@ -987,6 +980,7 @@ static const MemoryRegionOps ioport80_io_ops = {
 
 static const MemoryRegionOps ioportF0_io_ops = {
     .write = ioportF0_write,
+    .read = ioportF0_read,
     .endianness = DEVICE_NATIVE_ENDIAN,
     .impl = {
         .min_access_size = 1,

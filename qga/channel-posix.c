@@ -1,6 +1,12 @@
 #include <glib.h>
 #include <termios.h>
-#include "qemu_socket.h"
+#include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include "qemu/osdep.h"
+#include "qemu/sockets.h"
 #include "qga/channel.h"
 
 #ifdef CONFIG_SOLARIS

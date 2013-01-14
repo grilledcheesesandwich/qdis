@@ -27,13 +27,12 @@
 
 #include "hw.h"
 #include "pc.h"
-#include "pci.h"
+#include "pci/pci.h"
 #include "irq.h"
 #include "xen_common.h"
-#include "net.h"
 #include "xen_backend.h"
 #include "trace.h"
-#include "exec-memory.h"
+#include "exec/address-spaces.h"
 
 #include <xenguest.h>
 
@@ -421,7 +420,7 @@ static void xen_platform_class_init(ObjectClass *klass, void *data)
     dc->vmsd = &vmstate_xen_platform;
 }
 
-static TypeInfo xen_platform_info = {
+static const TypeInfo xen_platform_info = {
     .name          = "xen-platform",
     .parent        = TYPE_PCI_DEVICE,
     .instance_size = sizeof(PCIXenPlatformState),

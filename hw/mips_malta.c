@@ -26,27 +26,27 @@
 #include "pc.h"
 #include "serial.h"
 #include "fdc.h"
-#include "net.h"
+#include "net/net.h"
 #include "boards.h"
 #include "smbus.h"
-#include "block.h"
+#include "block/block.h"
 #include "flash.h"
 #include "mips.h"
 #include "mips_cpudevs.h"
-#include "pci.h"
-#include "qemu-char.h"
-#include "sysemu.h"
-#include "arch_init.h"
+#include "pci/pci.h"
+#include "char/char.h"
+#include "sysemu/sysemu.h"
+#include "sysemu/arch_init.h"
 #include "boards.h"
-#include "qemu-log.h"
+#include "qemu/log.h"
 #include "mips-bios.h"
 #include "ide.h"
 #include "loader.h"
 #include "elf.h"
 #include "mc146818rtc.h"
 #include "i8254.h"
-#include "blockdev.h"
-#include "exec-memory.h"
+#include "sysemu/blockdev.h"
+#include "exec/address-spaces.h"
 #include "sysbus.h"             /* SysBusDevice */
 
 //#define DEBUG_BOARD_INIT
@@ -1004,7 +1004,7 @@ static void mips_malta_class_init(ObjectClass *klass, void *data)
     k->init = mips_malta_sysbus_device_init;
 }
 
-static TypeInfo mips_malta_device = {
+static const TypeInfo mips_malta_device = {
     .name          = "mips-malta",
     .parent        = TYPE_SYS_BUS_DEVICE,
     .instance_size = sizeof(MaltaState),

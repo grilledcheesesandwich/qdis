@@ -275,6 +275,9 @@ typedef int TCGv_i64;
 #define TCGV_UNUSED_I32(x) x = MAKE_TCGV_I32(-1)
 #define TCGV_UNUSED_I64(x) x = MAKE_TCGV_I64(-1)
 
+#define TCGV_IS_UNUSED_I32(x) (GET_TCGV_I32(x) == -1)
+#define TCGV_IS_UNUSED_I64(x) (GET_TCGV_I64(x) == -1)
+
 /* call flags */
 /* Helper does not read globals (either directly or through an exception). It
    implies TCG_CALL_NO_WRITE_GLOBALS. */
@@ -295,8 +298,8 @@ typedef int TCGv_i64;
 #define TCG_CALL_DUMMY_TCGV     MAKE_TCGV_I32(-1)
 #define TCG_CALL_DUMMY_ARG      ((TCGArg)(-1))
 
-/* Conditions.  Note that these are layed out for easy manipulation by
-   the the functions below:
+/* Conditions.  Note that these are laid out for easy manipulation by
+   the functions below:
      bit 0 is used for inverting;
      bit 1 is signed,
      bit 2 is unsigned,
