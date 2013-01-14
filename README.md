@@ -16,6 +16,9 @@ Disassembling to a generic IR facilitates automatic analysis of cross-platform c
 This makes it possible to write tools that do, for example, abstract or symbolic execution once and apply 
 it to programs of every architecture.
 
+Apart from disassembling to IR, `qdis` can also disassemble to platform-native syntax, this is mainly for debugging and 
+visualization purposes.
+
 Supported architectures
 ------------------------
 
@@ -43,12 +46,25 @@ qemu has translators for them:
 - xtensa
 
 Building
-==========
+----------
 
     cd qdis
     python gen_modules.py (optional, only needed when modified)
     bash gen_python_binding.sh (optional, only needed when qdis.h modified)
     make
+
+This will build a library called `libqdis.so` with disassemblers for the above architectures
+included.
+
+Examples
+---------
+A few examples (using the Python API) can be found in `qdis/examples`:
+
+- concrete_eval_test.py: 
+    Test concrete evaluation (emulation)
+
+- naive_explore_test.py: 
+    Follow all static calls and jumps in a program
 
 Intermediate Representation (IR)
 =================================

@@ -2,9 +2,12 @@
 # Try code translator from python
 # Interleave machine instructions (from LLVM) and microcode (from QDIS)
 from __future__ import print_function, unicode_literals, division, absolute_import
+import sys, os
+sys.path.append(os.path.abspath('..'))
 from ctypes import c_ubyte, create_string_buffer, cast, POINTER, byref
 import qdis
 from qdis.format import format_inst
+import sys
 
 if __name__ == '__main__':
     STYLE_ADDR = '\033[38;5;226m'
@@ -13,8 +16,8 @@ if __name__ == '__main__':
 
     d = qdis.Disassembler(qdis.TGT_ARM, None)
 
-    f = open('test.so', 'rb')
-    base = 0x12f80
+    f = open(sys.argv[1], 'rb')
+    base = 0x0
     #base = 0x142e8
     f.seek(base)
     instructions = f.read(4096)
